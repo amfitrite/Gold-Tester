@@ -58,3 +58,5 @@
 [2026-11-05 01:26:55] Strategy: vwap_bounce          | TF: M5  | Growth: +59.09% | WR: 79.4% | DD: -1.99% | Trades: 34  | PnL: $5909.30
 [2026-11-05 01:27:21] Strategy: vwap_bounce          | TF: M5  | Growth: +187.32% | WR: 71.3% | DD: -3.03% | Trades: 94  | PnL: $18731.73
 [2026-11-05 01:27:32] Strategy: vwap_bounce          | TF: M5  | Growth: +59.09% | WR: 79.4% | DD: -1.99% | Trades: 34  | PnL: $5909.30
+[2026-11-05 01:48:36] STRATEGY: vwap_bounce | TF: M5 | WR: 84.21% | MAX_DD: 1.99% | PF: 9.95 | GROWTH: +136.33% | TRADES: 57 | STATUS: GOAL_CRITERIA_MET (WR>70%, DD<5%)
+[2026-11-05 01:48:36] STRATEGY: vwap_bounce | TF: M1 | WR: 76.43% | MAX_DD: 2.97% | PF: 6.21 | GROWTH: +497.28% | TRADES: 140 | STATUS: GOAL_CRITERIA_MET (WR>70%, DD<5%)
