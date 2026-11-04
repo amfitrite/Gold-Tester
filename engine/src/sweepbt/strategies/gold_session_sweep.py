@@ -137,6 +137,7 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         if not trade_indices:
             continue
 
+        active_end_index = max(trade_indices)
         day_trade: Optional[Setup] = None
         for local_i in trade_indices:
             sweep = day[local_i]
@@ -153,7 +154,8 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             # the swept edge before displacement, the setup is invalidated.
             displacement_index = None
             for candidate_i in range(local_i + 1,
-                                     min(len(day), local_i + MAX_DISPLACEMENT_BARS + 1)):
+                                     min(active_end_index + 1,
+                                         local_i + MAX_DISPLACEMENT_BARS + 1)):
                 candidate = day[candidate_i]
                 reclaimed = (
                     candidate.close > asia_high if direction == "short"
@@ -179,7 +181,7 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             entry_index = first_touch(
                 day,
                 displacement_index + 1,
-                min(len(day) - 1,
+                min(active_end_index,
                     displacement_index + params.pullback_window),
                 entry,
                 direction,
@@ -195,41 +197,28 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
                 sl = sweep.high + params.sl_buffer
                 tp = entry - (sl - entry) * params.rr
 
+            # Re-index day-local positions into the original candle series.
+            # Candle.index is the stable global index supplied by the parser.
+            global_entry = day[entry_index].index
+            global_trigger = day[local_i].index
+            global_zone = Zone(
+                "FVG", top=zone.top, bottom=zone.bottom,
+                start_index=day[zone.start_index].index,
+                end_index=day[zone.end_index].index,
+            )
             setup = simulate_setup(
-                day, direction, entry_index, entry, sl, tp, params,
+                candles, direction, global_entry, entry, sl, tp, params,
                 strategy="gold_session_sweep",
-                trigger_index=local_i,
+                trigger_index=global_trigger,
                 trigger_level=trigger_level,
-                zone=zone,
+                zone=global_zone,
                 note=f"Asia {'high' if swept_high else 'low'} sweep -> "
                      f"displacement -> FVG retest ({direction})",
-                resolve_from=entry_index,
+                resolve_from=global_entry,
             )
             if setup is not None:
-                # Re-index day-local indices into the original candle series.
-                # group_by_day returns Candle objects retaining global indices;
-                # simulation already used this day's slice, so rebuild the
-                # walk-forward against the full series to preserve exit context.
-                global_entry = day[entry_index].index
-                global_trigger = day[local_i].index
-                global_zone = Zone(
-                    "FVG", top=zone.top, bottom=zone.bottom,
-                    start_index=day[zone.start_index].index,
-                    end_index=day[zone.end_index].index,
-                )
-                setup = simulate_setup(
-                    candles, direction, global_entry, entry, sl, tp, params,
-                    strategy="gold_session_sweep",
-                    trigger_index=global_trigger,
-                    trigger_level=trigger_level,
-                    zone=global_zone,
-                    note=f"Asia {'high' if swept_high else 'low'} sweep -> "
-                         f"displacement -> FVG retest ({direction})",
-                    resolve_from=global_entry,
-                )
-                if setup is not None:
-                    day_trade = setup
-                    break
+                day_trade = setup
+                break
 
         if day_trade is not None:
             setups.append(day_trade)
