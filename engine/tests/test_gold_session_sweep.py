@@ -24,8 +24,8 @@ def _sample_short_day():
         (100.1, 100.7, 99.8, 100.1),   # sweep high
         (100.15, 100.3, 100.0, 100.2), # no displacement yet
         (99.65, 99.7, 99.0, 99.05),    # bearish displacement + FVG
-        (99.65, 99.75, 99.5, 99.6),    # later rejection retest
-        (99.6, 99.65, 97.4, 97.6),     # hits 2R target
+        (99.5, 99.7, 99.1, 99.2),      # later rejection retest at 50% displacement
+        (96.2, 96.4, 96.0, 96.1),      # hits 2R target
     ]
     for offset, row in enumerate(rows, start=84):
         candles.append(_candle(
