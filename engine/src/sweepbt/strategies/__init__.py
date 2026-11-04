@@ -24,6 +24,7 @@ from .order_flow import run as _of
 from .bollinger_bands import run as _bb
 from .session_gap import run as _sg
 from .vwap_bounce import run as _vwap
+from .gold_session_sweep import run as _gold_session_sweep
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 
@@ -44,6 +45,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "bollinger_bands": _bb,
     "session_gap": _sg,
     "vwap_bounce": _vwap,
+    "gold_session_sweep": _gold_session_sweep,
 }
 
 LABELS = {
@@ -63,6 +65,7 @@ LABELS = {
     "bollinger_bands": "Bollinger Bands Mean Reversion",
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce",
+    "gold_session_sweep": "Gold Session Sweep + Displacement + FVG Retest",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -100,6 +103,8 @@ DESCRIPTIONS = {
         "session opens — expect reversion when a new session gaps away from the previous close.",
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "
         "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
+    "gold_session_sweep": "Build the 00:00-07:00 UTC Asia range, wait for a London/NY sweep, "
+        "then require ATR displacement + a three-candle FVG and a later rejection retest.",
 }
 
 
