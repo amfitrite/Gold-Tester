@@ -24,7 +24,7 @@ from ._common import first_touch
 
 MIN_LOOKBACK = 12
 LOOKBACK_MULTIPLIER = 8
-MIN_REJECTION_WICK_FRACTION = 0.25
+MIN_REJECTION_WICK_FRACTION = 0.15
 
 
 def _optional_fvg(
@@ -68,13 +68,11 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         swept_high = (
             c.high > range_high
             and c.close < range_high
-            and c.bearish
             and upper_wick / candle_range >= MIN_REJECTION_WICK_FRACTION
         )
         swept_low = (
             c.low < range_low
             and c.close > range_low
-            and c.bullish
             and lower_wick / candle_range >= MIN_REJECTION_WICK_FRACTION
         )
 
@@ -92,7 +90,7 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             min(len(candles) - 1, i + params.pullback_window),
             entry,
             direction,
-            require_close=True,
+            require_close=False,
         )
         if entry_index is None:
             continue
