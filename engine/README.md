@@ -315,6 +315,44 @@ gold-sweep-backtester/
 └── tests/                  # hand-checked unit tests for every stage
 ```
 
+## New strategy — Gold Session Sweep + Displacement + FVG Retest
+
+Strategy id: `gold_session_sweep`.
+
+This XAUUSD-oriented setup builds the Asia range from **00:00–06:59 UTC**, then
+looks for one trade during **07:00–19:59 UTC**:
+
+1. Price wicks above the Asia high (short candidate) or below the Asia low (long
+   candidate), then closes back inside the range.
+2. Within the next three candles, price must produce a directional displacement
+   candle: range at least **1.2× prior 14-bar ATR**, body at least **60%** of its
+   range, and a close beyond the previous candle's opposite extreme.
+3. That displacement candle must also complete a three-candle FVG whose width is
+   at least `--min-fvg`.
+4. Entry is the proximal FVG edge on a later retest, with a close back out of the
+   gap in the trade direction. Stop is beyond the sweep wick plus `--sl-buffer`;
+   target is the configured `--rr`.
+
+The Asia range is complete before the trade window. ATR excludes the displacement
+bar, the FVG is only evaluated once its third candle has closed, and retests are
+searched strictly after that close. At most one trade is taken per UTC day.
+Timestamps are treated as UTC; this matches Dukascopy data. Convert broker/server
+timestamps to UTC before testing if they are not already UTC.
+
+Example:
+
+```bash
+PYTHONPATH=src python -m sweepbt.cli "data/XAUUSDM5.csv" --timeframe M5 \
+    --strategy gold_session_sweep --rr 1:2 --min-fvg 0.5 --sl-buffer 0.3
+```
+
+The strategy is a research candidate, not a proven profitable system. Its
+displacement/body thresholds are fixed in code for this first version; the
+shared RR, FVG size, stop buffer, pullback window, and trend filter remain
+available through the existing controls.
+
+---
+
 ## Importable engine
 
 ```python
