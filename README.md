@@ -21,7 +21,7 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
 * **1-Click Pipeline:** Tombol cepat *"⚡ Uji di Backtester Sekarang"* setelah download selesai.
 
 ### 2. 🧪 Sweep Backtester & Strategy Lab ($10.000 Account Simulator)
-* **16 Strategi Bawaan Terintegrasi:**
+* **17 Strategi Bawaan Terintegrasi:**
   * `ict_ifvg` (ICT Inversion Fair Value Gap Retest)
   * `liquidity_imbalance` (Liquidity Sweep + Fair Value Gap)
   * `ict_fvg` (ICT Fair Value Gap + Market Structure Shift)
@@ -29,6 +29,7 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
   * `smart_money` (SMC CHoCH & Liquidity Purge)
   * `orb` (Opening Range Breakout)
   * `prev_day_breakout` (PDH/PDL Breakout & Retest)
+  * `gold_session_sweep` (Asia Range Sweep + Displacement + FVG Retest)
   * `supply_demand`, `order_flow`, `vwap_bounce`, `session_gap`, `bollinger_bands`, dll.
 * **Simulasi Portofolio Akun $10.000:**
   * 📈 **Growth Scorecard:** Pertumbuhan saldo modal dalam nominal ($) dan persentase (%).
@@ -89,7 +90,7 @@ Gold-Tester/
 │   └── icon.png              # High-res app logo
 ├── engine/                   # Python Quantitative Backtesting Engine
 │   ├── src/sweepbt/          # Core Sweep Strategy Pipeline
-│   │   ├── strategies/       # Pluggable Strategy Registry (16 Strategies)
+│   │   ├── strategies/       # Pluggable Strategy Registry (17 Strategies)
 │   │   ├── engine.py         # Simulation Engine
 │   │   ├── parser.py         # CSV Candle Parser
 │   │   └── chart.py          # HTML Candlestick Visualizer
