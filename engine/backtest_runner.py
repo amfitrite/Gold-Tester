@@ -27,6 +27,12 @@ from sweepbt.params import Params
 from sweepbt.strategies import REGISTRY
 
 
+# Strategies whose target is part of the edge, not a user-tunable knob.
+# The UI/CLI may still send its global default (2.0R); force the tested value
+# so the JSON summary, .set file and MQL5 blueprint stay consistent.
+FIXED_RR = {"london_ny_vwap_pullback": 1.0}
+
+
 def format_dt(dt: Any) -> str:
     if isinstance(dt, datetime):
         return dt.strftime("%Y-%m-%d %H:%M:%S")
@@ -147,13 +153,31 @@ def simulate_portfolio(
 
 def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str:
     """Generate MT5 Expert Advisor .set parameter file."""
-    lines = [
+    header = [
         "; ===========================================================",
         f"; MT5 EA Configuration: {strategy.upper()} Strategy",
         f"; Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "; ===========================================================",
         f"InpStrategyName={strategy}",
         f"InpRiskPercent={risk_pct:.2f}",
+    ]
+    if strategy == "london_ny_vwap_pullback":
+        return "\n".join(header + [
+            "InpRewardRiskRatio=1.00",
+            "InpSessionStartHour=7",
+            "InpSessionEndHour=17",
+            "InpEmaPeriod=200",
+            "InpAtrPeriod=14",
+            "InpSlAtr=1.25",
+            "InpTpAtr=1.25",
+            "InpMaxHoldBars=24",
+            "InpHalfSpread=0.12",
+            "InpOnePositionAtATime=1",
+            "InpMagicNumber=888555",
+            "InpSlippagePips=3",
+        ])
+
+    return "\n".join(header + [
         f"InpRewardRiskRatio={params.rr:.2f}",
         f"InpSwingStrength={params.swing_strength}",
         f"InpMinFVGPoints={params.min_fvg_size:.2f}",
@@ -164,12 +188,66 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
         f"InpMaxRiskPoints={params.max_risk if params.max_risk else 0}",
         "InpMagicNumber=888555",
         "InpSlippagePips=3"
-    ]
-    return "\n".join(lines)
+    ])
 
 
 def generate_mql5_blueprint(strategy: str, params: Params) -> str:
     """Generate structured MQL5 code logic blueprint for MT5."""
+    if strategy == "london_ny_vwap_pullback":
+        return """//+------------------------------------------------------------------+
+//| MQL5 LOGIC BLUEPRINT: LONDON_NY_VWAP_PULLBACK
+//| Session VWAP reclaim + EMA-200 trend filter + ATR bracket
+//+------------------------------------------------------------------+
+
+// 1. INPUT PARAMETER
+input double InpRiskPercent      = 1.5;    // Risk % per trade (recommended 1.0-1.5)
+input int    InpSessionStartHour = 7;      // UTC, inclusive
+input int    InpSessionEndHour   = 17;     // UTC, inclusive
+input int    InpEmaPeriod        = 200;    // Trend bias EMA
+input int    InpAtrPeriod        = 14;     // Volatility bracket
+input double InpSlAtr            = 1.25;   // Stop distance = 1.25 x ATR
+input double InpTpAtr            = 1.25;   // Target distance = 1.25 x ATR (1:1)
+input int    InpMaxHoldBars      = 24;     // Time stop: 24 x M5 = 2 hours
+input double InpHalfSpread       = 0.12;   // Modelled cost per side on XAUUSD
+input int    InpMagicNumber      = 888555;
+
+// 2. PER-BAR STATE (M5 ONLY)
+// - Reset cumulative VWAP at 00:00 UTC:
+//     typical = (high + low + close) / 3
+//     VWAP = sum(typical * volume) / sum(volume)
+// - EMA200 on closes, using only closed bars.
+// - Only evaluate entries when server hour is 07..17 UTC.
+// - Skip a new signal while a position from this strategy is open.
+
+// 3. ENTRY RULES (evaluated on the closed bar)
+// Long:
+//   low <= VWAP  AND  close > VWAP  AND  close > open
+//   AND close > EMA200
+// Short:
+//   high >= VWAP AND  close < VWAP  AND  close < open
+//   AND close < EMA200
+// Enter at the next bar open. One position at a time.
+
+// 4. EXIT RULES
+// risk = InpSlAtr * ATR(14) at the signal bar
+// Long : SL = entry - risk; TP = entry + InpTpAtr * ATR
+// Short: SL = entry + risk; TP = entry - InpTpAtr * ATR
+// Close at market after InpMaxHoldBars bars if neither level was touched.
+// Apply adverse slippage/spread on entry and exit.
+
+// 5. MONEY MANAGEMENT ($10.000 account example)
+double CalculateLotSize(double slDistancePrice)
+{
+    double balance  = AccountInfoDouble(ACCOUNT_BALANCE);
+    double riskMoney = balance * (InpRiskPercent / 100.0);
+    double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+    double tickSize  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+    double lossPerLot = (slDistancePrice / tickSize) * tickValue;
+    if(lossPerLot <= 0.0) return 0.0;
+    return NormalizeDouble(riskMoney / lossPerLot, 2);
+}
+"""
+
     return f"""//+------------------------------------------------------------------+
 //| MQL5 LOGIC BLUEPRINT: {strategy.upper()}
 //| Adaptasi Strategi dari Python Backtester ke MetaTrader 5
@@ -248,7 +326,8 @@ def main():
             "bollinger_bands": "Bollinger Band outer band sweep & mean reversion",
             "session_gap": "London/New York opening session imbalance gap",
             "vwap_bounce": "Institutional Volume-Weighted Average Price bounce",
-            "gold_session_sweep": "Asia range sweep + ATR displacement + FVG rejection retest"
+            "gold_session_sweep": "Asia range sweep + ATR displacement + FVG rejection retest",
+            "london_ny_vwap_pullback": "M5 only: London/NY session VWAP reclaim in the EMA-200 direction, fixed 1:1 ATR stop/target, 2-hour time stop; recommended risk 1.0-1.5%"
         }
         for name in sorted(REGISTRY.keys()):
             strategies_info.append({
@@ -262,6 +341,18 @@ def main():
     if not args.file:
         print("ERROR: --file argument is required when not using --list-strategies", file=sys.stderr)
         sys.exit(1)
+
+    fixed_rr = FIXED_RR.get(args.strategy)
+    if fixed_rr is not None:
+        if abs(args.rr - fixed_rr) > 1e-9:
+            print(f"Note: {args.strategy} uses a fixed {fixed_rr:g}R target; "
+                  f"overriding RR={args.rr:g}.")
+        args.rr = fixed_rr
+
+    if args.strategy == "london_ny_vwap_pullback" and args.timeframe != "M5":
+        print("WARNING: london_ny_vwap_pullback was designed and validated on M5; "
+              f"results on {args.timeframe} are not reliable.", file=sys.stderr)
+
     params = Params(
         timeframe=args.timeframe,
         rr=args.rr,

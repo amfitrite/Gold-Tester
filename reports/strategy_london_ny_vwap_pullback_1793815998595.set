@@ -1,0 +1,18 @@
+; ===========================================================
+; MT5 EA Configuration: LONDON_NY_VWAP_PULLBACK Strategy
+; Generated on: 2026-11-05 01:13:19
+; ===========================================================
+InpStrategyName=london_ny_vwap_pullback
+InpRiskPercent=1.50
+InpRewardRiskRatio=1.00
+InpSessionStartHour=7
+InpSessionEndHour=17
+InpEmaPeriod=200
+InpAtrPeriod=14
+InpSlAtr=1.25
+InpTpAtr=1.25
+InpMaxHoldBars=24
+InpHalfSpread=0.12
+InpOnePositionAtATime=1
+InpMagicNumber=888555
+InpSlippagePips=3

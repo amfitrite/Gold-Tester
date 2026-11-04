@@ -333,6 +333,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (st) {
       strategyDesc.textContent = `💡 ${st.name}: ${st.description}`;
     }
+
+    // This strategy's 1:1 target is part of its edge, so lock the RR input
+    // instead of letting the global 2.0R default silently disagree with it.
+    const fixedRr = selectedId === 'london_ny_vwap_pullback';
+    if (fixedRr) {
+      if (!btRR.disabled) btRR.dataset.previousValue = btRR.value;
+      btRR.value = '1.0';
+      btRR.disabled = true;
+      btRR.title = 'Strategi ini memakai target 1:1 internal (1.25 x ATR).';
+    } else if (btRR.disabled) {
+      btRR.value = btRR.dataset.previousValue || '2.0';
+      btRR.disabled = false;
+      btRR.title = '';
+    }
   }
 
   btStrategy.addEventListener('change', updateStrategyDescription);

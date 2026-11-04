@@ -5,7 +5,7 @@ mechanically detects setups for several strategies, simulates a fixed
 risk:reward outcome on each, marks the ICT structure on the chart, and lets you
 sweep RR / trend-filter / timeframe / session to see **which trades bleed money**.
 
-**17 strategies** ship in the registry (add more by dropping a module in
+**18 strategies** ship in the registry (add more by dropping a module in
 `strategies/`):
 
 1. **Liquidity sweep → imbalance → reversal** (the original ICT setup).
@@ -25,6 +25,8 @@ sweep RR / trend-filter / timeframe / session to see **which trades bleed money*
 15. **Session gap fade** — fade a gap at the next session boundary.
 16. **VWAP bounce** — trade a cross/reclaim around cumulative VWAP.
 17. **Gold Session Sweep** — Asia-range sweep + displacement + FVG rejection retest.
+18. **London/NY VWAP trend pullback** — session-VWAP reclaim in the EMA-200 direction,
+    M5 only, fixed 1:1 ATR bracket and a 2-hour time stop.
 
 Pick any strategy in the lab and a one-line plain-English description plus a
 **best-setup recommendation** (the timeframe × RR with the highest expectancy on

@@ -10,7 +10,7 @@ from .parser import parse_file, ParseResult, BadRow
 from .swings import find_swings
 from .sweeps import find_sweeps
 from .imbalance import find_fvgs
-from .strategies import run_strategy
+from .strategies import run_strategy, SELF_FILTERED
 from .trend import apply_trend_filter
 from .report import Stats, stats_filtered
 
@@ -37,7 +37,12 @@ def run(candles: List[Candle], params: Params, name: str = "series",
     sweeps = find_sweeps(candles, swings)
     fvgs = find_fvgs(candles, params.min_fvg_size)
     setups = run_strategy(strategy, candles, params)
-    apply_trend_filter(setups, candles, params, swings)
+    if strategy in SELF_FILTERED:
+        for s in setups:
+            s.filter_kept = True
+            s.filter_reason = "self-filtered (built-in EMA-200 + session VWAP bias)"
+    else:
+        apply_trend_filter(setups, candles, params, swings)
     return RunResult(
         name=name, candles=candles, swings=swings, sweeps=sweeps, fvgs=fvgs,
         setups=setups,

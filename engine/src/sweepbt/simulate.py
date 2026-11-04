@@ -86,6 +86,77 @@ def simulate_setup(candles, direction, entry_index, entry, sl, tp, params, *,
                  exit_index=exit_index, exit_price=exit_price, r_multiple=r)
 
 
+def simulate_time_exit(candles, entry_index, direction, entry, sl, tp, max_bars,
+                       params, *, strategy, trigger_index, trigger_level,
+                       note="", resolve_from=None, half_spread=0.0):
+    """Walk a trade forward with a hard time stop.
+
+    Fixed-RR strategies let price run until SL/TP or the end of the series.
+    This variant also closes the trade at the close of bar
+    ``resolve_from + max_bars`` when neither level was touched, which is what
+    intraday session strategies need. ``half_spread`` is applied to the entry
+    (already included by the caller) and to every exit so the result is not
+    flattered by zero-cost fills.
+
+    Returns a :class:`Setup` with a fractional ``r_multiple`` on a time exit.
+    """
+    risk = abs(entry - sl)
+    if risk <= 0:
+        return None
+    if params.max_risk is not None and risk > params.max_risk:
+        return None
+
+    start = resolve_from if resolve_from is not None else entry_index
+    end = min(len(candles) - 1, start + max_bars)
+    exit_index = end
+    exit_price = None
+    verdict = "unresolved"
+
+    for i in range(start, end + 1):
+        c = candles[i]
+        if direction == "long":
+            hit_sl = c.low <= sl
+            hit_tp = c.high >= tp
+        else:
+            hit_sl = c.high >= sl
+            hit_tp = c.low <= tp
+
+        if hit_sl and hit_tp:
+            # Pessimistic tie-break: assume the stop was hit first.
+            exit_index = i
+            exit_price = sl - half_spread if direction == "long" else sl + half_spread
+            verdict = "loss"
+            break
+        if hit_tp:
+            exit_index = i
+            exit_price = tp - half_spread if direction == "long" else tp + half_spread
+            verdict = "win"
+            break
+        if hit_sl:
+            exit_index = i
+            exit_price = sl - half_spread if direction == "long" else sl + half_spread
+            verdict = "loss"
+            break
+
+    if exit_price is None:
+        c = candles[end]
+        exit_price = (c.close - half_spread if direction == "long"
+                      else c.close + half_spread)
+        r = ((exit_price - entry) if direction == "long"
+             else (entry - exit_price)) / risk
+        verdict = "win" if r > 0 else ("loss" if r < 0 else "unresolved")
+    else:
+        r = ((exit_price - entry) if direction == "long"
+             else (entry - exit_price)) / risk
+
+    return Setup(direction=direction, entry_index=entry_index,
+                 entry_price=entry, stop_loss=sl, take_profit=tp, risk=risk,
+                 verdict=verdict, strategy=strategy,
+                 trigger_index=trigger_index, trigger_level=trigger_level,
+                 note=note, resolve_index=start, exit_index=exit_index,
+                 exit_price=exit_price, r_multiple=r)
+
+
 def build_setup(candles: List[Candle], sweep: Sweep, params: Params) -> Optional[Setup]:
     """Build one setup for a sweep, or None if no valid zone/entry/risk."""
     zone = select_zone(candles, sweep, ob_lookahead=params.ob_lookahead,

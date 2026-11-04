@@ -25,8 +25,14 @@ from .bollinger_bands import run as _bb
 from .session_gap import run as _sg
 from .vwap_bounce import run as _vwap
 from .gold_session_sweep import run as _gold_session_sweep
+from .london_ny_vwap_pullback import run as _ln_vwap
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
+
+# Strategies that already apply their own bias/session filter.  The generic
+# EMA-20/50 trend filter in engine.run would double-filter (and silently
+# discard) their setups, so it is skipped for these names.
+SELF_FILTERED = {"london_ny_vwap_pullback"}
 
 REGISTRY: Dict[str, StrategyFn] = {
     "liquidity_imbalance": _liq,
@@ -46,6 +52,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "session_gap": _sg,
     "vwap_bounce": _vwap,
     "gold_session_sweep": _gold_session_sweep,
+    "london_ny_vwap_pullback": _ln_vwap,
 }
 
 LABELS = {
@@ -66,6 +73,7 @@ LABELS = {
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce",
     "gold_session_sweep": "Gold Session Sweep + Displacement + FVG Retest",
+    "london_ny_vwap_pullback": "London/NY VWAP Trend Pullback",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -105,6 +113,10 @@ DESCRIPTIONS = {
         "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
     "gold_session_sweep": "Build the 00:00-07:00 UTC Asia range, wait for a London/NY sweep, "
         "then require ATR displacement + a three-candle FVG and a later rejection retest.",
+    "london_ny_vwap_pullback": "M5 only, recommended risk 1.0-1.5%. During London/NY "
+        "(07:00-17:59 UTC), buy a bullish rejection back above session VWAP when price is "
+        "above the 200-EMA, or sell the mirror image below it; fixed 1.25xATR stop/target "
+        "and a 2-hour time stop.",
 }
 
 
