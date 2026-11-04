@@ -324,30 +324,38 @@ gold-sweep-backtester/
 └── tests/                  # hand-checked unit tests for every stage
 ```
 
-## New strategy — Gold Rolling Liquidity Sweep + 50% Rejection Retest
+## Tunable strategy — Gold Rolling Liquidity Sweep + Rejection-Wick Retrace
 
 Strategy id: `gold_session_sweep`.
 
-Designed as a more frequent XAUUSD M5 test without reliance on session
-timestamps:
+Designed for XAUUSD M5 research without requiring session timestamps:
 
-1. Use the previous **24 candles** (default when `swing_strength=3`) to define
-   a rolling high and low. No current/future candle is included in those levels.
-2. A short candidate requires a wick above the prior high, a close back below
-   that level, a bearish candle, and an upper wick at least 25% of its range.
-   Long conditions mirror this below the rolling low.
-3. Wait for a later retest of the rejection candle's **50% range level**. The
-   retest must close back in the trade direction.
-4. Stop goes beyond the rejection wick plus `--sl-buffer`; target is configured
-   by `--rr`. A matching three-candle FVG is recorded as optional confluence,
-   not a requirement.
-5. A new setup is not evaluated until the previous simulated position exits,
-   avoiding overlapping trades.
+1. Build the rolling high/low from the previous `sweep_lookback` candles; the
+   sweep candle itself is excluded from the reference range.
+2. A short candidate wicks above the prior high and closes back below it; a
+   long candidate wicks below the prior low and closes back above it. A minimum
+   rejection-wick fraction avoids tiny/no-wick breaks.
+3. The entry is a limit price placed inside the rejection wick, measured from
+   the sweep candle close toward its extreme. For example, `sweep_entry_retrace=0.25`
+   places the sell limit 25% into an upper wick or the buy limit 25% into a lower wick.
+   The order is only eligible on later candles; `--close-confirm` can additionally
+   require the fill candle to close back in the trade direction.
+4. Stop sits beyond the sweep extreme plus `--sl-buffer`; TP is calculated from
+   the actual entry-to-stop risk multiplied by `--rr`. Optional FVG is confluence,
+   not a mandatory gate.
+5. Only one simulated position is active at a time for this strategy.
 
-The signal works with timestamped or untimestamped OHLC data. The lookback is
-`max(12, swing_strength × 8)`; with the M5 preset's swing strength of 3 it is
-24 bars (about two hours). It is a research candidate, not a proven profitable
-system.
+Defaults for fine-tuning: `--sweep-lookback 12`, `--sweep-wick-fraction 0.05`,
+`--sweep-retrace 0.25`, `--pullback 16`, `--rr 2`. These are starting values from
+an exploratory 70/30 split of the embedded Oct 5–Nov 3, 2026 M5 sample, not a
+validated edge. The holdout contained only 13 candidate trades before costs;
+repeat across different months and include spread, commission, and slippage
+before drawing conclusions.
+
+All strategies now calculate realized R using the **actual TP distance divided
+by entry-to-SL risk**. Strategies with a natural target shorter than the selected
+RR no longer receive an artificial full-RR win. Invalid/inverted SL or TP levels
+are rejected before the OHLC walk-forward.
 
 Example:
 

@@ -1,7 +1,7 @@
 from conftest import series
 from sweepbt.models import Sweep
 from sweepbt.params import Params
-from sweepbt.simulate import build_setup
+from sweepbt.simulate import build_setup, simulate_setup
 
 # A buy-side sweep -> long. Fixed head:
 #   1: sweep candle (wick to 9.0)
@@ -62,3 +62,27 @@ def test_max_risk_guardrail_rejects_wide_setups():
     tail = [(10.4, 10.5, 9.6, 9.9), (9.9, 12.2, 9.8, 12.0)]
     assert setup_for(tail) is not None
     assert setup_for(tail, max_risk=1.0) is None             # risk 1.2 > 1.0
+
+
+
+def test_win_uses_actual_target_distance_not_configured_rr():
+    # Risk = 1.20, but the target is only 0.60 away: realized result is +0.5R.
+    candles = series(HEAD + [(9.7, 10.4, 9.6, 10.2)])
+    s = simulate_setup(
+        candles, "long", 4, 9.70, 8.50, 10.30, Params(rr=2.0),
+        strategy="accounting_test", trigger_index=1, trigger_level=9.2,
+        resolve_from=4,
+    )
+    assert s is not None
+    assert s.verdict == "win"
+    assert round(s.r_multiple, 6) == 0.5
+
+
+def test_simulator_rejects_target_on_wrong_side_of_entry():
+    candles = series(HEAD + [(9.7, 10.0, 9.6, 9.8)])
+    s = simulate_setup(
+        candles, "long", 4, 9.70, 8.50, 9.60, Params(rr=2.0),
+        strategy="invalid_target_test", trigger_index=1, trigger_level=9.2,
+        resolve_from=4,
+    )
+    assert s is None

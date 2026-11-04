@@ -26,7 +26,8 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         entry = top if direction == "long" else bottom
         start = x["violated"] + 1
         end = x["violated"] + params.pullback_window
-        i = first_touch(candles, start, end, entry, direction)
+        i = first_touch(candles, start, end, entry, direction,
+                        require_close=params.require_close_confirmation)
         if i is None:
             continue
         if direction == "long":

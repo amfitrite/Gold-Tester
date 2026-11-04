@@ -159,6 +159,9 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
         f"InpMinFVGPoints={params.min_fvg_size:.2f}",
         f"InpSLBufferPoints={params.sl_buffer:.2f}",
         f"InpPullbackWindow={params.pullback_window}",
+        f"InpSweepLookback={params.sweep_lookback}",
+        f"InpSweepMinWickFraction={params.sweep_min_wick_fraction:.3f}",
+        f"InpSweepEntryRetrace={params.sweep_entry_retrace:.3f}",
         f"InpTrendFilterMethod={params.trend_method}",
         f"InpCloseConfirmation={1 if params.require_close_confirmation else 0}",
         f"InpMaxRiskPoints={params.max_risk if params.max_risk else 0}",
@@ -221,7 +224,13 @@ def main():
     parser.add_argument("--swing-strength", type=int, default=5)
     parser.add_argument("--min-fvg", type=float, default=0.5)
     parser.add_argument("--sl-buffer", type=float, default=0.0)
-    parser.add_argument("--pullback", type=int, default=10)
+    parser.add_argument("--pullback", type=int, default=16)
+    parser.add_argument("--sweep-lookback", type=int, default=12,
+                        help="prior bars defining the Gold Session Sweep range")
+    parser.add_argument("--sweep-wick-fraction", type=float, default=0.05,
+                        help="minimum rejection wick fraction of candle range")
+    parser.add_argument("--sweep-retrace", type=float, default=0.25,
+                        help="limit-entry fraction into the rejection wick (0.05-0.95)")
     parser.add_argument("--close-confirm", action="store_true")
     parser.add_argument("--report-out", default="report.html", help="Path to write HTML report")
     parser.add_argument("--json-out", default="result.json", help="Path to write JSON summary")
@@ -270,6 +279,9 @@ def main():
         min_fvg_size=args.min_fvg,
         sl_buffer=args.sl_buffer,
         pullback_window=args.pullback,
+        sweep_lookback=args.sweep_lookback,
+        sweep_min_wick_fraction=args.sweep_wick_fraction,
+        sweep_entry_retrace=args.sweep_retrace,
         require_close_confirmation=args.close_confirm
     )
 
@@ -332,7 +344,10 @@ def main():
             "trend": args.trend,
             "swing_strength": args.swing_strength,
             "min_fvg": args.min_fvg,
-            "close_confirm": args.close_confirm
+            "close_confirm": args.close_confirm,
+            "sweep_lookback": args.sweep_lookback,
+            "sweep_wick_fraction": args.sweep_wick_fraction,
+            "sweep_retrace": args.sweep_retrace
         },
         "summary": sim_stats,
         "report_file": os.path.abspath(args.report_out),

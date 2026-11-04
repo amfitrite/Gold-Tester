@@ -7,6 +7,7 @@ cannot know intrabar order from OHLC alone.
 """
 from __future__ import annotations
 
+from math import isfinite
 from typing import List, Optional
 
 from .models import Candle, Setup, Sweep, Zone
@@ -70,15 +71,32 @@ def simulate_setup(candles, direction, entry_index, entry, sl, tp, params, *,
     resolution are identical across them. ``resolve_from`` lets a strategy that
     fills at a candle's close start the walk-forward on the next candle.
     """
+    # Reject malformed prices before simulating. A valid long must have SL < entry < TP;
+    # a valid short must have TP < entry < SL. This prevents inverted targets from
+    # being counted as instant wins by the OHLC walker.
+    if not all(isfinite(v) for v in (entry, sl, tp)):
+        return None
     risk = abs(entry - sl)
     if risk <= 0:
+        return None
+    if direction == "long" and not (sl < entry < tp):
+        return None
+    if direction == "short" and not (tp < entry < sl):
         return None
     if params.max_risk is not None and risk > params.max_risk:
         return None
     resolve_index = resolve_from if resolve_from is not None else entry_index
     verdict, exit_index, exit_price = simulate_outcome(
         candles, resolve_index, direction, entry, sl, tp)
-    r = 0.0 if verdict == "unresolved" else (params.rr if verdict == "win" else -1.0)
+    # Realized R must use the actual TP distance. Some strategies have a natural
+    # target (e.g. VWAP / mean reversion) that is not exactly params.rr multiples.
+    # Never award the configured RR when the actual target is closer or farther.
+    if verdict == "win":
+        r = abs(tp - entry) / risk
+    elif verdict == "loss":
+        r = -1.0
+    else:
+        r = 0.0
     return Setup(direction=direction, entry_index=entry_index, entry_price=entry,
                  stop_loss=sl, take_profit=tp, risk=risk, verdict=verdict,
                  strategy=strategy, trigger_index=trigger_index, trigger_level=trigger_level,

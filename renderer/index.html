@@ -346,6 +346,20 @@
                 <input type="number" id="btMinFvg" class="form-control" value="0.5" step="0.1">
               </div>
 
+              <!-- Gold Session Sweep tuning (used only by this strategy) -->
+              <div class="input-group">
+                <label for="btSweepLookback">Gold Sweep Lookback (bars):</label>
+                <input type="number" id="btSweepLookback" class="form-control" value="12" min="3" max="500" step="1">
+              </div>
+              <div class="input-group">
+                <label for="btSweepWickFraction">Gold Sweep Min Wick (0–1):</label>
+                <input type="number" id="btSweepWickFraction" class="form-control" value="0.05" min="0" max="0.95" step="0.01">
+              </div>
+              <div class="input-group">
+                <label for="btSweepRetrace">Gold Sweep Wick Retrace (0–1):</label>
+                <input type="number" id="btSweepRetrace" class="form-control" value="0.25" min="0.05" max="0.95" step="0.05">
+              </div>
+
               <!-- Close Confirm Checkbox -->
               <div class="checkbox-box" style="margin-top: 22px;">
                 <label class="custom-checkbox">
