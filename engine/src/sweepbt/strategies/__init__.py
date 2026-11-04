@@ -24,6 +24,7 @@ from .order_flow import run as _of
 from .bollinger_bands import run as _bb
 from .session_gap import run as _sg
 from .vwap_bounce import run as _vwap
+from .vwap_bounce_2 import run as _vwap2
 from .gold_session_sweep import run as _gold_session_sweep
 from .london_ny_vwap_pullback import run as _ln_vwap
 
@@ -32,7 +33,7 @@ StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 # Strategies that already apply their own bias/session filter.  The generic
 # EMA-20/50 trend filter in engine.run would double-filter (and silently
 # discard) their setups, so it is skipped for these names.
-SELF_FILTERED = {"london_ny_vwap_pullback"}
+SELF_FILTERED = {"london_ny_vwap_pullback", "vwap_bounce_2"}
 
 REGISTRY: Dict[str, StrategyFn] = {
     "liquidity_imbalance": _liq,
@@ -51,6 +52,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "bollinger_bands": _bb,
     "session_gap": _sg,
     "vwap_bounce": _vwap,
+    "vwap_bounce_2": _vwap2,
     "gold_session_sweep": _gold_session_sweep,
     "london_ny_vwap_pullback": _ln_vwap,
 }
@@ -71,7 +73,8 @@ LABELS = {
     "order_flow": "Order Flow (Effort vs Result)",
     "bollinger_bands": "Bollinger Bands Mean Reversion",
     "session_gap": "Session Gap Fade",
-    "vwap_bounce": "VWAP Bounce",
+    "vwap_bounce": "VWAP Bounce (v1 Baseline)",
+    "vwap_bounce_2": "VWAP Bounce 2 (Optimized)",
     "gold_session_sweep": "Gold Rolling Liquidity Sweep + 50% Rejection Retest",
     "london_ny_vwap_pullback": "London/NY VWAP Trend Pullback",
 }
@@ -111,6 +114,7 @@ DESCRIPTIONS = {
         "session opens — expect reversion when a new session gaps away from the previous close.",
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "
         "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
+    "vwap_bounce_2": "Optimized VWAP bounce with EMA 20/50 trend confluence, rejection wick confirmation, and dynamic 1.5R-2.0R profit targets.",
     "gold_session_sweep": "Sweep the previous 24-bar high/low, close back inside with a rejection wick, "
         "then trade a later 50% retrace; works without timestamps and FVG is optional.",
     "london_ny_vwap_pullback": "M5 only, recommended risk 1.0-1.5%. During London/NY "
