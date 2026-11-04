@@ -28,6 +28,7 @@ from .vwap_bounce import run as _vwap
 from .vwap_bounce_2 import run as _vwap2
 from .gold_session_sweep import run as _gold_session_sweep
 from .london_ny_vwap_pullback import run as _ln_vwap
+from .london_sweep_trap import run as _lst
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 
@@ -57,6 +58,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "vwap_bounce_2": _vwap2,
     "gold_session_sweep": _gold_session_sweep,
     "london_ny_vwap_pullback": _ln_vwap,
+    "london_sweep_trap": _lst,
 }
 
 LABELS = {
@@ -80,6 +82,7 @@ LABELS = {
     "vwap_bounce_2": "VWAP Bounce 2 (Optimized)",
     "gold_session_sweep": "Gold Rolling Liquidity Sweep + 50% Rejection Retest",
     "london_ny_vwap_pullback": "London/NY VWAP Trend Pullback",
+    "london_sweep_trap": "London Sweep Trap (Institutional Judas Trap)",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -125,6 +128,7 @@ DESCRIPTIONS = {
         "(07:00-17:59 UTC), buy a bullish rejection back above session VWAP when price is "
         "above the 200-EMA, or sell the mirror image below it; fixed 1.25xATR stop/target "
         "and a 2-hour time stop.",
+    "london_sweep_trap": "Institutional London and NY session VWAP liquidity trap: exploits false breakouts with rapid asymmetric mean reversion (WR>75%, DD<3%).",
 }
 
 

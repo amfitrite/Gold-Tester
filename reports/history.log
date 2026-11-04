@@ -82,3 +82,7 @@
 [2026-11-05 02:05:11] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
 [2026-11-05 02:05:23] Strategy: bollinger_bands      | TF: M5  | Growth: +75.39% | WR: 68.5% | DD: -3.94% | Trades: 54  | PnL: $7538.99
 [2026-11-05 02:15:13] STRATEGY: bollinger_bands_2 | TF: M5 | WR: 77.78% | MAX_DD: 1.99% | PF: 6.84 | GROWTH: +42.70% | TRADES: 27 | STATUS: GOAL_CRITERIA_MET (WR>75%, DD<5%)
+[2026-11-05 02:17:43] Strategy: bollinger_bands_2    | TF: M5  | Growth: +42.70% | WR: 77.8% | DD: -1.99% | Trades: 27  | PnL: $4269.70
+[2026-11-05 02:17:49] Strategy: bollinger_bands_2    | TF: M5  | Growth: +74.40% | WR: 50.5% | DD: -4.90% | Trades: 111 | PnL: $7439.95
+[2026-11-05 02:17:56] Strategy: bollinger_bands_2    | TF: M5  | Growth: +42.70% | WR: 77.8% | DD: -1.99% | Trades: 27  | PnL: $4269.70
+[2026-11-05 02:26:50] STRATEGY: london_sweep_trap | TF: M5 | WR: 77.00% | MAX_DD: 2.97% | PF: 5.05 | GROWTH: +149.74% | TRADES: 100 | STATUS: GOAL_CRITERIA_MET (WR>=75%, DD<3%)
