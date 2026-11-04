@@ -5,7 +5,7 @@ mechanically detects setups for several strategies, simulates a fixed
 risk:reward outcome on each, marks the ICT structure on the chart, and lets you
 sweep RR / trend-filter / timeframe / session to see **which trades bleed money**.
 
-**12 strategies** ship in the registry (add more by dropping a module in
+**17 strategies** ship in the registry (add more by dropping a module in
 `strategies/`):
 
 1. **Liquidity sweep → imbalance → reversal** (the original ICT setup).
@@ -20,6 +20,11 @@ sweep RR / trend-filter / timeframe / session to see **which trades bleed money*
 10. **ICT order block** — enter the retrace into the OB that drove a BOS/CHoCH.
 11. **Smart money (SMC)** — sweep → change of character → order-block entry.
 12. **Supply/demand zones** — a quiet base + strong departure, traded on the return.
+13. **Order flow** — high-volume rejection candle followed by directional confirmation.
+14. **Bollinger bands** — outer-band mean reversion toward the middle band.
+15. **Session gap fade** — fade a gap at the next session boundary.
+16. **VWAP bounce** — trade a cross/reclaim around cumulative VWAP.
+17. **Gold Session Sweep** — Asia-range sweep + displacement + FVG rejection retest.
 
 Pick any strategy in the lab and a one-line plain-English description plus a
 **best-setup recommendation** (the timeframe × RR with the highest expectancy on
@@ -167,7 +172,7 @@ day. After that window, the first close above the range high goes **long**, the
 first below the range low goes **short**; entry at the broken edge, stop on the
 opposite edge + buffer, TP = `entry ± risk × RR`. One of each per day.
 
-## Strategies 4–12 (the rest of the registry)
+## Strategies 4–16 (the remaining original registry strategies)
 
 All share the same engine — entry, fixed-RR stop/target, and the candle-by-candle
 walk-forward (same-candle stop+target = loss) — so their stats are directly
@@ -191,6 +196,10 @@ comparable. Each is intentionally *selective*:
   reversal → entry on the order block behind the shift.
 - **Supply/demand** — a quiet base candle + a dominant-body departure marks a
   zone; trade the first return into the base.
+- **Order flow** — high-volume rejection and next-bar confirmation.
+- **Bollinger bands** — mean reversion from an outer band toward the middle.
+- **Session gap** — fade a gap at a configured session transition.
+- **VWAP bounce** — trade price reclaiming/crossing cumulative VWAP.
 
 ## Chart markings (context, not signals)
 
@@ -227,7 +236,7 @@ Two extra guardrails:
 
 | flag | meaning | default |
 |---|---|---|
-| `--strategy` | any registry name: `liquidity_imbalance`, `prev_day_breakout`, `orb`, `rsi_reversal`, `support_resistance`, `momentum_breakout`, `momentum_pullback`, `ict_fvg`, `ict_ifvg`, `ict_order_block`, `smart_money`, `supply_demand` | liquidity_imbalance |
+| `--strategy` | any registry name: `liquidity_imbalance`, `prev_day_breakout`, `orb`, `rsi_reversal`, `support_resistance`, `momentum_breakout`, `momentum_pullback`, `ict_fvg`, `ict_ifvg`, `ict_order_block`, `smart_money`, `supply_demand`, `order_flow`, `bollinger_bands`, `session_gap`, `vwap_bounce`, `gold_session_sweep` | liquidity_imbalance |
 | `--rr` | take-profit risk:reward — accepts `2`, `2.5`, or ratios `1:2`, `3:1` | 2.0 |
 | `--swing-strength` | candles each side for a swing | 3 |
 | `--min-fvg` | min FVG size (price units) | 1.0 |
@@ -246,7 +255,7 @@ Two extra guardrails:
 
 ### `strategy_lab.html` (interactive)
 
-- **Live controls** — timeframe (M5–H4), strategy (all 12), RR (1:1 … 3:1), three
+- **Live controls** — timeframe (M5–H4), strategy (all 17), RR (1:1 … 3:1), three
   **stackable filters** (trend / MA / RSI, combined with AND), and a from/to
   **period** selector.
 - **Strategy explainer + best-setup line** — a one-line description of the chosen
@@ -291,7 +300,7 @@ gold-sweep-backtester/
 │   ├── structure.py        # BOS/CHoCH, S/R, inverse FVG, breaker markings
 │   ├── daygroups.py        # group candles into trading days
 │   ├── simulate.py         # entry + walk-forward TP/SL (shared by strategies)
-│   ├── strategies/         # one module per strategy + a registry (12 total)
+│   ├── strategies/         # one module per strategy + a registry (17 total)
 │   │   ├── __init__.py     # REGISTRY + LABELS + DESCRIPTIONS
 │   │   ├── _common.py      # shared pullback-entry helper
 │   │   ├── liquidity_imbalance.py
