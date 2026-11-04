@@ -248,7 +248,7 @@ def main():
             "bollinger_bands": "Bollinger Band outer band sweep & mean reversion",
             "session_gap": "London/New York opening session imbalance gap",
             "vwap_bounce": "Institutional Volume-Weighted Average Price bounce",
-            "gold_session_sweep": "Asia range sweep + ATR displacement + FVG rejection retest"
+            "gold_session_sweep": "Asia range sweep + moderate displacement + 50% retrace (FVG optional)"
         }
         for name in sorted(REGISTRY.keys()):
             strategies_info.append({
