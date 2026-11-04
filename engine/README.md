@@ -24,7 +24,7 @@ sweep RR / trend-filter / timeframe / session to see **which trades bleed money*
 14. **Bollinger bands** — outer-band mean reversion toward the middle band.
 15. **Session gap fade** — fade a gap at the next session boundary.
 16. **VWAP bounce** — trade a cross/reclaim around cumulative VWAP.
-17. **Gold Rolling Sweep** — previous-range liquidity sweep + rejection candle + 50% retrace.
+17. **Gold Rolling Sweep** — previous-range liquidity sweep + rejection wick + 50% limit retrace.
 
 Pick any strategy in the lab and a one-line plain-English description plus a
 **best-setup recommendation** (the timeframe × RR with the highest expectancy on
