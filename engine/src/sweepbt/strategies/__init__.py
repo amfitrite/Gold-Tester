@@ -65,7 +65,7 @@ LABELS = {
     "bollinger_bands": "Bollinger Bands Mean Reversion",
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce",
-    "gold_session_sweep": "Gold Session Sweep + Displacement + FVG Retest",
+    "gold_session_sweep": "Gold Rolling Liquidity Sweep + 50% Rejection Retest",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -103,8 +103,8 @@ DESCRIPTIONS = {
         "session opens — expect reversion when a new session gaps away from the previous close.",
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "
         "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
-    "gold_session_sweep": "Build the 00:00-07:00 UTC Asia range, wait for a London/NY sweep, "
-        "then require a moderate ATR displacement and a later 50% retrace; FVG is optional confluence.",
+    "gold_session_sweep": "Sweep the previous 24-bar high/low, close back inside with a rejection wick, "
+        "then trade a later 50% retrace; works without timestamps and FVG is optional.",
 }
 
 
