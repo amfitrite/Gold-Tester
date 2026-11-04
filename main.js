@@ -368,6 +368,8 @@ ipcMain.handle('run-backtest', async (event, options) => {
     trend = 'ema',
     swingStrength = 5,
     minFvg = 0.5,
+    slBuffer = 0.0,
+    pullback = 10,
     closeConfirm = false
   } = options;
 
@@ -398,6 +400,8 @@ ipcMain.handle('run-backtest', async (event, options) => {
     '--trend', trend,
     '--swing-strength', String(swingStrength),
     '--min-fvg', String(minFvg),
+    '--sl-buffer', String(slBuffer),
+    '--pullback', String(pullback),
     '--report-out', reportPath,
     '--json-out', jsonPath,
     '--set-out', setPath
@@ -447,6 +451,9 @@ ipcMain.handle('run-backtest', async (event, options) => {
         try {
           const raw = fs.readFileSync(jsonPath, 'utf8');
           const data = JSON.parse(raw);
+          if (fs.existsSync(setPath)) {
+            data.set_content = fs.readFileSync(setPath, 'utf8');
+          }
 
           // Append to persistent history log
           try {

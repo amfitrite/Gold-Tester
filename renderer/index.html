@@ -346,6 +346,16 @@
                 <input type="number" id="btMinFvg" class="form-control" value="0.5" step="0.1">
               </div>
 
+              <div class="input-group">
+                <label for="btSlBuffer">SL Buffer Points:</label>
+                <input type="number" id="btSlBuffer" class="form-control" value="0.0" step="0.5">
+              </div>
+
+              <div class="input-group">
+                <label for="btPullback">Jendela Pullback (Bar):</label>
+                <input type="number" id="btPullback" class="form-control" value="10" min="1" max="50">
+              </div>
+
               <!-- Close Confirm Checkbox -->
               <div class="checkbox-box" style="margin-top: 22px;">
                 <label class="custom-checkbox">
@@ -531,9 +541,24 @@
                 </button>
               </div>
 
+              <!-- .SET Configuration Preview Card -->
+              <div class="card" style="margin-top: 14px;">
+                <div class="card-title-row">
+                  <div class="card-title" style="margin-bottom: 0;">
+                    <span class="step-num">2</span>
+                    <h3>Preview Parameter EA (.set)</h3>
+                  </div>
+                  <button type="button" id="btnCopySetFile" class="btn-xs">📋 Salin Teks .set</button>
+                </div>
+                <p class="desc-text" style="margin: 8px 0 10px 0;">
+                  Format parameter otomatis yang dikirimkan ke MetaTrader 5:
+                </p>
+                <pre class="mql5-code-box" id="setFilePreviewBox" style="max-height: 200px; font-size: 11px; color: #38ef7d; background: #0c1017; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); overflow-y: auto;">; Jalankan simulasi di tab Sweep Backtester untuk men-generate parameter .set...</pre>
+              </div>
+
               <div class="card" style="margin-top: 14px;">
                 <div class="card-title">
-                  <span class="step-num">2</span>
+                  <span class="step-num">3</span>
                   <h3>Checklist Porting ke MQL5</h3>
                 </div>
                 <ul class="checklist-mt5">

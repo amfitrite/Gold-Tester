@@ -424,11 +424,14 @@ def main():
             "trend": args.trend,
             "swing_strength": args.swing_strength,
             "min_fvg": args.min_fvg,
+            "sl_buffer": args.sl_buffer,
+            "pullback": args.pullback,
             "close_confirm": args.close_confirm
         },
         "summary": sim_stats,
         "report_file": os.path.abspath(args.report_out),
         "set_file": os.path.abspath(args.set_out),
+        "set_content": set_content,
         "mql5_blueprint": mql5_blueprint
     }
 
