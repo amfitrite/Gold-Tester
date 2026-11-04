@@ -8,14 +8,12 @@ __pycache__/
 *.pyo
 .pytest_cache/
 
-# Large Data & Cache
+# Large Data & Cache (Raw tick/candle CSV data)
 *.csv
 .dukascopy-cache/
 download/
-reports/
 
-# Temporary / Tests
-*.log
+# Temporary
 test_run.ps1
 generate_icon.ps1
 update_shortcut.ps1
