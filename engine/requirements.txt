@@ -1,0 +1,7 @@
+# The engine and the HTML chart have ZERO runtime dependencies:
+#   - engine: pure Python standard library
+#   - chart : self-contained vanilla-JS canvas (no plotting library)
+# So `python run.py` works on a bare Python 3.9+ install with nothing to pip-install.
+#
+# Only needed to run the test suite:
+pytest>=7

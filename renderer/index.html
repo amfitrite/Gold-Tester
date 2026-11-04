@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dukascopy & Gold Sweep Lab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-box">
+          <img src="../assets/icon.png" alt="Logo" class="app-logo">
+        </div>
+        <div class="brand-info">
+          <h2>SWEEP LAB</h2>
+          <span>Dukascopy & Backtester</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-tab="tab-downloader">
+          <span class="nav-icon">📥</span>
+          <span class="nav-text">Downloader Data</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-backtester">
+          <span class="nav-icon">🧪</span>
+          <span class="nav-text">Sweep Backtester</span>
+          <span class="nav-badge" id="navTradeCountBadge" style="display: none;">0</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-report">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Chart & Report</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-mt5">
+          <span class="nav-icon">📤</span>
+          <span class="nav-text">Adaptasi ke MT5</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="account-badge">
+          <span class="acc-label">Simulasi Modal</span>
+          <span class="acc-val" id="sidebarCapitalDisplay">$10.000,00</span>
+        </div>
+        <div class="version-tag">v2.0 • Zero Dependency</div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Area -->
+    <div class="main-workspace">
+      <!-- Top Workspace Bar -->
+      <header class="workspace-header">
+        <div class="active-tab-title">
+          <h1 id="pageTitle">Dukascopy Historical Data Downloader</h1>
+          <p id="pageSubtitle">Download data harga presisi (Ticks, LTF, HTF) dari server Swiss Dukascopy</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn-header" id="btnQuickOpenFolder" title="Buka folder CSV di Windows Explorer">📁 Folder CSV</button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div class="views-wrapper">
+        
+        <!-- ========================================== -->
+        <!-- TAB 1: DATA DOWNLOADER                    -->
+        <!-- ========================================== -->
+        <section id="tab-downloader" class="tab-view active">
+          <div class="grid-two-col">
+            <!-- Downloader Form -->
+            <div class="panel-column">
+              <!-- Step 1: Instrument -->
+              <div class="card form-card">
+                <div class="card-title">
+                  <span class="step-num">1</span>
+                  <h3>Pilih Instrumen / Pair</h3>
+                </div>
+                <div class="quick-pairs">
+                  <button type="button" class="chip-pair active" data-symbol="xauusd">XAUUSD (Gold)</button>
+                  <button type="button" class="chip-pair" data-symbol="eurusd">EURUSD</button>
+                  <button type="button" class="chip-pair" data-symbol="gbpusd">GBPUSD</button>
+                  <button type="button" class="chip-pair" data-symbol="usdjpy">USDJPY</button>
+                  <button type="button" class="chip-pair" data-symbol="btcusd">BTCUSD</button>
+                  <button type="button" class="chip-pair" data-symbol="us30">US30 (Dow)</button>
+                  <button type="button" class="chip-pair" data-symbol="nas100">NAS100</button>
+                </div>
+                <div class="input-group">
+                  <label for="symbolInput">Simbol Kustom (Ketik jika tidak ada di atas):</label>
+                  <input type="text" id="symbolInput" class="form-control" value="xauusd" placeholder="Contoh: xauusd, eurusd, brent">
+                </div>
+              </div>
+
+              <!-- Step 2: Timeframes (Ticks, LTF, HTF) -->
+              <div class="card form-card">
+                <div class="card-title-row">
+                  <div class="card-title">
+                    <span class="step-num">2</span>
+                    <h3>Pilih Timeframe (Ticks, LTF, HTF)</h3>
+                  </div>
+                  <div class="tf-quick-actions">
+                    <button type="button" class="btn-xs" id="btnOnlyTicks">Hanya Ticks</button>
+                    <button type="button" class="btn-xs" id="btnOnlyM1M5">M1 & M5</button>
+                    <button type="button" class="btn-xs" id="btnAllLTF">Semua LTF</button>
+                    <button type="button" class="btn-xs" id="btnAllHTF">Semua HTF</button>
+                    <button type="button" class="btn-xs btn-outline" id="btnResetTF">Reset</button>
+                  </div>
+                </div>
+
+                <div class="tf-groups-container">
+                  <!-- Ticks -->
+                  <div class="tf-category-box">
+                    <div class="tf-category-header">
+                      <span class="tf-cat-tag tag-ticks">TICKS</span>
+                      <span class="tf-cat-desc">Data transaksi per tick realtime</span>
+                    </div>
+                    <div class="tf-checkbox-grid">
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="tick">
+                        <span class="chip-content"><strong>tick</strong><small>Raw Ticks</small></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- LTF -->
+                  <div class="tf-category-box">
+                    <div class="tf-category-header">
+                      <span class="tf-cat-tag tag-ltf">LTF (Low Time Frame)</span>
+                      <span class="tf-cat-desc">Scalping & Intraday analysis</span>
+                    </div>
+                    <div class="tf-checkbox-grid">
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="s1">
+                        <span class="chip-content"><strong>s1</strong><small>1 Detik</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="m1" checked>
+                        <span class="chip-content"><strong>m1</strong><small>1 Menit</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="m5" checked>
+                        <span class="chip-content"><strong>m5</strong><small>5 Menit</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="m15">
+                        <span class="chip-content"><strong>m15</strong><small>15 Menit</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="m30">
+                        <span class="chip-content"><strong>m30</strong><small>30 Menit</small></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- HTF -->
+                  <div class="tf-category-box">
+                    <div class="tf-category-header">
+                      <span class="tf-cat-tag tag-htf">HTF (High Time Frame)</span>
+                      <span class="tf-cat-desc">Swing, Trend & Daily analysis</span>
+                    </div>
+                    <div class="tf-checkbox-grid">
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="h1">
+                        <span class="chip-content"><strong>h1</strong><small>1 Jam</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="h4">
+                        <span class="chip-content"><strong>h4</strong><small>4 Jam</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="d1">
+                        <span class="chip-content"><strong>d1</strong><small>1 Hari</small></span>
+                      </label>
+                      <label class="tf-chip">
+                        <input type="checkbox" name="timeframe" value="mn1">
+                        <span class="chip-content"><strong>mn1</strong><small>1 Bulan</small></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3: Dates & Directory -->
+              <div class="card form-card">
+                <div class="card-title-row">
+                  <div class="card-title">
+                    <span class="step-num">3</span>
+                    <h3>Rentang Tanggal & Penyimpanan</h3>
+                  </div>
+                  <div class="date-shortcuts">
+                    <button type="button" class="btn-xs" data-preset="7d">7 Hari</button>
+                    <button type="button" class="btn-xs active-preset" data-preset="30d">30 Hari</button>
+                    <button type="button" class="btn-xs" data-preset="last-month">Bulan Lalu</button>
+                    <button type="button" class="btn-xs" data-preset="1y">1 Tahun</button>
+                  </div>
+                </div>
+
+                <div class="date-inputs-row">
+                  <div class="input-group">
+                    <label for="dateFrom">Dari Tanggal (From):</label>
+                    <input type="date" id="dateFrom" class="form-control">
+                  </div>
+                  <div class="date-separator">➔</div>
+                  <div class="input-group">
+                    <label for="dateTo">Sampai Tanggal (To):</label>
+                    <input type="date" id="dateTo" class="form-control">
+                  </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 10px;">
+                  <label for="outputDir">Folder Simpan CSV:</label>
+                  <div class="dir-box">
+                    <input type="text" id="outputDir" class="form-control" readonly value="D:\CSV">
+                    <button type="button" id="btnBrowseDir" class="btn-browse">Pilih Folder...</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Download Button -->
+              <div class="action-buttons-container">
+                <button type="button" id="btnDownload" class="btn-primary-action">
+                  <span class="btn-icon">⬇</span>
+                  <span class="btn-text">Download Data CSV</span>
+                </button>
+                <button type="button" id="btnCancelDownload" class="btn-cancel-action" style="display: none;">
+                  <span class="btn-icon">✖</span>
+                  <span class="btn-text">Batalkan Download</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Downloader Terminal Panel -->
+            <div class="panel-column">
+              <div class="card log-card">
+                <div class="log-header">
+                  <div class="log-title">
+                    <span class="pulse-dot"></span>
+                    <h4>Log Unduhan Data</h4>
+                  </div>
+                  <button type="button" id="btnClearDlLog" class="btn-xs">Hapus Log</button>
+                </div>
+
+                <div class="progress-container">
+                  <div class="progress-labels">
+                    <span id="progressDlStatus">Siap mengunduh data</span>
+                    <span id="progressDlPercent">0%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div id="progressDlBar" class="progress-fill" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="terminal-container" id="terminalDlLog">
+                  <div class="log-line log-info">Dukascopy Downloader aktif. Data akan disimpan ke format CSV presisi.</div>
+                </div>
+
+                <!-- Fast Forward to Backtester Banner -->
+                <div class="post-dl-banner" id="postDlBanner" style="display: none;">
+                  <div class="banner-text">
+                    <strong>File Siap Diuji!</strong>
+                    <span id="postDlFilename">xauusd_m5.csv</span>
+                  </div>
+                  <button type="button" id="btnSendToTester" class="btn-accent-sm">
+                    ⚡ Uji di Backtester Sekarang ➔
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: SWEEP BACKTESTER & LAB             -->
+        <!-- ========================================== -->
+        <section id="tab-backtester" class="tab-view">
+          <!-- Backtest Setup Card (Top) -->
+          <div class="card bt-config-card">
+            <div class="bt-config-grid">
+              <!-- File Selection -->
+              <div class="input-group">
+                <label for="btDataFile">Pilih Sumber Data CSV:</label>
+                <div class="input-with-button">
+                  <select id="btDataFile" class="form-control"></select>
+                  <button type="button" id="btnRefreshCsvList" class="btn-sm" title="Refresh file CSV lokal">🔄</button>
+                  <button type="button" id="btnBrowseCsvFile" class="btn-sm" title="Cari file CSV di komputer">📂</button>
+                </div>
+              </div>
+
+              <!-- Strategy Selector -->
+              <div class="input-group">
+                <label for="btStrategy">Pilih Strategi Trading:</label>
+                <select id="btStrategy" class="form-control"></select>
+              </div>
+
+              <!-- Initial Capital ($10,000) -->
+              <div class="input-group">
+                <label for="btCapital">Modal Awal ($ USD):</label>
+                <input type="number" id="btCapital" class="form-control" value="10000" step="500">
+              </div>
+
+              <!-- Risk % -->
+              <div class="input-group">
+                <label for="btRiskPct">Resiko per Trade (%):</label>
+                <input type="number" id="btRiskPct" class="form-control" value="1.0" step="0.25">
+              </div>
+
+              <!-- Reward : Risk -->
+              <div class="input-group">
+                <label for="btRR">Target Reward:Risk (RR):</label>
+                <input type="number" id="btRR" class="form-control" value="2.0" step="0.5">
+              </div>
+
+              <!-- Timeframe -->
+              <div class="input-group">
+                <label for="btTimeframe">Timeframe Lilin:</label>
+                <select id="btTimeframe" class="form-control">
+                  <option value="M1">M1 (1 Menit)</option>
+                  <option value="M5" selected>M5 (5 Menit)</option>
+                  <option value="M15">M15 (15 Menit)</option>
+                  <option value="M30">M30 (30 Menit)</option>
+                  <option value="H1">H1 (1 Jam)</option>
+                  <option value="H4">H4 (4 Jam)</option>
+                </select>
+              </div>
+
+              <!-- Trend Filter -->
+              <div class="input-group">
+                <label for="btTrend">Filter Tren:</label>
+                <select id="btTrend" class="form-control">
+                  <option value="ema" selected>EMA Trend (Fast 20 / Slow 50)</option>
+                  <option value="structure">Market Structure</option>
+                  <option value="none">Tanpa Filter Tren (Ambil Semua)</option>
+                </select>
+              </div>
+
+              <!-- Swing Strength & Min FVG -->
+              <div class="input-group">
+                <label for="btSwingStrength">Swing Strength (Pivot):</label>
+                <input type="number" id="btSwingStrength" class="form-control" value="5" min="1" max="15">
+              </div>
+
+              <div class="input-group">
+                <label for="btMinFvg">Min FVG Points:</label>
+                <input type="number" id="btMinFvg" class="form-control" value="0.5" step="0.1">
+              </div>
+
+              <!-- Close Confirm Checkbox -->
+              <div class="checkbox-box" style="margin-top: 22px;">
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="btCloseConfirm">
+                  <span>Wajib Close Bar Konfirmasi</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Run Button Row -->
+            <div class="bt-action-row">
+              <div class="strategy-desc-badge" id="strategyDesc">
+                Memuat deskripsi strategi...
+              </div>
+              <div class="bt-btn-wrap">
+                <button type="button" id="btnRunBacktest" class="btn-run-backtest">
+                  <span class="btn-icon">🚀</span>
+                  <span class="btn-text">Jalankan Backtest ($10.000)</span>
+                </button>
+                <button type="button" id="btnCancelBacktest" class="btn-cancel-action" style="display: none;">
+                  ✖ Batal
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Scorecard (KPI Cards) -->
+          <div class="scorecard-container" id="scorecardContainer" style="display: none;">
+            <!-- Growth Card -->
+            <div class="kpi-card kpi-growth">
+              <div class="kpi-icon">📈</div>
+              <div class="kpi-content">
+                <span class="kpi-title">TOTAL GROWTH</span>
+                <span class="kpi-value" id="resGrowthPct">+0.00%</span>
+                <span class="kpi-sub" id="resNetProfit">+$0,00 Net Profit</span>
+              </div>
+            </div>
+
+            <!-- Win Rate Card -->
+            <div class="kpi-card kpi-winrate">
+              <div class="kpi-icon">🎯</div>
+              <div class="kpi-content">
+                <span class="kpi-title">WIN RATE (WR)</span>
+                <span class="kpi-value" id="resWinRate">0.0%</span>
+                <span class="kpi-sub" id="resWinLossRatio">0 Win / 0 Loss</span>
+              </div>
+            </div>
+
+            <!-- Max Drawdown Card -->
+            <div class="kpi-card kpi-drawdown">
+              <div class="kpi-icon">📉</div>
+              <div class="kpi-content">
+                <span class="kpi-title">MAX DRAWDOWN (DD)</span>
+                <span class="kpi-value" id="resMaxDdPct">-0.00%</span>
+                <span class="kpi-sub" id="resMaxDdAmt">-$0,00 Peak to Valley</span>
+              </div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="kpi-card kpi-balance">
+              <div class="kpi-icon">💰</div>
+              <div class="kpi-content">
+                <span class="kpi-title">SALDO AKHIR</span>
+                <span class="kpi-value" id="resFinalBalance">$10.000,00</span>
+                <span class="kpi-sub" id="resInitialBalance">Dari Modal: $10.000</span>
+              </div>
+            </div>
+
+            <!-- Profit Factor Card -->
+            <div class="kpi-card kpi-pf">
+              <div class="kpi-icon">⚖️</div>
+              <div class="kpi-content">
+                <span class="kpi-title">PROFIT FACTOR</span>
+                <span class="kpi-value" id="resProfitFactor">1.00</span>
+                <span class="kpi-sub" id="resTotalTrades">Total: 0 Trades</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results Details: Equity Chart + Trade Log Table -->
+          <div class="bt-results-grid" id="btResultsGrid" style="display: none;">
+            <!-- Equity Chart Card -->
+            <div class="card chart-card">
+              <div class="card-title-row">
+                <h3>Kurva Pertumbuhan Akun (Equity Curve)</h3>
+                <span class="chart-tag" id="chartTagText">Modal Awal $10.000</span>
+              </div>
+              <div class="canvas-wrapper">
+                <canvas id="equityCanvas" width="550" height="240"></canvas>
+              </div>
+            </div>
+
+            <!-- Trade Log Table Card -->
+            <div class="card trades-card">
+              <div class="card-title-row">
+                <h3>Daftar Eksekusi Trade</h3>
+                <span class="trade-count-badge" id="tradeCountText">0 Trades</span>
+              </div>
+              <div class="trades-table-wrapper">
+                <table class="trades-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Waktu</th>
+                      <th>Tipe</th>
+                      <th>Entry</th>
+                      <th>SL</th>
+                      <th>TP</th>
+                      <th>Hasil</th>
+                      <th>PnL ($)</th>
+                      <th>Saldo ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tradesTableBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Backtest Terminal Log (Always visible at bottom) -->
+          <div class="card bt-terminal-card">
+            <div class="log-header">
+              <div class="log-title">
+                <span class="pulse-dot"></span>
+                <h4>Log Proses Simulasi</h4>
+              </div>
+              <button type="button" id="btnClearBtLog" class="btn-xs">Hapus Log</button>
+            </div>
+            <div class="terminal-container bt-term" id="terminalBtLog">
+              <div class="log-line log-info">Pilih file CSV dan strategi, lalu klik "Jalankan Backtest".</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: INTERACTIVE HTML REPORT & LAB      -->
+        <!-- ========================================== -->
+        <section id="tab-report" class="tab-view">
+          <div class="report-view-container">
+            <div class="report-toolbar">
+              <div class="report-info">
+                <strong>Laporan Candlestick & Area Sweep Interaktif</strong>
+                <span id="currentReportPath">Belum ada laporan yang digenerate</span>
+              </div>
+              <div class="report-btn-group">
+                <button type="button" id="btnOpenReportExternal" class="btn-sm">🌐 Buka di Browser</button>
+                <button type="button" id="btnReloadReport" class="btn-sm">🔄 Muat Ulang</button>
+              </div>
+            </div>
+            <div class="report-frame-wrapper" id="reportFrameWrapper">
+              <div class="empty-report-placeholder" id="emptyReportPlaceholder">
+                <span class="big-icon">📊</span>
+                <h3>Belum Ada Laporan Backtest</h3>
+                <p>Jalankan simulasi di tab <strong>Sweep Backtester</strong> untuk melihat grafik candlestick, area sweep, dan FVG interaktif.</p>
+              </div>
+              <iframe id="reportIframe" class="report-iframe" style="display: none;"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: ADAPT TO MT5 EXPORTER              -->
+        <!-- ========================================== -->
+        <section id="tab-mt5" class="tab-view">
+          <div class="mt5-container">
+            <!-- Left: Description and Actions -->
+            <div class="mt5-left-panel">
+              <div class="card">
+                <div class="card-title">
+                  <span class="step-num">1</span>
+                  <h3>Export File Konfigurasi MT5 (.set)</h3>
+                </div>
+                <p class="desc-text">
+                  File <code>.set</code> dapat langsung dimuat (Load) di menu <strong>Expert Properties</strong> atau <strong>Strategy Tester</strong> MetaTrader 5 tanpa perlu mengetik ulang parameter yang sudah Anda uji.
+                </p>
+                <button type="button" id="btnDownloadSetFile" class="btn-primary-action" style="margin-top: 14px;">
+                  📥 Simpan File Konfigurasi (.set)
+                </button>
+              </div>
+
+              <div class="card" style="margin-top: 14px;">
+                <div class="card-title">
+                  <span class="step-num">2</span>
+                  <h3>Checklist Porting ke MQL5</h3>
+                </div>
+                <ul class="checklist-mt5">
+                  <li>✅ <strong>Risk Management:</strong> Nilai SL & TP dihitung proporsional terhadap modal $10.000.</li>
+                  <li>✅ <strong>Candle Logic:</strong> Menggunakan validasi bar close (bukan repaint).</li>
+                  <li>✅ <strong>Session Filter:</strong> Waktu candle diselaraskan dengan server broker MT5.</li>
+                  <li>✅ <strong>Magic Number:</strong> Membedakan order EA dari transaksi manual.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Right: Code Preview -->
+            <div class="mt5-right-panel">
+              <div class="card mql5-code-card">
+                <div class="card-title-row">
+                  <h3>MQL5 Strategy Logic Blueprint</h3>
+                  <button type="button" id="btnCopyMql5" class="btn-xs">📋 Salin Kode MQL5</button>
+                </div>
+                <pre class="mql5-code-box" id="mql5CodeBox">// Jalankan backtest terlebih dahulu untuk men-generate blueprint MQL5...</pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

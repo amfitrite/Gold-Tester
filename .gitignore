@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Large Data & Cache
+*.csv
+.dukascopy-cache/
+download/
+reports/
+
+# Temporary / Tests
+*.log
+test_run.ps1
+generate_icon.ps1
+update_shortcut.ps1
+create_desktop_shortcut.ps1
+create_shortcut.ps1
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
