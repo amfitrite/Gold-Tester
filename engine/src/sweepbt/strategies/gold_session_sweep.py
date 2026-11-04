@@ -1,227 +1,139 @@
-"""Gold Session Sweep + Displacement + FVG Retest.
+"""Gold rolling liquidity sweep + rejection retrace.
 
-Designed for XAUUSD M5. Timestamps are interpreted as UTC (Dukascopy convention):
-- Build the Asia range from 00:00 up to, but excluding, 07:00 UTC.
-- From 07:00 to 20:00 UTC, wait for price to sweep one side and close back inside.
-- Within the next three bars, require a strong displacement candle that breaks
-  the immediately preceding candle and leaves a 3-candle FVG.
-- Enter only on a later FVG retest that rejects back in the trade direction.
+An XAUUSD M5 research strategy that does not depend on timestamp/session
+interpretation. It continuously looks for a sweep of the previous N-bar high
+or low, a rejection close back inside that range, and a later 50% retrace of
+the rejection candle.
 
-No future candle is used to define a signal: the Asia range is complete before
-the trading window, ATR uses only earlier candles, displacement/FVG are known at
-their close, and the retest must happen strictly afterwards. One trade maximum
-per UTC day to avoid duplicate entries and same-day signal clustering.
+Rules are causal:
+- The reference high/low uses only the N candles before the sweep candle.
+- Sweep/rejection is confirmed at the sweep candle close.
+- The midpoint entry is only searched on later candles.
+- A new setup is not considered until the prior simulated trade has exited.
+- FVG is optional chart confluence, never a mandatory gate.
 """
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-from ..daygroups import group_by_day
 from ..models import Candle, Setup, Zone
 from ..params import Params
 from ..simulate import simulate_setup
 from ._common import first_touch
 
-ASIA_START_HOUR = 0
-ASIA_END_HOUR = 7
-TRADE_START_HOUR = 7
-TRADE_END_HOUR = 20
-ATR_PERIOD = 14
-DISPLACEMENT_ATR_MULTIPLE = 1.2
-MIN_BODY_FRACTION = 0.60
-MAX_DISPLACEMENT_BARS = 3
+
+MIN_LOOKBACK = 12
+LOOKBACK_MULTIPLIER = 8
+MIN_REJECTION_WICK_FRACTION = 0.15
 
 
-def _true_range(candle: Candle, previous_close: Optional[float]) -> float:
-    """True range for one completed candle."""
-    value = candle.high - candle.low
-    if previous_close is not None:
-        value = max(value, abs(candle.high - previous_close),
-                    abs(candle.low - previous_close))
-    return value
-
-
-def _atr_before(candles: List[Candle], index: int) -> Optional[float]:
-    """ATR ending at index-1; the candidate displacement bar is excluded."""
-    start = max(1, index - ATR_PERIOD)
-    if index - start < ATR_PERIOD:
-        return None
-    ranges = [
-        _true_range(candles[j], candles[j - 1].close)
-        for j in range(start, index)
-    ]
-    return sum(ranges) / len(ranges) if ranges else None
-
-
-def _asia_range(day: List[Candle]) -> Optional[Tuple[float, float, int]]:
-    """Return (high, low, last Asia index) from completed 00:00-06:59 UTC bars."""
-    asia = [
-        (i, c) for i, c in enumerate(day)
-        if c.timestamp is not None
-        and ASIA_START_HOUR <= c.timestamp.hour < ASIA_END_HOUR
-    ]
-    if len(asia) < 5:
-        return None
-    return (
-        max(c.high for _, c in asia),
-        min(c.low for _, c in asia),
-        asia[-1][0],
-    )
-
-
-def _displacement_direction(
-    candles: List[Candle], index: int, direction: str
-) -> bool:
-    """Strong, directional displacement confirmed by a close beyond prior bar."""
-    c = candles[index]
-    previous = candles[index - 1]
-    atr = _atr_before(candles, index)
-    candle_range = c.high - c.low
-    if atr is None or atr <= 0 or candle_range <= 0:
-        return False
-
-    body_fraction = abs(c.close - c.open) / candle_range
-    if candle_range < atr * DISPLACEMENT_ATR_MULTIPLE:
-        return False
-    if body_fraction < MIN_BODY_FRACTION:
-        return False
-
-    if direction == "short":
-        return c.bearish and c.close < previous.low
-    return c.bullish and c.close > previous.high
-
-
-def _fvg_zone(
+def _optional_fvg(
     candles: List[Candle], index: int, direction: str, min_size: float
 ) -> Optional[Zone]:
-    """Find a 3-candle FVG completed on index."""
+    """Return a completed three-candle FVG when one exists."""
     if index < 2:
         return None
-    first = candles[index - 2]
-    current = candles[index]
-
+    first, current = candles[index - 2], candles[index]
     if direction == "long":
         bottom, top = first.high, current.low
     else:
         bottom, top = current.high, first.low
-
-    if top <= bottom or (top - bottom) < min_size:
+    if top <= bottom or top - bottom < min_size:
         return None
-    return Zone(
-        "FVG", top=top, bottom=bottom,
-        start_index=index - 2, end_index=index,
-    )
+    return Zone("FVG", top=top, bottom=bottom,
+                start_index=index - 2, end_index=index)
 
 
 def run(candles: List[Candle], params: Params) -> List[Setup]:
-    """Generate at most one confirmed Asia-range sweep trade per UTC day."""
+    """Generate non-overlapping sweep/rejection/retrace trades."""
     setups: List[Setup] = []
-    if len(candles) < ATR_PERIOD + 5:
-        return setups
+    lookback = max(MIN_LOOKBACK, params.swing_strength * LOOKBACK_MULTIPLIER)
+    next_allowed_index = lookback
 
-    for _, day in group_by_day(candles):
-        levels = _asia_range(day)
-        if levels is None:
-            continue
-        asia_high, asia_low, last_asia_index = levels
-
-        # Trade only after the Asia range is complete. Limit signals to London
-        # and New York activity; ignore late-session candles after 20:00 UTC.
-        trade_indices = [
-            i for i, c in enumerate(day)
-            if c.timestamp is not None
-            and c.timestamp.hour >= TRADE_START_HOUR
-            and c.timestamp.hour < TRADE_END_HOUR
-            and i > last_asia_index
-        ]
-        if not trade_indices:
+    for i in range(lookback, len(candles)):
+        if i < next_allowed_index:
             continue
 
-        active_end_index = max(trade_indices)
-        day_trade: Optional[Setup] = None
-        for local_i in trade_indices:
-            sweep = day[local_i]
-            swept_high = sweep.high > asia_high and sweep.close < asia_high
-            swept_low = sweep.low < asia_low and sweep.close > asia_low
+        c = candles[i]
+        prior = candles[i - lookback:i]
+        range_high = max(x.high for x in prior)
+        range_low = min(x.low for x in prior)
+        candle_range = c.high - c.low
+        if candle_range <= 0:
+            continue
 
-            # A candle that traverses both edges is ambiguous on OHLC data.
-            if swept_high == swept_low:
+        upper_wick = c.high - max(c.open, c.close)
+        lower_wick = min(c.open, c.close) - c.low
+
+        swept_high = (
+            c.high > range_high
+            and c.close < range_high
+            and upper_wick / candle_range >= MIN_REJECTION_WICK_FRACTION
+        )
+        swept_low = (
+            c.low < range_low
+            and c.close > range_low
+            and lower_wick / candle_range >= MIN_REJECTION_WICK_FRACTION
+        )
+
+        # A single candle sweeping both ends is ambiguous on OHLC data.
+        if swept_high == swept_low:
+            continue
+
+        direction = "short" if swept_high else "long"
+        trigger_level = range_high if swept_high else range_low
+        entry = (c.high + c.low) / 2.0
+
+        entry_index = first_touch(
+            candles,
+            i + 1,
+            min(len(candles) - 1, i + params.pullback_window),
+            entry,
+            direction,
+            require_close=False,
+        )
+        if entry_index is None:
+            continue
+
+        if direction == "long":
+            sl = c.low - params.sl_buffer
+            if entry <= sl:
                 continue
-            direction = "short" if swept_high else "long"
-            trigger_level = asia_high if swept_high else asia_low
-
-            # Require displacement shortly after the sweep. If price reclaims
-            # the swept edge before displacement, the setup is invalidated.
-            displacement_index = None
-            for candidate_i in range(local_i + 1,
-                                     min(active_end_index + 1,
-                                         local_i + MAX_DISPLACEMENT_BARS + 1)):
-                candidate = day[candidate_i]
-                reclaimed = (
-                    candidate.close > asia_high if direction == "short"
-                    else candidate.close < asia_low
-                )
-                if reclaimed:
-                    break
-                if _displacement_direction(day, candidate_i, direction):
-                    displacement_index = candidate_i
-                    break
-            if displacement_index is None:
+            tp = entry + (entry - sl) * params.rr
+        else:
+            sl = c.high + params.sl_buffer
+            if entry >= sl:
                 continue
+            tp = entry - (sl - entry) * params.rr
 
-            zone = _fvg_zone(
-                day, displacement_index, direction, params.min_fvg_size
-            )
-            if zone is None:
-                continue
+        local_zone = _optional_fvg(candles, i, direction, params.min_fvg_size)
+        setup = simulate_setup(
+            candles,
+            direction,
+            entry_index,
+            entry,
+            sl,
+            tp,
+            params,
+            strategy="gold_session_sweep",
+            trigger_index=i,
+            trigger_level=trigger_level,
+            zone=local_zone,
+            note=(
+                f"rolling {lookback}-bar {'high' if swept_high else 'low'} "
+                f"sweep -> rejection -> 50% retrace"
+                f"{' + FVG' if local_zone is not None else ''}"
+            ),
+            resolve_from=entry_index,
+        )
+        if setup is None:
+            continue
 
-            # Entry is the proximal FVG edge. Require a wick touch followed by
-            # a close back outside the gap in the intended trade direction.
-            entry = zone.proximal(direction)
-            entry_index = first_touch(
-                day,
-                displacement_index + 1,
-                min(active_end_index,
-                    displacement_index + params.pullback_window),
-                entry,
-                direction,
-                require_close=True,
-            )
-            if entry_index is None:
-                continue
+        setups.append(setup)
+        # Prevent overlapping entries. If the trade remains unresolved to the
+        # end of available data, there is no later trade to evaluate anyway.
+        next_allowed_index = (
+            setup.exit_index + 1 if setup.exit_index is not None else len(candles)
+        )
 
-            if direction == "long":
-                sl = sweep.low - params.sl_buffer
-                tp = entry + (entry - sl) * params.rr
-            else:
-                sl = sweep.high + params.sl_buffer
-                tp = entry - (sl - entry) * params.rr
-
-            # Re-index day-local positions into the original candle series.
-            # Candle.index is the stable global index supplied by the parser.
-            global_entry = day[entry_index].index
-            global_trigger = day[local_i].index
-            global_zone = Zone(
-                "FVG", top=zone.top, bottom=zone.bottom,
-                start_index=day[zone.start_index].index,
-                end_index=day[zone.end_index].index,
-            )
-            setup = simulate_setup(
-                candles, direction, global_entry, entry, sl, tp, params,
-                strategy="gold_session_sweep",
-                trigger_index=global_trigger,
-                trigger_level=trigger_level,
-                zone=global_zone,
-                note=f"Asia {'high' if swept_high else 'low'} sweep -> "
-                     f"displacement -> FVG retest ({direction})",
-                resolve_from=global_entry,
-            )
-            if setup is not None:
-                day_trade = setup
-                break
-
-        if day_trade is not None:
-            setups.append(day_trade)
-
-    setups.sort(key=lambda setup: setup.entry_index)
     return setups

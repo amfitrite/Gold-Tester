@@ -24,7 +24,7 @@ sweep RR / trend-filter / timeframe / session to see **which trades bleed money*
 14. **Bollinger bands** — outer-band mean reversion toward the middle band.
 15. **Session gap fade** — fade a gap at the next session boundary.
 16. **VWAP bounce** — trade a cross/reclaim around cumulative VWAP.
-17. **Gold Session Sweep** — Asia-range sweep + displacement + FVG rejection retest.
+17. **Gold Rolling Sweep** — previous-range liquidity sweep + rejection wick + 50% limit retrace.
 18. **London/NY VWAP trend pullback** — session-VWAP reclaim in the EMA-200 direction,
     M5 only, fixed 1:1 ATR bracket and a 2-hour time stop.
 
@@ -326,41 +326,37 @@ gold-sweep-backtester/
 └── tests/                  # hand-checked unit tests for every stage
 ```
 
-## New strategy — Gold Session Sweep + Displacement + FVG Retest
+## New strategy — Gold Rolling Liquidity Sweep + 50% Rejection Retest
 
 Strategy id: `gold_session_sweep`.
 
-This XAUUSD-oriented setup builds the Asia range from **00:00–06:59 UTC**, then
-looks for one trade during **07:00–19:59 UTC**:
+Designed as a more frequent XAUUSD M5 test without reliance on session
+timestamps:
 
-1. Price wicks above the Asia high (short candidate) or below the Asia low (long
-   candidate), then closes back inside the range.
-2. Within the next three candles, price must produce a directional displacement
-   candle: range at least **1.2× prior 14-bar ATR**, body at least **60%** of its
-   range, and a close beyond the previous candle's opposite extreme.
-3. That displacement candle must also complete a three-candle FVG whose width is
-   at least `--min-fvg`.
-4. Entry is the proximal FVG edge on a later retest, with a close back out of the
-   gap in the trade direction. Stop is beyond the sweep wick plus `--sl-buffer`;
-   target is the configured `--rr`.
+1. Use the previous **24 candles** (default when `swing_strength=3`) to define
+   a rolling high and low. No current/future candle is included in those levels.
+2. A short candidate requires a wick above the prior high, a close back below
+   that level, a bearish candle, and an upper wick at least 25% of its range.
+   Long conditions mirror this below the rolling low.
+3. Wait for a later retest of the rejection candle's **50% range level**. The
+   retest must close back in the trade direction.
+4. Stop goes beyond the rejection wick plus `--sl-buffer`; target is configured
+   by `--rr`. A matching three-candle FVG is recorded as optional confluence,
+   not a requirement.
+5. A new setup is not evaluated until the previous simulated position exits,
+   avoiding overlapping trades.
 
-The Asia range is complete before the trade window. ATR excludes the displacement
-bar, the FVG is only evaluated once its third candle has closed, and retests are
-searched strictly after that close. At most one trade is taken per UTC day.
-Timestamps are treated as UTC; this matches Dukascopy data. Convert broker/server
-timestamps to UTC before testing if they are not already UTC.
+The signal works with timestamped or untimestamped OHLC data. The lookback is
+`max(12, swing_strength × 8)`; with the M5 preset's swing strength of 3 it is
+24 bars (about two hours). It is a research candidate, not a proven profitable
+system.
 
 Example:
 
 ```bash
 PYTHONPATH=src python -m sweepbt.cli "data/XAUUSDM5.csv" --timeframe M5 \
-    --strategy gold_session_sweep --rr 1:2 --min-fvg 0.5 --sl-buffer 0.3
+    --strategy gold_session_sweep --rr 1:2 --sl-buffer 0.3 --pullback 16
 ```
-
-The strategy is a research candidate, not a proven profitable system. Its
-displacement/body thresholds are fixed in code for this first version; the
-shared RR, FVG size, stop buffer, pullback window, and trend filter remain
-available through the existing controls.
 
 ---
 

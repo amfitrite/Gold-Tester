@@ -72,7 +72,7 @@ LABELS = {
     "bollinger_bands": "Bollinger Bands Mean Reversion",
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce",
-    "gold_session_sweep": "Gold Session Sweep + Displacement + FVG Retest",
+    "gold_session_sweep": "Gold Rolling Liquidity Sweep + 50% Rejection Retest",
     "london_ny_vwap_pullback": "London/NY VWAP Trend Pullback",
 }
 
@@ -111,8 +111,8 @@ DESCRIPTIONS = {
         "session opens — expect reversion when a new session gaps away from the previous close.",
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "
         "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
-    "gold_session_sweep": "Build the 00:00-07:00 UTC Asia range, wait for a London/NY sweep, "
-        "then require ATR displacement + a three-candle FVG and a later rejection retest.",
+    "gold_session_sweep": "Sweep the previous 24-bar high/low, close back inside with a rejection wick, "
+        "then trade a later 50% retrace; works without timestamps and FVG is optional.",
     "london_ny_vwap_pullback": "M5 only, recommended risk 1.0-1.5%. During London/NY "
         "(07:00-17:59 UTC), buy a bullish rejection back above session VWAP when price is "
         "above the 200-EMA, or sell the mirror image below it; fixed 1.25xATR stop/target "
