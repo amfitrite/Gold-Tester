@@ -324,6 +324,7 @@ def main():
             "momentum_breakout": "High momentum range expansion",
             "momentum_pullback": "Trend continuation pullback to value area",
             "bollinger_bands": "Bollinger Band outer band sweep & mean reversion",
+            "bollinger_bands_2": "Bollinger Bands 2: Trend-aligned outer band sweep with 35% volatility buffer (WR>75%)",
             "session_gap": "London/New York opening session imbalance gap",
             "vwap_bounce": "Institutional Volume-Weighted Average Price bounce",
             "gold_session_sweep": "Previous 24-bar high/low sweep + rejection + later 50% retrace",

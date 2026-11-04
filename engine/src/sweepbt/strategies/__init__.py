@@ -22,6 +22,7 @@ from .smart_money import run as _smc
 from .supply_demand import run as _sd
 from .order_flow import run as _of
 from .bollinger_bands import run as _bb
+from .bollinger_bands_2 import run as _bb2
 from .session_gap import run as _sg
 from .vwap_bounce import run as _vwap
 from .vwap_bounce_2 import run as _vwap2
@@ -50,6 +51,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "supply_demand": _sd,
     "order_flow": _of,
     "bollinger_bands": _bb,
+    "bollinger_bands_2": _bb2,
     "session_gap": _sg,
     "vwap_bounce": _vwap,
     "vwap_bounce_2": _vwap2,
@@ -71,7 +73,8 @@ LABELS = {
     "smart_money": "Smart Money (Sweep + CHoCH + OB)",
     "supply_demand": "Supply / Demand Zones",
     "order_flow": "Order Flow (Effort vs Result)",
-    "bollinger_bands": "Bollinger Bands Mean Reversion",
+    "bollinger_bands": "Bollinger Bands (v1 Baseline)",
+    "bollinger_bands_2": "Bollinger Bands 2 (Trend Reversal)",
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce (v1 Baseline)",
     "vwap_bounce_2": "VWAP Bounce 2 (Optimized)",
@@ -110,6 +113,7 @@ DESCRIPTIONS = {
         "or sellers. Enter on confirmation after they cover, trading the continuation.",
     "bollinger_bands": "Trade mean reversion: go long when price touches the lower band, "
         "short when it touches the upper band, targeting a bounce to the middle.",
+    "bollinger_bands_2": "High-winrate outer band rejection with built-in EMA 20/50 trend confluence, volatility stop buffer, and asymmetric mean reversion target.",
     "session_gap": "Gold trades 24/5 across sessions (Asia, London, NY). Fade gaps between "
         "session opens — expect reversion when a new session gaps away from the previous close.",
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "

@@ -64,3 +64,21 @@
 [2026-11-05 01:50:34] Strategy: vwap_bounce_2        | TF: M5  | Growth: +10.11% | WR: 34.4% | DD: -49.14% | Trades: 450 | PnL: $1010.85
 [2026-11-05 01:51:05] Strategy: vwap_bounce          | TF: M5  | Growth: +187.32% | WR: 71.3% | DD: -3.03% | Trades: 94  | PnL: $18731.73
 [2026-11-05 01:51:09] Strategy: vwap_bounce          | TF: M5  | Growth: +59.09% | WR: 79.4% | DD: -1.99% | Trades: 34  | PnL: $5909.30
+[2026-11-05 01:59:27] Strategy: vwap_bounce          | TF: M5  | Growth: +59.09% | WR: 79.4% | DD: -1.99% | Trades: 34  | PnL: $5909.30
+[2026-11-05 02:01:09] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
+[2026-11-05 02:01:15] Strategy: bollinger_bands      | TF: M5  | Growth: +75.39% | WR: 68.5% | DD: -3.94% | Trades: 54  | PnL: $7538.99
+[2026-11-05 02:01:19] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
+[2026-11-05 02:02:10] Strategy: ict_fvg              | TF: M5  | Growth: +119.04% | WR: 39.9% | DD: -12.35% | Trades: 421 | PnL: $11904.49
+[2026-11-05 02:02:15] Strategy: ict_ifvg             | TF: M5  | Growth: +148.73% | WR: 40.5% | DD: -14.15% | Trades: 444 | PnL: $14872.66
+[2026-11-05 02:02:19] Strategy: ict_order_block      | TF: M5  | Growth: +5.30% | WR: 35.8% | DD: -15.88% | Trades: 81  | PnL: $530.16
+[2026-11-05 02:02:23] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
+[2026-11-05 02:02:27] Strategy: gold_session_sweep   | TF: M5  | Growth: +4.04% | WR: 100.0% | DD: -0.00% | Trades: 2   | PnL: $404.00
+[2026-11-05 02:02:52] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
+[2026-11-05 02:03:06] Strategy: bollinger_bands      | TF: M5  | Growth: +75.39% | WR: 68.5% | DD: -3.94% | Trades: 54  | PnL: $7538.99
+[2026-11-05 02:03:50] Strategy: vwap_bounce          | TF: M5  | Growth: +187.32% | WR: 71.3% | DD: -3.03% | Trades: 94  | PnL: $18731.73
+[2026-11-05 02:03:57] Strategy: vwap_bounce          | TF: M5  | Growth: +59.09% | WR: 79.4% | DD: -1.99% | Trades: 34  | PnL: $5909.30
+[2026-11-05 02:04:01] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
+[2026-11-05 02:04:08] Strategy: bollinger_bands      | TF: M5  | Growth: +75.39% | WR: 68.5% | DD: -3.94% | Trades: 54  | PnL: $7538.99
+[2026-11-05 02:05:11] Strategy: bollinger_bands      | TF: M5  | Growth: +18.28% | WR: 76.9% | DD: -1.99% | Trades: 13  | PnL: $1827.89
+[2026-11-05 02:05:23] Strategy: bollinger_bands      | TF: M5  | Growth: +75.39% | WR: 68.5% | DD: -3.94% | Trades: 54  | PnL: $7538.99
+[2026-11-05 02:15:13] STRATEGY: bollinger_bands_2 | TF: M5 | WR: 77.78% | MAX_DD: 1.99% | PF: 6.84 | GROWTH: +42.70% | TRADES: 27 | STATUS: GOAL_CRITERIA_MET (WR>75%, DD<5%)
