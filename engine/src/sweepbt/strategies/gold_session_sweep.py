@@ -3,13 +3,13 @@
 Designed for XAUUSD M5. Timestamps are interpreted as UTC (Dukascopy convention):
 - Build the Asia range from 00:00 up to, but excluding, 07:00 UTC.
 - From 07:00 to 20:00 UTC, wait for price to sweep one side and close back inside.
-- Within the next three bars, require a strong displacement candle that breaks
-  the immediately preceding candle and leaves a 3-candle FVG.
-- Enter only on a later FVG retest that rejects back in the trade direction.
+- Within the next four bars, require a directional displacement candle.
+- Prefer a 50% retrace of that displacement; FVG is recorded as confluence when
+  present, but is not mandatory.
 
 No future candle is used to define a signal: the Asia range is complete before
 the trading window, ATR uses only earlier candles, displacement/FVG are known at
-their close, and the retest must happen strictly afterwards. One trade maximum
+their close, and the retrace must happen strictly afterwards. One trade maximum
 per UTC day to avoid duplicate entries and same-day signal clustering.
 """
 from __future__ import annotations
@@ -27,9 +27,10 @@ ASIA_END_HOUR = 7
 TRADE_START_HOUR = 7
 TRADE_END_HOUR = 20
 ATR_PERIOD = 14
-DISPLACEMENT_ATR_MULTIPLE = 1.2
-MIN_BODY_FRACTION = 0.60
-MAX_DISPLACEMENT_BARS = 3
+# Loosened after the first implementation produced too few/no setups in practice.
+DISPLACEMENT_ATR_MULTIPLE = 0.75
+MIN_BODY_FRACTION = 0.45
+MAX_DISPLACEMENT_BARS = 4
 
 
 def _true_range(candle: Candle, previous_close: Optional[float]) -> float:
@@ -86,9 +87,11 @@ def _displacement_direction(
     if body_fraction < MIN_BODY_FRACTION:
         return False
 
+    # A directional close beyond the previous close is a softer continuation
+    # test than requiring a full break of the previous candle's extreme.
     if direction == "short":
-        return c.bearish and c.close < previous.low
-    return c.bullish and c.close > previous.high
+        return c.bearish and c.close < previous.close
+    return c.bullish and c.close > previous.close
 
 
 def _fvg_zone(
@@ -169,15 +172,15 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             if displacement_index is None:
                 continue
 
+            # FVG is useful confluence, but it is not a mandatory gate. A
+            # displacement can be tradeable even when the three-candle gap is
+            # tiny or absent. Use the displacement midpoint for a practical
+            # pullback entry in either case.
             zone = _fvg_zone(
                 day, displacement_index, direction, params.min_fvg_size
             )
-            if zone is None:
-                continue
-
-            # Entry is the proximal FVG edge. Require a wick touch followed by
-            # a close back outside the gap in the intended trade direction.
-            entry = zone.proximal(direction)
+            displacement = day[displacement_index]
+            entry = (displacement.high + displacement.low) / 2.0
             entry_index = first_touch(
                 day,
                 displacement_index + 1,
@@ -201,11 +204,13 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             # Candle.index is the stable global index supplied by the parser.
             global_entry = day[entry_index].index
             global_trigger = day[local_i].index
-            global_zone = Zone(
-                "FVG", top=zone.top, bottom=zone.bottom,
-                start_index=day[zone.start_index].index,
-                end_index=day[zone.end_index].index,
-            )
+            global_zone = None
+            if zone is not None:
+                global_zone = Zone(
+                    "FVG", top=zone.top, bottom=zone.bottom,
+                    start_index=day[zone.start_index].index,
+                    end_index=day[zone.end_index].index,
+                )
             setup = simulate_setup(
                 candles, direction, global_entry, entry, sl, tp, params,
                 strategy="gold_session_sweep",
@@ -213,7 +218,8 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
                 trigger_level=trigger_level,
                 zone=global_zone,
                 note=f"Asia {'high' if swept_high else 'low'} sweep -> "
-                     f"displacement -> FVG retest ({direction})",
+                     f"displacement 50% retrace"
+                     f"{' + FVG' if global_zone is not None else ''} ({direction})",
                 resolve_from=global_entry,
             )
             if setup is not None:
