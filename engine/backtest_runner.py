@@ -247,7 +247,8 @@ def main():
             "momentum_pullback": "Trend continuation pullback to value area",
             "bollinger_bands": "Bollinger Band outer band sweep & mean reversion",
             "session_gap": "London/New York opening session imbalance gap",
-            "vwap_bounce": "Institutional Volume-Weighted Average Price bounce"
+            "vwap_bounce": "Institutional Volume-Weighted Average Price bounce",
+            "gold_session_sweep": "Asia range sweep + ATR displacement + FVG rejection retest"
         }
         for name in sorted(REGISTRY.keys()):
             strategies_info.append({
