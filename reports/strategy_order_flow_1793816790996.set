@@ -1,0 +1,16 @@
+; ===========================================================
+; MT5 EA Configuration: ORDER_FLOW Strategy
+; Generated on: 2026-11-05 01:26:31
+; ===========================================================
+InpStrategyName=order_flow
+InpRiskPercent=1.00
+InpRewardRiskRatio=2.00
+InpSwingStrength=5
+InpMinFVGPoints=0.50
+InpSLBufferPoints=0.00
+InpPullbackWindow=10
+InpTrendFilterMethod=ema
+InpCloseConfirmation=0
+InpMaxRiskPoints=0
+InpMagicNumber=888555
+InpSlippagePips=3

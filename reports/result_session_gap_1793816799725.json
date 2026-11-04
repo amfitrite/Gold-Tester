@@ -1,0 +1,179 @@
+{
+  "success": true,
+  "strategy": "session_gap",
+  "file": "D:\\CSV\\xauusd_m5.csv",
+  "timeframe": "M5",
+  "params": {
+    "capital": 10000.0,
+    "risk_pct": 1.0,
+    "rr": 2.0,
+    "trend": "ema",
+    "swing_strength": 5,
+    "min_fvg": 0.5,
+    "close_confirm": false
+  },
+  "summary": {
+    "initial_balance": 10000.0,
+    "final_balance": 11037.52,
+    "net_profit": 1037.52,
+    "growth_pct": 10.38,
+    "win_rate": 75.0,
+    "total_trades": 8,
+    "wins": 6,
+    "losses": 2,
+    "unresolved": 0,
+    "profit_factor": 6.01,
+    "max_drawdown_amount": 107.16,
+    "max_drawdown_pct": 1.0,
+    "avg_win": 207.45,
+    "avg_loss": 103.58,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 10000.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-09 13:00:00",
+        "balance": 9900.0,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-10-11 22:00:00",
+        "balance": 10098.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-13 13:00:00",
+        "balance": 10299.96,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-14 13:00:00",
+        "balance": 10505.96,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-15 13:00:00",
+        "balance": 10716.08,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-15 22:00:00",
+        "balance": 10608.92,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-10-18 22:00:00",
+        "balance": 10821.1,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-11-01 23:00:00",
+        "balance": 11037.52,
+        "drawdown_pct": 0.0
+      }
+    ],
+    "trades": [
+      {
+        "id": 1,
+        "time": "2026-10-09 13:00:00",
+        "direction": "SHORT",
+        "entry_price": 4175.445,
+        "stop_loss": 4175.775,
+        "take_profit": 4175.005,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -100.0,
+        "balance": 9900.0
+      },
+      {
+        "id": 2,
+        "time": "2026-10-11 22:00:00",
+        "direction": "SHORT",
+        "entry_price": 4193.315,
+        "stop_loss": 4198.07,
+        "take_profit": 4186.975,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 198.0,
+        "balance": 10098.0
+      },
+      {
+        "id": 3,
+        "time": "2026-10-13 13:00:00",
+        "direction": "SHORT",
+        "entry_price": 4179.525,
+        "stop_loss": 4179.75,
+        "take_profit": 4179.225,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 201.96,
+        "balance": 10299.96
+      },
+      {
+        "id": 4,
+        "time": "2026-10-14 13:00:00",
+        "direction": "SHORT",
+        "entry_price": 4097.871,
+        "stop_loss": 4098.111,
+        "take_profit": 4097.551,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 206.0,
+        "balance": 10505.96
+      },
+      {
+        "id": 5,
+        "time": "2026-10-15 13:00:00",
+        "direction": "SHORT",
+        "entry_price": 4152.215,
+        "stop_loss": 4152.575,
+        "take_profit": 4151.735,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 210.12,
+        "balance": 10716.08
+      },
+      {
+        "id": 6,
+        "time": "2026-10-15 22:00:00",
+        "direction": "LONG",
+        "entry_price": 4170.995,
+        "stop_loss": 4170.71,
+        "take_profit": 4171.375,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -107.16,
+        "balance": 10608.92
+      },
+      {
+        "id": 7,
+        "time": "2026-10-18 22:00:00",
+        "direction": "LONG",
+        "entry_price": 4162.335,
+        "stop_loss": 4157.925,
+        "take_profit": 4168.215,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 212.18,
+        "balance": 10821.1
+      },
+      {
+        "id": 8,
+        "time": "2026-11-01 23:00:00",
+        "direction": "LONG",
+        "entry_price": 3869.055,
+        "stop_loss": 3860.76,
+        "take_profit": 3880.115,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 216.42,
+        "balance": 11037.52
+      }
+    ]
+  },
+  "report_file": "d:\\CSV\\dukascopy-downloader\\reports\\report_session_gap_1793816799725.html",
+  "set_file": "d:\\CSV\\dukascopy-downloader\\reports\\strategy_session_gap_1793816799725.set",
+  "mql5_blueprint": "//+------------------------------------------------------------------+\n//| MQL5 LOGIC BLUEPRINT: SESSION_GAP\n//| Adaptasi Strategi dari Python Backtester ke MetaTrader 5\n//+------------------------------------------------------------------+\n\n// 1. INPUT PARAMETER\ninput double InpRiskPercent      = 1.0;          // Risk % per trade\ninput double InpRewardRiskRatio  = 2.00;        // Target RR (2.0:1)\ninput int    InpSwingStrength    = 5;            // Swing pivot bars\ninput double InpMinFVG           = 0.50;        // Min FVG size\ninput string InpTrendMethod      = \"ema\";     // Trend filter (ema / structure)\n\n// 2. ATURAN ENTRY (ON TICK / ON NEW BAR)\nbool CheckEntrySignal(ENUM_ORDER_TYPE &orderType, double &slPrice, double &tpPrice)\n{\n    // A. Deteksi Swing High / Low sebelumnya menggunakan pivot bar\n    // B. Verifikasi apakah ada Liquidity Sweep (Wick melampaui level, candle close di dalam)\n    // C. Verifikasi konfirmasi Fair Value Gap (FVG) atau Inbalance 3-bar\n    // D. Filter Trend: EMA harus sejalan dengan arah transaksi\n    \n    // Contoh Kalkulasi SL & TP:\n    // double riskDistance = MathAbs(entryPrice - slPrice);\n    // tpPrice = entryPrice + (riskDistance * InpRewardRiskRatio); // for Buy\n    return false;\n}\n\n// 3. ATURAN MONEY MANAGEMENT ($10.000 Akun Standar)\ndouble CalculateLotSize(double slDistancePoints)\n{\n    double accountBalance = AccountInfoDouble(ACCOUNT_BALANCE);\n    double riskMoney = accountBalance * (InpRiskPercent / 100.0);\n    double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);\n    double lotSize = riskMoney / (slDistancePoints * tickValue);\n    return NormalizeDouble(lotSize, 2);\n}\n"
+}
