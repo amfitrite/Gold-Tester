@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeConfirm,
         sweepLookback,
         sweepWickFraction: Number.isFinite(sweepWickFraction) ? sweepWickFraction : 0.05,
-        sweepRetrace: Number.isFinite(sweepRetrace) ? sweepRetrace : 0.25
+        sweepRetrace: Number.isFinite(sweepRetrace) ? sweepRetrace : 0.35
       });
 
       btnRunBacktest.style.display = 'inline-flex';

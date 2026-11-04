@@ -336,7 +336,7 @@ Designed for XAUUSD M5 research without requiring session timestamps:
    long candidate wicks below the prior low and closes back above it. A minimum
    rejection-wick fraction avoids tiny/no-wick breaks.
 3. The entry is a limit price placed inside the rejection wick, measured from
-   the sweep candle close toward its extreme. For example, `sweep_entry_retrace=0.25`
+   the rejection candle body edge toward its wick extreme. For example, `sweep_entry_retrace=0.35`
    places the sell limit 25% into an upper wick or the buy limit 25% into a lower wick.
    The order is only eligible on later candles; `--close-confirm` can additionally
    require the fill candle to close back in the trade direction.
@@ -346,11 +346,11 @@ Designed for XAUUSD M5 research without requiring session timestamps:
 5. Only one simulated position is active at a time for this strategy.
 
 Defaults for fine-tuning: `--sweep-lookback 12`, `--sweep-wick-fraction 0.05`,
-`--sweep-retrace 0.25`, `--pullback 16`, `--rr 2`. These are starting values from
-an exploratory 70/30 split of the embedded Oct 5–Nov 3, 2026 M5 sample, not a
-validated edge. The holdout contained only 13 candidate trades before costs;
-repeat across different months and include spread, commission, and slippage
-before drawing conclusions.
+`--sweep-retrace 0.35`, `--pullback 16`, `--rr 2`. In an exploratory chronological
+70/30 split of the embedded Oct 5–Nov 3, 2026 M5 sample, this candidate produced
+20 trades (16W/4L) in the first segment and 10 trades (7W/3L) in the holdout.
+This is a small, parameter-screened sample with selection bias, not a validated
+edge. Repeat on untouched months and include spread, commission, and slippage.
 
 All strategies now calculate realized R using the **actual TP distance divided
 by entry-to-SL risk**. Strategies with a natural target shorter than the selected

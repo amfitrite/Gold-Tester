@@ -371,7 +371,7 @@ ipcMain.handle('run-backtest', async (event, options) => {
     closeConfirm = false,
     sweepLookback = 12,
     sweepWickFraction = 0.05,
-    sweepRetrace = 0.25
+    sweepRetrace = 0.35
   } = options;
 
   if (!file || !fs.existsSync(file)) {

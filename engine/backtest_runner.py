@@ -229,7 +229,7 @@ def main():
                         help="prior bars defining the Gold Session Sweep range")
     parser.add_argument("--sweep-wick-fraction", type=float, default=0.05,
                         help="minimum rejection wick fraction of candle range")
-    parser.add_argument("--sweep-retrace", type=float, default=0.25,
+    parser.add_argument("--sweep-retrace", type=float, default=0.35,
                         help="limit-entry fraction into the rejection wick (0.05-0.95)")
     parser.add_argument("--close-confirm", action="store_true")
     parser.add_argument("--report-out", default="report.html", help="Path to write HTML report")
@@ -257,7 +257,7 @@ def main():
             "bollinger_bands": "Bollinger Band outer band sweep & mean reversion",
             "session_gap": "London/New York opening session imbalance gap",
             "vwap_bounce": "Institutional Volume-Weighted Average Price bounce",
-            "gold_session_sweep": "Previous 24-bar high/low sweep + rejection + later 50% retrace"
+            "gold_session_sweep": "Rolling liquidity sweep with a configurable rejection-wick limit retrace"
         }
         for name in sorted(REGISTRY.keys()):
             strategies_info.append({

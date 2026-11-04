@@ -24,7 +24,7 @@ class Params:
     # --- Gold rolling liquidity sweep (gold_session_sweep only) ---
     sweep_lookback: int = 12         # prior candles defining the rolling liquidity range
     sweep_min_wick_fraction: float = 0.05  # minimum rejection wick / full candle range
-    sweep_entry_retrace: float = 0.25      # fraction of rejection wick retraced for limit entry
+    sweep_entry_retrace: float = 0.35      # fraction of rejection wick retraced for limit entry
 
     # --- breakout / ORB strategies ---
     orb_window: int = 4              # candles forming the opening range

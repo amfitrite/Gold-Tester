@@ -80,7 +80,7 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             direction = "short"
             trigger_level = range_high
             # Sell limit above the close, inside the upper rejection wick.
-            entry = c.close + upper_wick * entry_retrace
+            entry = max(c.open, c.close) + upper_wick * entry_retrace
             if not c.close < entry < c.high:
                 continue
             sl = c.high + params.sl_buffer
@@ -88,7 +88,7 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             direction = "long"
             trigger_level = range_low
             # Buy limit below the close, inside the lower rejection wick.
-            entry = c.close - lower_wick * entry_retrace
+            entry = min(c.open, c.close) - lower_wick * entry_retrace
             if not c.low < entry < c.close:
                 continue
             sl = c.low - params.sl_buffer
