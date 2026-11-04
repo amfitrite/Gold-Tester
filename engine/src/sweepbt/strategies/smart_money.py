@@ -44,7 +44,8 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
             continue
         ob = candles[ob_idx]
         entry = ob.high if direction == "long" else ob.low
-        i = first_touch(candles, choch.index + 1, choch.index + window, entry, direction)
+        i = first_touch(candles, choch.index + 1, choch.index + window, entry, direction,
+                        require_close=params.require_close_confirmation)
         if i is None:
             continue
         if direction == "long":

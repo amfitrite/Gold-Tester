@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btSwingStrength = document.getElementById('btSwingStrength');
   const btMinFvg = document.getElementById('btMinFvg');
   const btCloseConfirm = document.getElementById('btCloseConfirm');
+  const btSweepLookback = document.getElementById('btSweepLookback');
+  const btSweepWickFraction = document.getElementById('btSweepWickFraction');
+  const btSweepRetrace = document.getElementById('btSweepRetrace');
 
   const btnRunBacktest = document.getElementById('btnRunBacktest');
   const btnCancelBacktest = document.getElementById('btnCancelBacktest');
@@ -414,6 +417,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const swingStrength = parseInt(btSwingStrength.value, 10) || 5;
     const minFvg = parseFloat(btMinFvg.value) || 0.5;
     const closeConfirm = btCloseConfirm.checked;
+    const sweepLookback = Number.parseInt(btSweepLookback.value, 10) || 12;
+    const sweepWickFraction = Number.parseFloat(btSweepWickFraction.value);
+    const sweepRetrace = Number.parseFloat(btSweepRetrace.value);
 
     btnRunBacktest.style.display = 'none';
     btnCancelBacktest.style.display = 'inline-flex';
@@ -433,7 +439,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         trend,
         swingStrength,
         minFvg,
-        closeConfirm
+        closeConfirm,
+        sweepLookback,
+        sweepWickFraction: Number.isFinite(sweepWickFraction) ? sweepWickFraction : 0.05,
+        sweepRetrace: Number.isFinite(sweepRetrace) ? sweepRetrace : 0.35
       });
 
       btnRunBacktest.style.display = 'inline-flex';

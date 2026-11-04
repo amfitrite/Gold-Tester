@@ -29,7 +29,7 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
   * `smart_money` (SMC CHoCH & Liquidity Purge)
   * `orb` (Opening Range Breakout)
   * `prev_day_breakout` (PDH/PDL Breakout & Retest)
-  * `gold_session_sweep` (Rolling Liquidity Sweep + 50% Rejection Retest)
+  * `gold_session_sweep` (Configurable Rolling Sweep + Rejection-Wick Limit Retrace)
   * `supply_demand`, `order_flow`, `vwap_bounce`, `session_gap`, `bollinger_bands`, dll.
 * **Simulasi Portofolio Akun $10.000:**
   * 📈 **Growth Scorecard:** Pertumbuhan saldo modal dalam nominal ($) dan persentase (%).

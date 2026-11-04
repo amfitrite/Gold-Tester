@@ -368,7 +368,10 @@ ipcMain.handle('run-backtest', async (event, options) => {
     trend = 'ema',
     swingStrength = 5,
     minFvg = 0.5,
-    closeConfirm = false
+    closeConfirm = false,
+    sweepLookback = 12,
+    sweepWickFraction = 0.05,
+    sweepRetrace = 0.35
   } = options;
 
   if (!file || !fs.existsSync(file)) {
@@ -398,6 +401,9 @@ ipcMain.handle('run-backtest', async (event, options) => {
     '--trend', trend,
     '--swing-strength', String(swingStrength),
     '--min-fvg', String(minFvg),
+    '--sweep-lookback', String(sweepLookback),
+    '--sweep-wick-fraction', String(sweepWickFraction),
+    '--sweep-retrace', String(sweepRetrace),
     '--report-out', reportPath,
     '--json-out', jsonPath,
     '--set-out', setPath
