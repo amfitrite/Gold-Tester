@@ -447,6 +447,21 @@ ipcMain.handle('run-backtest', async (event, options) => {
         try {
           const raw = fs.readFileSync(jsonPath, 'utf8');
           const data = JSON.parse(raw);
+
+          // Append to persistent history log
+          try {
+            const historyLogPath = path.join(reportsDir, 'history.log');
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' +
+              String(now.getMonth() + 1).padStart(2, '0') + '-' +
+              String(now.getDate()).padStart(2, '0') + ' ' +
+              String(now.getHours()).padStart(2, '0') + ':' +
+              String(now.getMinutes()).padStart(2, '0') + ':' +
+              String(now.getSeconds()).padStart(2, '0');
+            const logEntry = `[${timeStr}] Strategy: ${data.strategy.padEnd(20)} | TF: ${data.timeframe.padEnd(3)} | Growth: ${(data.summary.growth_pct >= 0 ? '+' : '') + data.summary.growth_pct.toFixed(2)}% | WR: ${data.summary.win_rate.toFixed(1)}% | DD: -${data.summary.max_drawdown_pct.toFixed(2)}% | Trades: ${String(data.summary.total_trades).padEnd(3)} | PnL: $${data.summary.net_profit.toFixed(2)}\n`;
+            fs.appendFileSync(historyLogPath, logEntry, 'utf8');
+          } catch (e) {}
+
           mainWindow.webContents.send('backtest-log', {
             type: 'success',
             text: `[SELESAI] Backtest sukses! Growth: ${data.summary.growth_pct > 0 ? '+' : ''}${data.summary.growth_pct}% | WR: ${data.summary.win_rate}% | Max DD: -${data.summary.max_drawdown_pct}%`

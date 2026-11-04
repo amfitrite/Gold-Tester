@@ -1,8 +1,8 @@
 ; ===========================================================
-; MT5 EA Configuration: LIQUIDITY_IMBALANCE Strategy
-; Generated on: 2026-11-04 22:59:13
+; MT5 EA Configuration: GOLD_SESSION_SWEEP Strategy
+; Generated on: 2026-11-05 00:06:58
 ; ===========================================================
-InpStrategyName=liquidity_imbalance
+InpStrategyName=gold_session_sweep
 InpRiskPercent=1.00
 InpRewardRiskRatio=2.00
 InpSwingStrength=5

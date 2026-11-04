@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnCancelBacktest = document.getElementById('btnCancelBacktest');
   const terminalBtLog = document.getElementById('terminalBtLog');
   const btnClearBtLog = document.getElementById('btnClearBtLog');
+  const btnOpenReportsFolder = document.getElementById('btnOpenReportsFolder');
 
   // Scorecard elements
   const scorecardContainer = document.getElementById('scorecardContainer');
@@ -382,6 +383,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   btnClearBtLog.addEventListener('click', () => { terminalBtLog.innerHTML = ''; });
+
+  if (btnOpenReportsFolder) {
+    btnOpenReportsFolder.addEventListener('click', async () => {
+      // Open the reports directory in File Explorer
+      const defDir = await window.api.getDefaultDirectory();
+      // Reports directory is inside the app directory
+      await window.api.openDirectory('D:\\CSV\\dukascopy-downloader\\reports');
+    });
+  }
 
   window.api.onBacktestLog(data => {
     appendBtLog(data.text, data.type || 'info');
