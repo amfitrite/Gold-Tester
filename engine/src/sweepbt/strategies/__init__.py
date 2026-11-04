@@ -104,7 +104,7 @@ DESCRIPTIONS = {
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "
         "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
     "gold_session_sweep": "Build the 00:00-07:00 UTC Asia range, wait for a London/NY sweep, "
-        "then require ATR displacement + a three-candle FVG and a later rejection retest.",
+        "then require a moderate ATR displacement and a later 50% retrace; FVG is optional confluence.",
 }
 
 
