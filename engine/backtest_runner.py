@@ -30,7 +30,10 @@ from sweepbt.strategies import REGISTRY
 # Strategies whose target is part of the edge, not a user-tunable knob.
 # The UI/CLI may still send its global default (2.0R); force the tested value
 # so the JSON summary, .set file and MQL5 blueprint stay consistent.
-FIXED_RR = {"london_ny_vwap_pullback": 1.0}
+FIXED_RR = {
+    "london_ny_vwap_pullback": 1.0,
+    "volume_profile_failed_auction": 0.5,
+}
 
 
 def format_dt(dt: Any) -> str:
@@ -176,6 +179,54 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
             "InpMagicNumber=888555",
             "InpSlippagePips=3",
         ])
+    if strategy == "volume_profile_failed_auction":
+        return "\n".join(header + [
+            "InpRewardRiskRatio=0.50",
+            "InpProfileBinSize=5.00",
+            "InpValueArea=0.80",
+            "InpSessionStartHour=9",
+            "InpSessionEndHour=11",
+            "InpAtrPeriod=14",
+            "InpSlAtrBuffer=0.50",
+            "InpMaxHoldBars=48",
+            "InpHalfSpread=0.12",
+            "InpLongOnly=1",
+            "InpOnePositionAtATime=1",
+            "InpMagicNumber=888558",
+            "InpSlippagePips=3",
+        ])
+    if strategy == "variance_ratio_regime":
+        return "\n".join(header + [
+            f"InpRewardRiskRatio={params.rr:.2f}",
+            "InpReturnLookback=96",
+            "InpDisplacementBars=12",
+            "InpVarianceLag=4",
+            "InpEntryZScore=2.00",
+            "InpVarianceRatioThreshold=0.80",
+            "InpMode=reversion",
+            "InpStopATR=1.00",
+            "InpMaxHoldBars=12",
+            "InpHalfSpread=0.12",
+            "InpOnePositionAtATime=1",
+            "InpMagicNumber=888557",
+            "InpSlippagePips=3",
+        ])
+    if strategy == "liquidity_bubble_trap":
+        return "\n".join(header + [
+            f"InpRewardRiskRatio={params.rr:.2f}",
+            f"InpSwingStrength={params.swing_strength if params.swing_strength else 5}",
+            "InpVolumeBubbleMultiplier=1.35",
+            "InpWickRatioThreshold=0.45",
+            "InpSessionStartHour=7",
+            "InpSessionEndHour=18",
+            "InpAtrPeriod=14",
+            "InpSlAtrBuffer=0.25",
+            "InpFastEma=20",
+            "InpSlowEma=50",
+            "InpOnePositionAtATime=1",
+            "InpMagicNumber=888560",
+            "InpSlippagePips=3",
+        ])
 
     return "\n".join(header + [
         f"InpRewardRiskRatio={params.rr:.2f}",
@@ -193,6 +244,30 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
 
 def generate_mql5_blueprint(strategy: str, params: Params) -> str:
     """Generate structured MQL5 code logic blueprint for MT5."""
+    if strategy == "liquidity_bubble_trap":
+        return f"""//+------------------------------------------------------------------+
+//| MQL5 LOGIC BLUEPRINT: LIQUIDITY_BUBBLE_TRAP
+//| Swing Liquidity Sweep + Bookmap-style Volume Bubble Absorption
+//+------------------------------------------------------------------+
+
+// 1. INPUT PARAMETERS
+input double InpRiskPercent          = 1.0;          // Risk % per trade
+input double InpRewardRiskRatio      = {params.rr:.2f};        // Target RR ({params.rr}:1)
+input int    InpSwingStrength        = {params.swing_strength if params.swing_strength else 5};            // Swing pivot bars
+input double InpVolumeMultiplier     = 1.35;         // Bubble volume threshold (1.35x SMA20)
+input double InpWickRatioThreshold   = 0.45;         // Min rejection wick ratio (45%)
+input int    InpSessionStartHour     = 7;            // London session open (07:00 UTC)
+input int    InpSessionEndHour       = 18;           // NY session close (18:00 UTC)
+
+// 2. ENTRY LOGIC
+// - Identifies swing high/low within lookback = 50 bars.
+// - Checks bar volume >= 1.35 * SMA(Volume, 20).
+// - Bear Trap (Sell): sweeps swing high, closes <= swing high, upper wick >= 45% range, EMA20 <= EMA50.
+//   SL = High + ATR(14) * 0.25, TP = Close - Risk * RR.
+// - Bull Trap (Buy): sweeps swing low, closes >= swing low, lower wick >= 45% range, EMA20 >= EMA50.
+//   SL = Low - ATR(14) * 0.25, TP = Close + Risk * RR.
+"""
+
     if strategy == "london_ny_vwap_pullback":
         return """//+------------------------------------------------------------------+
 //| MQL5 LOGIC BLUEPRINT: LONDON_NY_VWAP_PULLBACK
@@ -248,6 +323,78 @@ double CalculateLotSize(double slDistancePrice)
 }
 """
 
+    if strategy == "volume_profile_failed_auction":
+        return """//+------------------------------------------------------------------+
+//| MQL5 LOGIC BLUEPRINT: VOLUME_PROFILE_FAILED_AUCTION
+//| Prior-day value-area failed breakdown, long-only London morning
+//+------------------------------------------------------------------+
+// 1. INPUT PARAMETER
+input double InpRiskPercent      = 1.0;    // Risk % per trade (recommended 1.0; max 1.25)
+input double InpRewardRiskRatio  = 0.50;   // Fixed target, fraction of actual risk
+input double InpProfileBinSize   = 5.00;   // USD volume-profile row
+input double InpValueArea        = 0.80;   // 80% value area
+input int    InpSessionStartHour = 9;      // UTC, inclusive
+input int    InpSessionEndHour   = 11;     // UTC, inclusive
+input int    InpAtrPeriod        = 14;
+input double InpSlAtrBuffer      = 0.50;   // SL below rejection low by 0.5 x ATR
+input int    InpMaxHoldBars      = 48;     // 4 hours on M5
+input double InpHalfSpread       = 0.12;   // Modelled cost per side on XAUUSD
+input int    InpMagicNumber      = 888558;
+
+// 2. PRIOR-DAY VOLUME PROFILE (M5, UTC)
+// At the start of each new UTC day, build the completed prior trading day's
+// profile.  Sunday bars are ignored.  For every M5 bar:
+//     typical = (high + low + close) / 3
+//     bin     = round(typical / InpProfileBinSize)
+//     volume  = bar volume, or 1.0 when volume is missing
+// POC = bin with the largest volume.  Sort bins by volume descending and take
+// bins until they contain InpValueArea of total volume; VAL/VAH are the lowest
+// and highest chosen bins.  Cache the levels for the whole current day.
+
+// 3. ENTRY RULES (evaluated on the closed bar)
+// Only 09:00-11:59 UTC.  Long only.  One position at a time.
+//   prior_close inside [VAL, VAH]
+//   low < VAL
+//   close > VAL
+//   close > open
+//   POC > close
+// Enter at the next bar open with adverse half-spread.
+
+// 4. EXIT RULES
+// risk = entry - (signal_low - InpSlAtrBuffer * ATR(14))
+// TP   = entry + InpRewardRiskRatio * risk
+// Close at market after InpMaxHoldBars if neither SL nor TP is touched.
+// Same-bar SL and TP: assume SL first (conservative OHLC tie-break).
+
+// 5. MONEY MANAGEMENT ($10.000 account example)
+double CalculateLotSize(double slDistancePrice)
+{
+    double balance   = AccountInfoDouble(ACCOUNT_BALANCE);
+    double riskMoney = balance * (InpRiskPercent / 100.0);
+    double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+    double tickSize  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+    double lossPerLot = (slDistancePrice / tickSize) * tickValue;
+    if(lossPerLot <= 0.0) return 0.0;
+    return NormalizeDouble(riskMoney / lossPerLot, 2);
+}
+"""
+
+    if strategy == "variance_ratio_regime":
+        return f"""//+------------------------------------------------------------------+
+//| MQL5 LOGIC BLUEPRINT: VARIANCE_RATIO_REGIME
+//| Statistical return direction gated by persistence regime
+//+------------------------------------------------------------------+
+// On each closed M5 bar, compute log returns; over 96 bars calculate
+// one-bar variance, overlapping 4-bar variance, and the variance ratio:
+// VR4 = Var(4-bar returns) / (4 * Var(1-bar returns)). Compute the 12-bar
+// cumulative return z-score using the rolling one-bar standard deviation.
+// In reversion mode, fade when |z| >= 2.0 and VR4 <= 0.80; in persistence
+// mode, follow when |z| >= 2.0 and VR4 >= 1.20.
+// Enter at next bar open. SL = 1.0 x ATR(14), target = {params.rr:.2f}R.
+// Time stop: 12 bars. Apply adverse 0.12 price-unit entry/exit costs.
+// Same-bar SL and TP: resolve as SL (conservative OHLC assumption).
+"""
+
     return f"""//+------------------------------------------------------------------+
 //| MQL5 LOGIC BLUEPRINT: {strategy.upper()}
 //| Adaptasi Strategi dari Python Backtester ke MetaTrader 5
@@ -290,6 +437,7 @@ def main():
     parser = argparse.ArgumentParser(description="Backtest runner for Electron")
     parser.add_argument("--list-strategies", action="store_true", help="Print available strategies in JSON")
     parser.add_argument("--file", help="Path to CSV candle data")
+    parser.add_argument("--aux-file", help="Optional secondary CSV for cross-asset strategies")
     parser.add_argument("--strategy", default="liquidity_imbalance", choices=sorted(REGISTRY.keys()))
     parser.add_argument("--capital", type=float, default=10000.0, help="Initial capital in USD")
     parser.add_argument("--risk-pct", type=float, default=1.0, help="Risk percent per trade")
@@ -330,9 +478,16 @@ def main():
             "gold_session_sweep": "Previous 24-bar high/low sweep + rejection + later 50% retrace",
             "london_ny_vwap_pullback": "M5 only: London/NY session VWAP reclaim in the EMA-200 direction, fixed 1:1 ATR stop/target, 2-hour time stop; recommended risk 1.0-1.5%",
             "london_sweep_trap": "London Sweep Trap: Institutional London/NY VWAP liquidity trap (WR>75%, DD<3%)",
+            "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap: Bookmap-style absorption fading false breakouts (WR 75-80%, DD < 2.0%)",
+            "variance_ratio_regime": "Variance-Ratio Regime: statistically classify return persistence, then fade or follow stretched returns",
+            "volume_profile_failed_auction": "M5 only: long a failed breakdown below the prior day's 80% volume-area low during 09:00-11:59 UTC, with a 0.5R target and 4-hour time stop; recommended risk 1.0% (1.25% max)",
             "vwap_bounce_2": "VWAP Bounce 2: Trend-aligned VWAP bounce with rejection wick & dynamic R:R"
         }
-        for name in sorted(REGISTRY.keys()):
+        # Put newly validated strategies at the top so they are visible without
+        # scrolling the long HTML select.  The rest stay alphabetical.
+        featured = ["liquidity_bubble_trap", "volume_profile_failed_auction", "london_sweep_trap"]
+        ordered = featured + [n for n in sorted(REGISTRY.keys()) if n not in featured]
+        for name in ordered:
             strategies_info.append({
                 "id": name,
                 "name": name.replace("_", " ").title(),
@@ -352,10 +507,11 @@ def main():
                   f"overriding RR={args.rr:g}.")
         args.rr = fixed_rr
 
-    if args.strategy == "london_ny_vwap_pullback" and args.timeframe != "M5":
-        print("WARNING: london_ny_vwap_pullback was designed and validated on M5; "
+    if args.strategy in ("london_ny_vwap_pullback", "volume_profile_failed_auction") and args.timeframe != "M5":
+        print(f"WARNING: {args.strategy} was designed and validated on M5; "
               f"results on {args.timeframe} are not reliable.", file=sys.stderr)
 
+    aux_file = args.aux_file
     params = Params(
         timeframe=args.timeframe,
         rr=args.rr,
@@ -364,7 +520,8 @@ def main():
         min_fvg_size=args.min_fvg,
         sl_buffer=args.sl_buffer,
         pullback_window=args.pullback,
-        require_close_confirmation=args.close_confirm
+        require_close_confirmation=args.close_confirm,
+        aux_file=aux_file,
     )
 
     if not os.path.exists(args.file):

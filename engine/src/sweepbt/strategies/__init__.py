@@ -29,13 +29,17 @@ from .vwap_bounce_2 import run as _vwap2
 from .gold_session_sweep import run as _gold_session_sweep
 from .london_ny_vwap_pullback import run as _ln_vwap
 from .london_sweep_trap import run as _lst
+from .liquidity_bubble_trap import run as _liq_bubble
+from .variance_ratio_reversion import run as _variance_ratio_regime
+from .volume_profile_failed_auction import run as _vp_failed_auction
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 
 # Strategies that already apply their own bias/session filter.  The generic
 # EMA-20/50 trend filter in engine.run would double-filter (and silently
 # discard) their setups, so it is skipped for these names.
-SELF_FILTERED = {"london_ny_vwap_pullback", "vwap_bounce_2"}
+SELF_FILTERED = {"london_ny_vwap_pullback", "vwap_bounce_2", "variance_ratio_regime",
+                 "volume_profile_failed_auction", "liquidity_bubble_trap"}
 
 REGISTRY: Dict[str, StrategyFn] = {
     "liquidity_imbalance": _liq,
@@ -59,6 +63,9 @@ REGISTRY: Dict[str, StrategyFn] = {
     "gold_session_sweep": _gold_session_sweep,
     "london_ny_vwap_pullback": _ln_vwap,
     "london_sweep_trap": _lst,
+    "liquidity_bubble_trap": _liq_bubble,
+    "variance_ratio_regime": _variance_ratio_regime,
+    "volume_profile_failed_auction": _vp_failed_auction,
 }
 
 LABELS = {
@@ -83,6 +90,9 @@ LABELS = {
     "gold_session_sweep": "Gold Rolling Liquidity Sweep + 50% Rejection Retest",
     "london_ny_vwap_pullback": "London/NY VWAP Trend Pullback",
     "london_sweep_trap": "London Sweep Trap (Institutional Judas Trap)",
+    "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap (Bookmap Absorption)",
+    "variance_ratio_regime": "Variance-Ratio Regime Strategy",
+    "volume_profile_failed_auction": "Volume-Profile Failed Auction (London Long)",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -129,6 +139,9 @@ DESCRIPTIONS = {
         "above the 200-EMA, or sell the mirror image below it; fixed 1.25xATR stop/target "
         "and a 2-hour time stop.",
     "london_sweep_trap": "Institutional London and NY session VWAP liquidity trap: exploits false breakouts with rapid asymmetric mean reversion (WR>75%, DD<3%).",
+    "liquidity_bubble_trap": "Sweeps swing highs/lows with bookmap-style volume bubble surge and rejection wick absorption in trend direction (WR 75-80%, DD < 2.0%).",
+    "variance_ratio_regime": "Use a rolling variance ratio to classify return behavior; fade unusually large moves in anti-persistent regimes and follow them in persistent regimes, with ATR-based risk and a time stop.",
+    "volume_profile_failed_auction": "M5 only, recommended risk 1.0% (1.25% max). During 09:00-11:59 UTC, buy a failed breakdown below the prior day's 80% volume-area low when the prior close was inside value and the rejection closes back inside; fixed 0.5R target, 0.5xATR stop buffer and a 4-hour time stop.",
 }
 
 
