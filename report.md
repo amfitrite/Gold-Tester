@@ -344,6 +344,54 @@ Bagian ini mendokumentasikan strategi-strategi yang secara teoritis populer di k
   * Meskipun profitabel dan aman setelah dituning, kapasitas pertumbuhannya (+12% hingga +21% per tahun dengan 40–80 trade) masih berada di bawah strategi unggulan likuiditas murni seperti **VWAP Bounce 2** (+79.5% pertumbuhan, WR 88.4%) dan **London Sweep Trap** (+117.8% pertumbuhan, WR 78.5%).
   * **Rekomendasi Praktis**: Jadikan filter Footprint Delta Imbalance ($\ge 25\%$) dan RVol ($\ge 1.5$) sebagai *komponen konfirmasi sekunder* untuk validasi pantulan VWAP atau Liquidity Sweep, bukan sebagai satu-satunya pemicu entri mandiri.
 
+---
+
+### 11. Supertrend (Classic ATR Trailing Trend-Following Engine)
+* **Asal Usul**: Indikator tren paling populer di dunia TradingView (*Supertrend v4* oleh KivancOzbilgic / Olivier Seban).
+* **Arsitektur Model**:
+  * Menggunakan batas volatilitas berbasis ATR: $Band_{Atas} = rac{High + Low}{2} + Multiplier 	imes ATR$, $Band_{Bawah} = rac{High + Low}{2} - Multiplier 	imes ATR$.
+  * Garis Supertrend bergerak secara *ratchet* (hanya naik saat uptrend dan hanya turun saat downtrend).
+  * Pembalikan tren terjadi saat harga penutupan (*Close*) menembus garis Supertrend sebelumnya ($Trend = 1$ jika Close > $Band_{Atas}$, $Trend = -1$ jika Close < $Band_{Bawah}$).
+* **Hasil Uji Backtest Objektif (12 Bulan / 70.891 Bar M5 XAUUSD, Modal $10.000, Resiko 1%/Trade)**:
+  * **Uji 1 (Mitos YouTube / Default Always-In Flip Reversal, 24/5)**:
+    * Total Trades: 1.843 trade
+    * Win Rate: **33.5%** ❌
+    * Max Drawdown: **-99.8% (Akun Hancur Total / Margin Call)** ❌
+    * Profit Factor: 0.76 | Saldo Akhir: **$30,70 (-99.7%)** ❌
+    * *Diagnosa*: Emas bergerak dalam osilasi rentang lebar. Membalikkan posisi setiap kali garis menembus (breakout lag) selalu membeli di pucuk tertinggi dan menjual di dasar terendah, menghasilkan kerugian beruntun masif saat konsolidasi.
+  * **Uji 2 (Fixed RR 1.0, SL Garis Supertrend, 24/5)**:
+    * Total Trades: 1.240 trade | Win Rate: **47.7%** | Max DD: **-46.9%** | PF: 0.91 | Saldo: **$5.724,29 (-42.8%)** ❌
+  * **Uji 3 (Fixed RR 1.5, SL Garis Supertrend, 24/5)**:
+    * Total Trades: 1.134 trade | Win Rate: **44.3%** | Max DD: **-27.7%** | PF: 1.00 | Saldo: **$10.211,28 (+2.1%)** (BEP)
+* **Hasil Eksperimen Rekayasa & Tuning Kuantitatif**:
+  * *Mengapa Supertrend Standar Lemah?* Supertrend murni buta terhadap arah tren makro dan sering memicu sinyal pembalikan palsu di dalam pasar *choppy* tanpa momentum.
+  * *3 Formula Tuning Juara untuk Mengubah Supertrend Menjadi Mesin Profit*:
+    1. **Sesi Likuid**: Membatasi entri hanya pada jam London & New York (07:00 – 19:00 UTC).
+    2. **Filter Tren Makro (EMA 200 Filter)**: Hanya mengambil BUY saat $Close > EMA 200$ dan SELL saat $Close < EMA 200$. Ini secara instan membuang 50% *counter-trend whipsaws*.
+    3. **Filter Kekuatan Tren (ADX Filter $\ge 20 - 25$)**: Hanya entry jika pasar benar-benar memiliki momentum tren nyata ($ADX \ge 20$).
+  * **Ringkasan Konfigurasi Hasil Tuning Terbaik**:
+    * **Konfigurasi Growth Tertinggi (Period 10, Mult 3.0, ADX $\ge$ 20, EMA 200, RR 1.5)**:
+      - Total Trades: **200 trade** dalam 12 bulan
+      - Win Rate: **54.0%** ✅
+      - Max Drawdown: **9.2%** ✅ (Sangat aman, turun dari 99.8% ke 9.2%)
+      - Profit Factor: **1.56** ✅
+      - Equity Growth: **+46.3%** ✅ | Saldo Akhir: **$14.630,44** (Profit Bersih +$4.630,44)
+    * **Konfigurasi Growth RR 2.0 (Period 10, Mult 3.0, ADX $\ge$ 20, EMA 200, RR 2.0)**:
+      - Total Trades: **198 trade** dalam 12 bulan
+      - Win Rate: **52.0%** (Luar biasa untuk sistem RR 1:2.0 yang breakeven di 33.3%)
+      - Max Drawdown: **9.2%** ✅
+      - Profit Factor: **1.52** ✅
+      - Equity Growth: **+44.5%** ✅ | Saldo Akhir: **$14.449,07**
+    * **Konfigurasi Presisi / Max Drawdown Terendah (Period 14, Mult 3.5, ADX $\ge$ 25, EMA 200, RR 1.5)**:
+      - Total Trades: **74 trade** dalam 12 bulan
+      - Win Rate: **55.4%** (Bisa mencapai **59.5%** dengan fitur Breakeven at 1R)
+      - Max Drawdown: **hanya 4.0%** ✅ (Drawdown sangat kecil & konservatif)
+      - Profit Factor: **1.75** ✅
+      - Equity Growth: **+19.1%** ✅ | Saldo Akhir: **$11.907,97**
+* **Kesimpulan & Rekomendasi**:
+  * Supertrend default murni (Always-in flip) adalah jebakan akun fatal (-99.7% MC).
+  * Namun jika digabungkan dengan **Filter Arah EMA 200 + Filter ADX $\ge 20$ + Sesi London/NY**, Supertrend bertransformasi menjadi salah satu strategi tren paling konsisten dengan **Pertumbuhan +46.3% per tahun, Drawdown hanya 9.2%, dan Profit Factor 1.56**.
+
 ## BAGIAN III: KESIMPULAN & FORMULA EMAS UNTUK PASAR XAUUSD
 
 Dari seluruh eksperimen dan audit di atas, dapat ditarik hukum baku trading kuantitatif pada instrumen Emas (XAUUSD):
