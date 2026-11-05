@@ -45,6 +45,7 @@ input int            InpUTCEnd          = 18;    // Jam Selesai UTC (18:00 UTC =
 input bool           InpWaitClose       = true;  // Sinyal Terkonfirmasi di Close Bar
 
 input group "=== PARAMETER TRADE & TARGET ==="
+input double         InpRewardRiskRatio = 1.5;   // Rasio Risk:Reward Sehat (1.5 = 1:1.5)
 input int            InpAtrPeriod       = 14;
 input int            InpMaxBars         = 48;
 input int            InpLookback        = 1500;
@@ -395,18 +396,20 @@ int OnCalculate(const int rates_total,
       if(isB)
       {
          BufBuy[i] = low[i] - (curAtr * 0.3);
-         if(sl >= entry || sl <= 0.0) sl = low[i] - (curAtr * 0.5);
+         sl = low[i] - (curAtr * 0.5);
          if(sl >= entry) sl = entry - (curAtr * 0.5);
          double risk = entry - sl;
-         if(tp <= entry) tp = entry + MathMax(risk * 1.0, curAtr * 0.5);
+         if(risk < curAtr * 0.3) risk = curAtr * 0.3;
+         tp = entry + (risk * InpRewardRiskRatio);
       }
       else
       {
          BufSell[i] = high[i] + (curAtr * 0.3);
-         if(sl <= entry || sl <= 0.0) sl = high[i] + (curAtr * 0.5);
+         sl = high[i] + (curAtr * 0.5);
          if(sl <= entry) sl = entry + (curAtr * 0.5);
          double risk = sl - entry;
-         if(tp >= entry) tp = entry - MathMax(risk * 1.0, curAtr * 0.5);
+         if(risk < curAtr * 0.3) risk = curAtr * 0.3;
+         tp = entry - (risk * InpRewardRiskRatio);
       }
 
       double sl_dist = MathAbs(entry - sl);
@@ -557,8 +560,8 @@ void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_
    color colTP    = C'0,140,50';
 
    string txtEntry = StringFormat("---> %s : %.2f", is_buy ? "BUY" : "SELL", entry);
-   string txtTP    = StringFormat("---> TP  : %.2f", tp);
-   string txtSL    = StringFormat("---> SL  : %.2f", sl);
+   string txtTP    = StringFormat("---> TP (%.1fR) : %.2f", InpRewardRiskRatio, tp);
+   string txtSL    = StringFormat("---> SL : %.2f", sl);
 
    DrawOneTrendLine(nameEntry, t_sig, entry, colEntry, STYLE_SOLID, 2);
    DrawOneTrendLine(nameSL,    t_sig, sl,    colSL,    STYLE_DASH,  2);
