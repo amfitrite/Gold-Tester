@@ -227,10 +227,16 @@ Bagian ini mendokumentasikan strategi-strategi yang secara teoritis populer di k
     * Win Rate: **31.50%** ❌
     * Max Drawdown: **-63.08%** ❌
     * Saldo Akhir: **$4.935,44 (-50.65% / Terpotong Separuh Modal)** ❌
+* **Hasil Eksperimen Rekayasa & Tuning (4 Model Arsitektur Baru)**:
+  * **Model 1: Squeeze Midline Retest** (Beli pullback ke SMA 20, bukan breakout): Win Rate **30.4%**, Growth **-26.55%** ❌
+  * **Model 2: Squeeze Contrarian Trap** (Fade breakout palsu jika sumbu wick $\ge 45\%$): Win Rate **44.7%**, Max DD **-3.94%**, Growth **+4.29%** (Sedikit positif, namun WR tetap $< 50\%$).
+  * **Model 3: Early Zero-Cross Inside Squeeze** (Antisipasi momentum saat kompresi): Win Rate **40.1%**, Growth **-3.78%** ❌
+  * **Model 4: Extreme Impulse Momentum** (Ambang batas momentum $> 1.2$ ATR): Win Rate **32.9%**, Growth **-22.36%** ❌
 * **Diagnosa Mengapa Squeeze Momentum Hancur di Pasar Emas**:
   1. *Lagging Linear Regression*: Garis linreg membutuhkan 20 bar. Saat pita Bollinger baru keluar dari Keltner Channel dan histogram momentum terkonfirmasi, pergerakan impulsif emas biasanya sudah mencapai titik jenuh (*exhaustion point*). Trader ritel masuk tepat saat pembalikan arah terjadi.
   2. *Whipsaw False Breakout*: Emas intraday sangat sering mengalami lonjakan volatilitas palsu (*fake expansion*). Squeeze meletup sekejap lalu harga ditarik kembali ke garis gravitasi VWAP harian, memicu rentetan stop-loss berturut-turut.
   3. *Overtrading Kronis*: Terjadinya 1.000–2.400 trade per tahun pada timeframe M5 menggerogoti ekuitas akun secara drastis melalui spread dan *whipsaw*.
+  4. *Kesimpulan Tuning*: Squeeze breakout momentum secara konsep bertentangan dengan mikrostruktur emas yang berbasis *liquidity sweep*. Strategi ini tidak dapat dituning menjadi high win-rate ($> 75\%$) karena sifat dasarnya yang *pro-cyclical* di fase akhir pergerakan harga.
 
 ---
 
