@@ -173,7 +173,7 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
         f"InpRiskPercent={risk_pct:.2f}",
     ]
     if strategy == "adaptive_selective_entry":
-        return "\\n".join(header + [
+        return "\n".join(header + [
             f"InpDonchianPeriod={params.ase_donchian_period}",
             f"InpAtrPeriod={params.ase_atr_period}",
             f"InpMinBodyEfficiency={params.ase_min_body_efficiency:.3f}",
