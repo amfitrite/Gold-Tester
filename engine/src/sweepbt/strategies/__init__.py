@@ -25,6 +25,7 @@ from .bollinger_bands import run as _bb
 from .session_gap import run as _sg
 from .vwap_bounce import run as _vwap
 from .gold_session_sweep import run as _gold_session_sweep
+from .adaptive_selective_entry import run as _ase
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 
@@ -46,6 +47,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "session_gap": _sg,
     "vwap_bounce": _vwap,
     "gold_session_sweep": _gold_session_sweep,
+    "adaptive_selective_entry": _ase,
 }
 
 LABELS = {
@@ -66,45 +68,28 @@ LABELS = {
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce",
     "gold_session_sweep": "Gold Rolling Liquidity Sweep + 50% Rejection Retest",
+    "adaptive_selective_entry": "Adaptive Selective Entry (GoldWave-inspired)",
 }
 
-# One-line plain-English descriptions, surfaced in the lab when a strategy is
-# picked. Keep them to a single sentence.
 DESCRIPTIONS = {
-    "liquidity_imbalance": "Wait for a swing high/low to be swept (stops run), then "
-        "enter the reversal off the order block / FVG the sweep leaves behind.",
-    "prev_day_breakout": "Trade the first close beyond the prior day's high (long) or "
-        "low (short); stop beyond the breakout candle, target a multiple of that risk.",
-    "orb": "Mark the opening-range high/low from the first few candles of the day, "
-        "then trade the first close that breaks out of that range.",
-    "rsi_reversal": "Fade exhaustion: go long when RSI climbs back out of oversold, "
-        "short when it drops back out of overbought — trading the snap-back, not the extreme.",
-    "support_resistance": "Cluster repeated swing levels into zones, then buy a bounce off "
-        "support (close back above) or sell a rejection at resistance (close back below).",
-    "momentum_breakout": "Trade the first expansion candle that closes beyond the recent "
-        "high/low range — a breakout with momentum behind it, not a quiet drift through.",
-    "momentum_pullback": "With the moving-average trend, buy a shallow dip (or sell a shallow "
-        "rally) once a candle closes back in the trend direction.",
-    "ict_fvg": "Trade the first pullback that fills a 3-candle fair-value gap in the gap's "
-        "own direction; stop on the far side of the gap.",
-    "ict_ifvg": "When price closes through an FVG it flips polarity — trade the retest of that "
-        "inverted gap as support/resistance in the new direction.",
-    "ict_order_block": "After a structure break (BOS/CHoCH), enter on the retrace into the order "
-        "block — the last opposite candle that drove the break.",
-    "smart_money": "Full SMC sequence: a liquidity sweep, then a change of character confirming "
-        "the reversal, then an entry on the order block behind the shift.",
-    "supply_demand": "Mark a quiet base candle followed by a strong departure as a supply/demand "
-        "zone, then trade the first return into that base.",
-    "order_flow": "Detect volume spikes with small body + large wick (rejection): trapped buyers "
-        "or sellers. Enter on confirmation after they cover, trading the continuation.",
-    "bollinger_bands": "Trade mean reversion: go long when price touches the lower band, "
-        "short when it touches the upper band, targeting a bounce to the middle.",
-    "session_gap": "Gold trades 24/5 across sessions (Asia, London, NY). Fade gaps between "
-        "session opens — expect reversion when a new session gaps away from the previous close.",
-    "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "
-        "bouncing off VWAP: entry at the bounce, stop at 0.5× recent range, target the VWAP level.",
-    "gold_session_sweep": "Sweep a configurable rolling high/low, close back inside, then place a limit "
-        "entry inside the rejection wick; optional EMA filter and FVG confluence.",
+    "liquidity_imbalance": "Wait for a swing high/low to be swept, then enter the reversal off the order block / FVG.",
+    "prev_day_breakout": "Trade the first close beyond the prior day's high or low.",
+    "orb": "Mark the opening range, then trade the first close that breaks out.",
+    "rsi_reversal": "Fade exhaustion as RSI snaps back out of an extreme.",
+    "support_resistance": "Buy support bounces and sell resistance rejections.",
+    "momentum_breakout": "Trade an expansion candle that closes beyond the recent range.",
+    "momentum_pullback": "Trade a pullback with the moving-average trend.",
+    "ict_fvg": "Trade the first pullback that fills a three-candle fair-value gap.",
+    "ict_ifvg": "Trade a retest after an FVG flips polarity.",
+    "ict_order_block": "Enter the retrace into the order block behind a structure break.",
+    "smart_money": "Sweep, change of character, then order-block entry.",
+    "supply_demand": "Trade the first return into a base after a strong departure.",
+    "order_flow": "Detect high-volume rejection and enter after directional confirmation.",
+    "bollinger_bands": "Trade mean reversion from an outer band toward the middle.",
+    "session_gap": "Fade gaps around configured session transitions.",
+    "vwap_bounce": "Trade price reclaiming or rejecting cumulative VWAP.",
+    "gold_session_sweep": "Sweep a rolling high/low, close back inside, then enter a rejection-wick retrace.",
+    "adaptive_selective_entry": "Classify Donchian regime, filter by ATR and candle-body efficiency, then trade VWAP trend reclaims or rolling Value Area edge rejections with a structural target and hard stop.",
 }
 
 
