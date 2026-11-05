@@ -146,3 +146,4 @@
 [2026-11-05 15:48:26] Strategy: volume_profile_failed_auction | TF: M5  | Growth: +17.44% | WR: 81.5% | DD: -2.15% | Trades: 81  | PnL: $1743.84
 [2026-11-05 15:49:30] Strategy: liquidity_imbalance  | TF: M5  | Growth: +60.34% | WR: 39.8% | DD: -15.23% | Trades: 256 | PnL: $6033.84
 [2026-11-05 15:49:40] Strategy: variance_ratio_regime | TF: M5  | Growth: -31.85% | WR: 32.4% | DD: -39.28% | Trades: 309 | PnL: $-3184.83
+[2026-11-05 16:09:16] Strategy: doji_ride            | TF: M5  | Growth: +13.98% | WR: 84.0% | DD: -1.99% | Trades: 75  | PnL: $1398.46
