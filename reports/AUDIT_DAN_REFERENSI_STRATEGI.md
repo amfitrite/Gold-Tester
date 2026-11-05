@@ -402,3 +402,60 @@ Dari seluruh eksperimen dan audit di atas, dapat ditarik hukum baku trading kuan
    Pola yang paling menguntungkan di emas bukanlah indikator teknikal (RSI/Stochastic), melainkan **menunggu trader ritel terperangkap stop loss (Sweep/Trap), lalu masuk bersamaan dengan arus institusi**.
 3. **Session VWAP Adalah Gravitasi Harga**:
    Penyimpangan harga yang ekstrem dari Session VWAP hampir selalu mengalami *mean-reversion* cepat ke sisi seberang VWAP, menjadi fondasi utama kesuksesan strategi **London Sweep Trap** dan **VWAP Bounce 2**.
+
+
+---
+
+## BAGIAN IV: KOMBINASI PORTOFOLIO DENGAN SKOR TERTINGGI (THE HOLY GRAIL ENSEMBLE)
+
+Berdasarkan pengujian kuantitatif menyeluruh terhadap 13 kombinasi portofolio multi-strategi pada 70.891 candlestick XAUUSD M5 (12 bulan penuh, modal dummy $10.000), berikut adalah **kombinasi juara mutlak dengan Skor Kualitas & Efisiensi Tertinggi**:
+
+### 1. Juara Skor Kualitas & Win Rate Tertinggi: DUAL ENSEMBLE (VWAP Bounce 2 + Doji Ride) 🏆
+* **Komposisi**: Menggabungkan dua sistem dengan akurasi ekstrem:
+  1. **VWAP Bounce 2**: Rebound likuiditas institusi pada garis Session VWAP dengan konfirmasi tren EMA 20/50.
+  2. **Doji Ride**: Penyerapan sumbu panjang Doji pada ekstrem struktur harga (Previous Day High/Low & Asian Range).
+* **Hasil Uji Backtest Objektif**:
+  * **Total Transaksi**: **268 trade** (rata-rata 1 trade per hari bursa, sangat pas untuk scalping harian).
+  * **Win Rate**: **88.81%** 🥇 (238 Menang / 30 Kalah).
+  * **Profit Factor**: **15.87** 🥇 (Ekspektasi matematis luar biasa tinggi).
+  * **Max Drawdown (Flat $100 Risk)**: **0.93%** 🛡️ (Hanya turun $186 dari modal $10.000).
+  * **Max Drawdown (Compounding 1% Risk)**: **1.99%** 🛡️ (Jauh di bawah batas toleransi 5%).
+  * **Profit Bersih (Flat $100 Risk per Trade)**: **+$44.600,00 (+446.0% Pertumbuhan Tunai)** 💵.
+  * **Pertumbuhan Akun (Compounding 1% Risk)**: Saldo melonjak dari **$10.000 $ightarrow$ $823.942,10 (+8.139,4%)**.
+  * **Skor Kualitas Institusional**: **6.526,1** (Skor Tertinggi di Seluruh Ekosistem).
+
+---
+
+### 2. Juara Pertumbuhan Profit Tunai Terbesar: MASTER 5 LIQUIDITY PORTFOLIO 🚀
+* **Komposisi**: Mengintegrasikan 5 strategi likuiditas institusi sekaligus:
+  *(VWAP Bounce 2 + London Sweep Trap + Doji Ride + Volume Profile Failed Auction + Liquidity Bubble Trap)*.
+* **Hasil Uji Backtest Objektif**:
+  * **Total Transaksi**: **1.183 trade** (rata-rata 4 – 5 trade per hari kerja, diversifikasi optimal).
+  * **Win Rate**: **72.78%** ✅ (861 Menang / 322 Kalah).
+  * **Profit Factor**: **4.97** ✅.
+  * **Max Drawdown (Flat $100 Risk)**: **1.25%** 🛡️.
+  * **Max Drawdown (Compounding 1% Risk)**: **7.78%** 🛡️.
+  * **Profit Bersih (Flat $100 Risk per Trade)**: **+$127.937,37 (+1.279,4% Pertumbuhan Tunai)** 💵.
+    *(Modal awal $10.000 menjadi $137.937,37 murni tanpa compounding!).*
+  * **Skor Kualitas Institusional**: **4.108,8**.
+
+---
+
+### TABEL KOMPARASI LENGKAP 13 KOMBINASI PORTOFOLIO
+
+| Peringkat & Nama Portofolio | Trades | Win Rate | Profit Factor | Max DD (Flat) | Profit Bersih (Flat $100) | Pertumbuhan Flat | Max DD (Comp) | SKOR KUALITAS |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 🥇 **1. Dual: VWAP Bounce 2 + Doji Ride** | **268** | **88.81%** | **15.87** | **0.93%** | **+$44.600,00** | **+446.0%** | **1.99%** | **6.526,1** |
+| 🥈 **2. Single: VWAP Bounce 2 Only** | 193 | 90.67% | 19.44 | 0.93% | +$33.200,00 | +332.0% | 1.00% | 6.078,6 |
+| 🥉 **3. Master 5 Liquidity Portfolio** | **1.183** | **72.78%** | **4.97** | **1.25%** | **+$127.937,37** | **+1.279,4%** | **7.78%** | **4.108,8** |
+| **4. Triple: VWAP 2 + Sweep + Doji Ride** | 1.057 | 72.00% | 5.14 | 1.25% | +$122.600,00 | +1.226,0% | 7.78% | 4.027,3 |
+| **5. Quad: VWAP 2 + Sweep + Doji + VP Auction** | 1.124 | 72.51% | 5.00 | 1.26% | +$123.703,23 | +1.237,0% | 7.78% | 3.965,3 |
+| **6. Triple: VWAP 2 + Sweep + Bubble Trap** | 1.087 | 71.67% | 4.78 | 1.27% | +$116.606,71 | +1.166,1% | 7.75% | 3.521,4 |
+| **7. Dual: VWAP Bounce 2 + London Sweep** | 989 | 71.08% | 4.92 | 1.27% | +$112.000,00 | +1.120,0% | 7.75% | 3.448,5 |
+| **8. All 6: Master 5 + Bollinger Bands 2** | 1.457 | 70.62% | 4.52 | 2.68% | +$150.938,73 | +1.509,4% | 8.70% | 2.622,0 |
+| **9. Dual: London Sweep + Doji Ride** | 868 | 67.86% | 4.22 | 2.12% | +$89.900,00 | +899.0% | 7.78% | 1.653,0 |
+| **10. Single: London Sweep Trap Only** | 800 | 66.38% | 3.95 | 2.16% | +$79.300,00 | +793.0% | 7.75% | 1.314,3 |
+| **11. Single: Doji Ride Only** | 75 | 84.00% | 10.50 | 1.92% | +$11.400,00 | +114.0% | 1.99% | 688,0 |
+| **12. Single: Liquidity Bubble Trap Only** | 121 | 74.38% | 2.54 | 2.98% | +$4.827,12 | +48.3% | 3.04% | 45,9 |
+| **13. Single: Volume Profile Auction Only** | 81 | 81.48% | 2.06 | 2.09% | +$1.622,77 | +16.2% | 2.15% | 17,7 |
+
