@@ -30,8 +30,8 @@ from .gold_session_sweep import run as _gold_session_sweep
 from .london_ny_vwap_pullback import run as _ln_vwap
 from .london_sweep_trap import run as _lst
 from .liquidity_bubble_trap import run as _liq_bubble
-from .variance_ratio_reversion import run as _variance_ratio_regime
-from .volume_profile_failed_auction import run as _vp_failed_auction
+# from .variance_ratio_reversion import run as _variance_ratio_regime
+# from .volume_profile_failed_auction import run as _vp_failed_auction
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 
@@ -64,8 +64,8 @@ REGISTRY: Dict[str, StrategyFn] = {
     "london_ny_vwap_pullback": _ln_vwap,
     "london_sweep_trap": _lst,
     "liquidity_bubble_trap": _liq_bubble,
-    "variance_ratio_regime": _variance_ratio_regime,
-    "volume_profile_failed_auction": _vp_failed_auction,
+    # "variance_ratio_regime": _variance_ratio_regime,
+    # "volume_profile_failed_auction": _vp_failed_auction,
 }
 
 LABELS = {
@@ -91,8 +91,8 @@ LABELS = {
     "london_ny_vwap_pullback": "London/NY VWAP Trend Pullback",
     "london_sweep_trap": "London Sweep Trap (Institutional Judas Trap)",
     "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap (Bookmap Absorption)",
-    "variance_ratio_regime": "Variance-Ratio Regime Strategy",
-    "volume_profile_failed_auction": "Volume-Profile Failed Auction (London Long)",
+    # "variance_ratio_regime": "Variance-Ratio Regime Strategy",
+    # "volume_profile_failed_auction": "Volume-Profile Failed Auction (London Long)",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -140,8 +140,8 @@ DESCRIPTIONS = {
         "and a 2-hour time stop.",
     "london_sweep_trap": "Institutional London and NY session VWAP liquidity trap: exploits false breakouts with rapid asymmetric mean reversion (WR>75%, DD<3%).",
     "liquidity_bubble_trap": "Dual-engine institutional liquidity absorption & failed auction fading false breakouts (WR 80.8%, DD < 3.8%).",
-    "variance_ratio_regime": "Use a rolling variance ratio to classify return behavior; fade unusually large moves in anti-persistent regimes and follow them in persistent regimes, with ATR-based risk and a time stop.",
-    "volume_profile_failed_auction": "M5 only, recommended risk 1.0% (1.25% max). During 09:00-11:59 UTC, buy a failed breakdown below the prior day's 80% volume-area low when the prior close was inside value and the rejection closes back inside; fixed 0.5R target, 0.5xATR stop buffer and a 4-hour time stop.",
+    # "variance_ratio_regime": "Use a rolling variance ratio to classify return behavior; fade unusually large moves in anti-persistent regimes and follow them in persistent regimes, with ATR-based risk and a time stop.",
+    # "volume_profile_failed_auction": "M5 only, recommended risk 1.0% (1.25% max). During 09:00-11:59 UTC, buy a failed breakdown below the prior day's 80% volume-area low when the prior close was inside value and the rejection closes back inside; fixed 0.5R target, 0.5xATR stop buffer and a 4-hour time stop.",
 }
 
 
@@ -151,3 +151,7 @@ def run_strategy(name: str, candles: List[Candle], params: Params) -> List[Setup
     setups = REGISTRY[name](candles, params)
     setups.sort(key=lambda s: s.entry_index)
     return setups
+LABELS["bollinger_rsi_reversion"] = "Bollinger Bands + RSI Mean Reversion"
+DESCRIPTIONS["bollinger_rsi_reversion"] = "A mean reversion strategy using Bollinger Bands and RSI."
+from .bollinger_rsi_reversion import run as _bollinger_rsi_reversion
+REGISTRY["bollinger_rsi_reversion"] = _bollinger_rsi_reversion
