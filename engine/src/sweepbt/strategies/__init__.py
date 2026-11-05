@@ -139,7 +139,7 @@ DESCRIPTIONS = {
         "above the 200-EMA, or sell the mirror image below it; fixed 1.25xATR stop/target "
         "and a 2-hour time stop.",
     "london_sweep_trap": "Institutional London and NY session VWAP liquidity trap: exploits false breakouts with rapid asymmetric mean reversion (WR>75%, DD<3%).",
-    "liquidity_bubble_trap": "Sweeps swing highs/lows with bookmap-style volume bubble surge and rejection wick absorption in trend direction (WR 75-80%, DD < 2.0%).",
+    "liquidity_bubble_trap": "Dual-engine institutional liquidity absorption & failed auction fading false breakouts (WR 80.8%, DD < 3.8%).",
     "variance_ratio_regime": "Use a rolling variance ratio to classify return behavior; fade unusually large moves in anti-persistent regimes and follow them in persistent regimes, with ATR-based risk and a time stop.",
     "volume_profile_failed_auction": "M5 only, recommended risk 1.0% (1.25% max). During 09:00-11:59 UTC, buy a failed breakdown below the prior day's 80% volume-area low when the prior close was inside value and the rejection closes back inside; fixed 0.5R target, 0.5xATR stop buffer and a 4-hour time stop.",
 }

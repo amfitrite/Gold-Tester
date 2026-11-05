@@ -33,6 +33,7 @@ from sweepbt.strategies import REGISTRY
 FIXED_RR = {
     "london_ny_vwap_pullback": 1.0,
     "volume_profile_failed_auction": 0.5,
+    "liquidity_bubble_trap": 0.85,
 }
 
 
@@ -478,7 +479,7 @@ def main():
             "gold_session_sweep": "Previous 24-bar high/low sweep + rejection + later 50% retrace",
             "london_ny_vwap_pullback": "M5 only: London/NY session VWAP reclaim in the EMA-200 direction, fixed 1:1 ATR stop/target, 2-hour time stop; recommended risk 1.0-1.5%",
             "london_sweep_trap": "London Sweep Trap: Institutional London/NY VWAP liquidity trap (WR>75%, DD<3%)",
-            "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap: Bookmap-style absorption fading false breakouts (WR 75-80%, DD < 2.0%)",
+            "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap: Institutional absorption & failed auction fading false breakouts (WR 80.8%, DD < 3.8%)",
             "variance_ratio_regime": "Variance-Ratio Regime: statistically classify return persistence, then fade or follow stretched returns",
             "volume_profile_failed_auction": "M5 only: long a failed breakdown below the prior day's 80% volume-area low during 09:00-11:59 UTC, with a 0.5R target and 4-hour time stop; recommended risk 1.0% (1.25% max)",
             "vwap_bounce_2": "VWAP Bounce 2: Trend-aligned VWAP bounce with rejection wick & dynamic R:R"

@@ -43,7 +43,7 @@ input group "=== FILTER TREN & RISK MANAGEMENT ==="
 input bool             InpUseTrendFilter         = true;       // Filter Tren EMA (20 vs 50)
 input int              InpFastEma                = 20;         // Periode Fast EMA
 input int              InpSlowEma                = 50;         // Periode Slow EMA
-input double           InpRewardRiskRatio        = 1.0;        // Target Reward:Risk (1.0x atau 0.75x)
+input double           InpRewardRiskRatio        = 0.85;       // Target Reward:Risk (0.85x Calibrated)
 input double           InpSlAtrBuffer            = 0.25;       // Buffer ATR Stop Loss (0.25x)
 input double           InpMaxRiskPoints          = 4.0;        // Maksimal Jarak Stop Loss ($4.0)
 input double           InpMinRiskPoints          = 0.15;       // Minimal Jarak Stop Loss ($0.15)
@@ -102,7 +102,7 @@ int OnInit()
    PlotIndexSetDouble(0, PLOT_EMPTY_VALUE, EMPTY_VALUE);
    PlotIndexSetDouble(1, PLOT_EMPTY_VALUE, EMPTY_VALUE);
 
-   IndicatorSetString(INDICATOR_SHORTNAME, "Liquidity_Bubble_Trap(75-80% WR)");
+   IndicatorSetString(INDICATOR_SHORTNAME, "Liquidity_Bubble_Trap(80.8% WR)");
 
    ObjectsDeleteAll(0, PREFIX);
 
@@ -408,7 +408,7 @@ void UpdateDashboard(bool inSession, double currentPrice, bool isBullTrend)
 
    // 5. Benchmark Badge
    CreateTextLabel(PREFIX + "TXT_BADGE", x + 10, y + 33,
-                   "BENCHMARK: WR 75-80% | DD < 2.0%", C'110,210,130', 8, "Segoe UI Bold", corner);
+                   "BENCHMARK: WR 80.8% | DD < 3.8%", C'110,210,130', 8, "Segoe UI Bold", corner);
 
    // 6. Status Sesi
    string sessionTxt = inSession ? "SESI: LONDON/NY (AKTIF)" : "SESI: LUAR JAM (STANDBY)";
