@@ -189,8 +189,9 @@ int OnCalculate(const int rates_total,
          BufferBuy[i] = low[i] - (atr * 0.3);
 
          double slVal = low[i] - atr * InpAtrStopBuffer;
-         double trapDist = v - low[i];
-         double tpVal = v + trapDist * InpRewardRiskRatio;
+         double risk  = close[i] - slVal;
+         if(risk < _Point * 10) risk = _Point * 10;
+         double tpVal = close[i] + (risk * InpRewardRiskRatio);
 
          ExtLastSignal     = 1;
          ExtLastSignalTime = time[i];
@@ -218,8 +219,9 @@ int OnCalculate(const int rates_total,
          BufferSell[i] = high[i] + (atr * 0.3);
 
          double slVal = high[i] + atr * InpAtrStopBuffer;
-         double trapDist = high[i] - v;
-         double tpVal = v - trapDist * InpRewardRiskRatio;
+         double risk  = slVal - close[i];
+         if(risk < _Point * 10) risk = _Point * 10;
+         double tpVal = close[i] - (risk * InpRewardRiskRatio);
 
          ExtLastSignal     = -1;
          ExtLastSignalTime = time[i];

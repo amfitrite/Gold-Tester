@@ -7,7 +7,7 @@
 //+------------------------------------------------------------------+
 #property copyright   "Quant Trading"
 #property link        "https://github.com/amfitrite/Gold-Tester"
-#property version     "1.00"
+#property version     "1.10"
 #property description "London Sweep Trap for MT4: Institutional Session VWAP Liquidity Trap"
 #property indicator_chart_window
 #property indicator_buffers 3
@@ -29,7 +29,7 @@ extern int            InpFastEMA          = 20;         // Periode Fast EMA
 extern int            InpSlowEMA          = 50;         // Periode Slow EMA
 
 extern string         s3                  = "=== PARAMETER TARGET & STOP LOSS ===";
-extern double         InpRewardRiskRatio  = 2.0;        // Target Reward:Risk (2.0x Sesuai Backtest 12M)
+extern double         InpRewardRiskRatio  = 2.0;        // Target Reward:Risk (2.0x Sesuai Backtest)
 extern double         InpAtrStopBuffer    = 0.5;        // Buffer ATR Stop Loss
 
 extern string         s4                  = "=== DASHBOARD HUD (SEDERHANA & BISA DIDISABLE) ===";
@@ -123,58 +123,41 @@ int OnCalculate(const int rates_total,
    int limit = Bars - IndicatorCounted() - 1;
    if(limit > Bars - 5) limit = Bars - 5;
 
-   double tp = 0.0;
-   double vol = 0.0;
    double slVal = 0.0;
-   double trapDist = 0.0;
+   double risk = 0.0;
    double tpVal = 0.0;
    string msg = "";
 
-   // 1. Hitung Session VWAP dengan Reset Jam 00:00 Harian
-   // Di MT4, bar index 0 adalah candle terbaru, Bars-1 candle tertua.
-   // Loop berjalan mundur dari limit ke 0 (bergerak maju dalam waktu).
-   static double cumPV = 0.0;
-   static double cumVol = 0.0;
+   // 1. Hitung Akumulasi Session VWAP Presisi (Reset 00:00 Harian)
+   // Menghindari drift pada live tick dengan mencari awal hari bar berjalan
+   int startBar = MathMin(Bars - 1, limit + 350);
+   while(startBar < Bars - 1 && TimeDay(Time[startBar]) == TimeDay(Time[startBar + 1]))
+      startBar++;
 
-   // Hitung ulang seluruh histori jika bar baru terbentuk atau pertama kali load
-   if(limit > 2)
+   double runningPV = 0.0;
+   double runningVol = 0.0;
+
+   for(int k = startBar; k >= 0; k--)
    {
-      cumPV = 0.0;
-      cumVol = 0.0;
-      for(int k = Bars - 1; k >= 0; k--)
+      // Reset saat pergantian tanggal kalender
+      if(k == Bars - 1 || TimeDay(Time[k]) != TimeDay(Time[k + 1]))
       {
-         if(k == Bars - 1 || TimeDay(Time[k]) != TimeDay(Time[k + 1]))
-         {
-            cumPV = 0.0;
-            cumVol = 0.0;
-         }
+         runningPV = 0.0;
+         runningVol = 0.0;
+      }
 
-         tp = (High[k] + Low[k] + Close[k]) / 3.0;
-         vol = (Volume[k] > 0) ? (double)Volume[k] : 1.0;
+      double p = (High[k] + Low[k] + Close[k]) / 3.0;
+      double v = (Volume[k] > 0) ? (double)Volume[k] : 1.0;
 
-         cumPV += tp * vol;
-         cumVol += vol;
+      runningPV += p * v;
+      runningVol += v;
 
-         BufferVWAP[k] = (cumVol > 0.0) ? (cumPV / cumVol) : tp;
+      BufferVWAP[k] = (runningVol > 0.0) ? (runningPV / runningVol) : p;
+      if(k > 2)
+      {
          BufferBuy[k]  = EMPTY_VALUE;
          BufferSell[k] = EMPTY_VALUE;
       }
-   }
-   else
-   {
-      // Update candle berjalan terkini (index 0)
-      if(TimeDay(Time[0]) != TimeDay(Time[1]))
-      {
-         cumPV = 0.0;
-         cumVol = 0.0;
-      }
-      tp = (High[0] + Low[0] + Close[0]) / 3.0;
-      vol = (Volume[0] > 0) ? (double)Volume[0] : 1.0;
-      cumPV += tp * vol;
-      cumVol += vol;
-      BufferVWAP[0] = (cumVol > 0.0) ? (cumPV / cumVol) : tp;
-      BufferBuy[0]  = EMPTY_VALUE;
-      BufferSell[0] = EMPTY_VALUE;
    }
 
    // 2. Deteksi Trap Sinyal London / NY
@@ -213,14 +196,17 @@ int OnCalculate(const int rates_total,
          allowSell = (fastEma <= slowEma);
       }
 
-      // Bullish Trap (Long): Lilin sebelumnya di bawah VWAP, lilin saat ini menembus kembali ke atas VWAP
+      // Bullish Trap (Long / BUY):
+      // Lilin sebelumnya berada di bawah VWAP, lilin saat ini merebut & close di atas VWAP
       if(allowBuy && Close[i + 2] < vPrev2 && Close[i + 1] < v && Close[i] >= v)
       {
          BufferBuy[i] = Low[i] - (atr * 0.3);
 
-         slVal = Low[i] - atr * InpAtrStopBuffer;
-         trapDist = v - Low[i];
-         tpVal = v + trapDist * InpRewardRiskRatio;
+         // Kalkulasi SL & TP Matematika Benar Sesuai Rasio Risk:Reward
+         slVal = Low[i] - (atr * InpAtrStopBuffer);
+         risk  = Close[i] - slVal;
+         if(risk < _Point * 10) risk = _Point * 10;
+         tpVal = Close[i] + (risk * InpRewardRiskRatio);
 
          ExtLastSignal     = 1;
          ExtLastSignalTime = Time[i];
@@ -231,7 +217,7 @@ int OnCalculate(const int rates_total,
          if(i <= 1 && Time[i] != ExtLastAlertBar)
          {
             ExtLastAlertBar = Time[i];
-            msg = StringFormat("[MT4 LONDON TRAP BUY] %s @ %.2f | SL: %.2f | TP: %.2f | RR: %.1f",
+            msg = StringFormat("[MT4 LONDON TRAP BUY] %s @ %.2f | SL: %.2f | TP: %.2f (RR: 1:%.1f)",
                                Symbol(), Close[i], slVal, tpVal, InpRewardRiskRatio);
             if(InpEnableAlert) Alert(msg);
             if(InpPlaySound)   PlaySound("alert.wav");
@@ -242,14 +228,17 @@ int OnCalculate(const int rates_total,
          }
       }
 
-      // Bearish Trap (Short): Lilin sebelumnya di atas VWAP, lilin saat ini terjebak dan tutup di bawah VWAP
+      // Bearish Trap (Short / SELL):
+      // Lilin sebelumnya berada di atas VWAP, lilin saat ini terjebak & close di bawah VWAP
       if(allowSell && Close[i + 2] > vPrev2 && Close[i + 1] > v && Close[i] <= v)
       {
          BufferSell[i] = High[i] + (atr * 0.3);
 
-         slVal = High[i] + atr * InpAtrStopBuffer;
-         trapDist = High[i] - v;
-         tpVal = v - trapDist * InpRewardRiskRatio;
+         // Kalkulasi SL & TP Matematika Benar Sesuai Rasio Risk:Reward
+         slVal = High[i] + (atr * InpAtrStopBuffer);
+         risk  = slVal - Close[i];
+         if(risk < _Point * 10) risk = _Point * 10;
+         tpVal = Close[i] - (risk * InpRewardRiskRatio);
 
          ExtLastSignal     = -1;
          ExtLastSignalTime = Time[i];
@@ -260,7 +249,7 @@ int OnCalculate(const int rates_total,
          if(i <= 1 && Time[i] != ExtLastAlertBar)
          {
             ExtLastAlertBar = Time[i];
-            msg = StringFormat("[MT4 LONDON TRAP SELL] %s @ %.2f | SL: %.2f | TP: %.2f | RR: %.1f",
+            msg = StringFormat("[MT4 LONDON TRAP SELL] %s @ %.2f | SL: %.2f | TP: %.2f (RR: 1:%.1f)",
                                Symbol(), Close[i], slVal, tpVal, InpRewardRiskRatio);
             if(InpEnableAlert) Alert(msg);
             if(InpPlaySound)   PlaySound("alert.wav");
@@ -332,7 +321,7 @@ void UpdateDashboard(bool inSession, double currentVWAP, double currentPrice)
       ObjectsDeleteAll(0, PREFIX + "TXT_");
 
       // Tombol pembuka kembali (Show HUD)
-      CreateButton(PREFIX + "BTN_TOGGLE", x, y, 140, 26, "⚡ LST HUD [OPEN]",
+      CreateButton(PREFIX + "BTN_TOGGLE", x, y, 140, 26, "LST HUD [OPEN]",
                    C'30,35,48', clrGold, corner);
       return;
    }
@@ -349,13 +338,13 @@ void UpdateDashboard(bool inSession, double currentVWAP, double currentPrice)
    CreateRectLabel(PREFIX + "PANEL_HDR", x, y, width, 26,
                    C'28,34,50', C'58,68,92', corner);
 
-   // 3. Judul Header
+   // 3. Judul Header (Gunakan teks ASCII bersih agar tidak muncul tanda tanya '?' di MT4)
    CreateTextLabel(PREFIX + "TXT_TITLE", x + 10, y + 6,
-                   "⚡ LONDON SWEEP TRAP (MT4)", clrWhite, 9, "Arial Bold", corner);
+                   "LONDON SWEEP TRAP (MT4)", clrWhite, 9, "Arial Bold", corner);
 
    // 4. Tombol Hide / Minimize di Pojok Header
    CreateButton(PREFIX + "BTN_TOGGLE", x + width - 68, y + 4, 60, 18,
-                "✕ HIDE", C'40,46,62', clrSilver, corner, 7);
+                "[HIDE]", C'40,46,62', clrSilver, corner, 7);
 
    // 5. Benchmark Badge
    CreateTextLabel(PREFIX + "TXT_BADGE", x + 10, y + 33,
@@ -378,18 +367,18 @@ void UpdateDashboard(bool inSession, double currentVWAP, double currentPrice)
    color sigClr = clrDarkGray;
    if(ExtLastSignal == 1)
    {
-      sigStr = "SINYAL: 🟢 BULL TRAP (BUY)";
+      sigStr = "SINYAL: [BUY] BULL TRAP";
       sigClr = clrLimeGreen;
    }
    else if(ExtLastSignal == -1)
    {
-      sigStr = "SINYAL: 🔴 BEAR TRAP (SELL)";
+      sigStr = "SINYAL: [SELL] BEAR TRAP";
       sigClr = clrCrimson;
    }
    CreateTextLabel(PREFIX + "TXT_SIGNAL", x + 10, y + 96,
                    sigStr, sigClr, 9, "Segoe UI Bold", corner);
 
-   // 9. Target Entry, SL, TP
+   // 9. Target Entry, SL, TP (R:R Presisi)
    string levelStr = "Target: Menunggu sinyal baru";
    if(ExtLastSignal != 0 && ExtLastEntry > 0)
    {
@@ -407,7 +396,7 @@ void UpdateDashboard(bool inSession, double currentVWAP, double currentPrice)
 
    // 11. Footer Hint
    CreateTextLabel(PREFIX + "TXT_HINT", x + 10, y + 165,
-                   "Klik [✕ HIDE] untuk mematikan dashboard",
+                   "Klik [HIDE] untuk toggle panel",
                    C'120,130,150', 7, "Segoe UI", corner);
 }
 

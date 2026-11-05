@@ -85,8 +85,8 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         # 1. Bullish Trap (Long): Price was pushed below session VWAP, sweeps liquidity, and reclaims VWAP
         if prev_prev.close < v_prev2 and prev_c.close < v and c.close >= v:
             sl = c.low - atr * 0.5
-            trap_distance = v - c.low
-            target = v + trap_distance * rr_mult
+            risk = max(c.close - sl, 0.05)
+            target = c.close + risk * rr_mult
             s = simulate_setup(
                 candles, "long", i, c.close, sl, target, params,
                 strategy="london_sweep_trap",
@@ -101,8 +101,8 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         # 2. Bearish Trap (Short): Price was pushed above session VWAP, sweeps liquidity, and falls back below VWAP
         if prev_prev.close > v_prev2 and prev_c.close > v and c.close <= v:
             sl = c.high + atr * 0.5
-            trap_distance = c.high - v
-            target = v - trap_distance * rr_mult
+            risk = max(sl - c.close, 0.05)
+            target = c.close - risk * rr_mult
             s = simulate_setup(
                 candles, "short", i, c.close, sl, target, params,
                 strategy="london_sweep_trap",
