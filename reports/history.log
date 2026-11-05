@@ -150,3 +150,7 @@
 [2026-11-05 16:09:39] Strategy: london_sweep_trap    | TF: M5  | Growth: -40.95% | WR: 31.7% | DD: -55.58% | Trades: 896 | PnL: $-4095.44
 [2026-11-05 16:35:35] Strategy: london_sweep_trap    | TF: M5  | Growth: +4356572.53% | WR: 75.3% | DD: -2.97% | Trades: 1225 | PnL: $435657252.50
 [2026-11-05 16:55:31] Strategy: bollinger_bands_2    | TF: M5  | Growth: +1278.02% | WR: 59.6% | DD: -6.79% | Trades: 339 | PnL: $127802.26
+[2026-11-05 17:10:00] Strategy: london_sweep_trap    | TF: M5  | Growth: +4356572.53% | WR: 75.3% | DD: -2.97% | Trades: 1225 | PnL: $435657252.50
+[2026-11-05 17:10:10] Strategy: vwap_bounce_2        | TF: M5  | Growth: +534.69% | WR: 88.4% | DD: -1.99% | Trades: 242 | PnL: $53468.68
+[2026-11-05 17:10:45] Strategy: vwap_bounce          | TF: M5  | Growth: +125.72% | WR: 84.8% | DD: -2.00% | Trades: 118 | PnL: $12572.04
+[2026-11-05 17:10:56] Strategy: vwap_bounce_2        | TF: M5  | Growth: +534.69% | WR: 88.4% | DD: -1.99% | Trades: 242 | PnL: $53468.68

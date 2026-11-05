@@ -1,0 +1,4160 @@
+{
+  "success": true,
+  "strategy": "vwap_bounce_2",
+  "file": "D:\\CSV\\csv\\xauusd_m5.csv",
+  "timeframe": "M5",
+  "params": {
+    "capital": 10000.0,
+    "risk_pct": 1.0,
+    "rr": 1.0,
+    "trend": "ema",
+    "swing_strength": 5,
+    "min_fvg": 0.5,
+    "sl_buffer": 0.0,
+    "pullback": 10,
+    "close_confirm": false
+  },
+  "summary": {
+    "initial_balance": 10000.0,
+    "final_balance": 63468.68,
+    "net_profit": 53468.68,
+    "growth_pct": 534.69,
+    "win_rate": 88.43,
+    "total_trades": 242,
+    "wins": 214,
+    "losses": 28,
+    "unresolved": 0,
+    "profit_factor": 9.12,
+    "max_drawdown_amount": 783.8,
+    "max_drawdown_pct": 1.99,
+    "avg_win": 280.64,
+    "avg_loss": 235.27,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 10000.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-05 10:05:00",
+        "balance": 10100.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-05 11:20:00",
+        "balance": 10201.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-05 11:25:00",
+        "balance": 10303.01,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-05 15:00:00",
+        "balance": 10406.04,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-05 23:00:00",
+        "balance": 10301.98,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-05 23:05:00",
+        "balance": 10405.0,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-05 23:15:00",
+        "balance": 10300.95,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2025-11-05 23:20:00",
+        "balance": 10403.96,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2025-11-06 01:05:00",
+        "balance": 10508.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 01:25:00",
+        "balance": 10402.92,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-06 01:50:00",
+        "balance": 10506.95,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-06 15:00:00",
+        "balance": 10612.02,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 15:35:00",
+        "balance": 10718.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 15:40:00",
+        "balance": 10825.32,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 15:55:00",
+        "balance": 10933.57,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 16:15:00",
+        "balance": 11042.91,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 16:30:00",
+        "balance": 11153.34,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 16:40:00",
+        "balance": 11264.87,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 16:45:00",
+        "balance": 11377.52,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 16:55:00",
+        "balance": 11263.74,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-06 17:10:00",
+        "balance": 11376.38,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-06 18:30:00",
+        "balance": 11490.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 19:50:00",
+        "balance": 11605.05,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 20:45:00",
+        "balance": 11721.1,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 20:55:00",
+        "balance": 11838.31,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 21:00:00",
+        "balance": 11956.69,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 21:05:00",
+        "balance": 12076.26,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 21:15:00",
+        "balance": 12197.02,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 21:25:00",
+        "balance": 12318.99,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 21:30:00",
+        "balance": 12442.18,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 23:10:00",
+        "balance": 12566.6,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 23:15:00",
+        "balance": 12692.27,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 23:20:00",
+        "balance": 12819.19,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 23:30:00",
+        "balance": 12947.38,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-06 23:35:00",
+        "balance": 13076.86,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-14 13:10:00",
+        "balance": 13207.63,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-14 16:20:00",
+        "balance": 13339.7,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-14 16:25:00",
+        "balance": 13473.1,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-14 16:30:00",
+        "balance": 13338.37,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-14 16:35:00",
+        "balance": 13471.75,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-14 17:00:00",
+        "balance": 13337.03,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2025-11-14 17:05:00",
+        "balance": 13470.4,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2025-11-14 17:10:00",
+        "balance": 13605.11,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-14 17:20:00",
+        "balance": 13469.06,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-14 17:30:00",
+        "balance": 13603.75,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-14 17:50:00",
+        "balance": 13467.71,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2025-11-14 18:00:00",
+        "balance": 13602.39,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2025-11-14 18:35:00",
+        "balance": 13738.41,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-14 18:50:00",
+        "balance": 13601.03,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-14 19:00:00",
+        "balance": 13737.04,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-16 23:10:00",
+        "balance": 13874.41,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-16 23:15:00",
+        "balance": 14013.15,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-16 23:20:00",
+        "balance": 14153.28,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-16 23:30:00",
+        "balance": 14294.82,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-16 23:35:00",
+        "balance": 14437.76,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-17 01:35:00",
+        "balance": 14582.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-17 01:55:00",
+        "balance": 14727.96,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 05:20:00",
+        "balance": 14875.24,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 05:30:00",
+        "balance": 15024.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 05:40:00",
+        "balance": 15174.24,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 05:45:00",
+        "balance": 15325.98,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 05:55:00",
+        "balance": 15479.24,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 06:25:00",
+        "balance": 15634.03,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 06:30:00",
+        "balance": 15790.37,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 06:35:00",
+        "balance": 15948.27,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 06:40:00",
+        "balance": 16107.76,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 07:00:00",
+        "balance": 15946.68,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-19 07:30:00",
+        "balance": 16106.15,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-19 07:35:00",
+        "balance": 16267.21,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 08:30:00",
+        "balance": 16429.88,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 09:25:00",
+        "balance": 16594.18,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 09:40:00",
+        "balance": 16760.12,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 15:55:00",
+        "balance": 16927.72,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 16:00:00",
+        "balance": 17097.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 16:05:00",
+        "balance": 17267.97,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 16:15:00",
+        "balance": 17440.65,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 16:20:00",
+        "balance": 17615.05,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 18:55:00",
+        "balance": 17791.2,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-19 23:35:00",
+        "balance": 17969.12,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 01:20:00",
+        "balance": 18148.81,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 01:30:00",
+        "balance": 18330.3,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 01:40:00",
+        "balance": 18513.6,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 01:45:00",
+        "balance": 18698.74,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 01:50:00",
+        "balance": 18885.72,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 01:55:00",
+        "balance": 19074.58,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 13:05:00",
+        "balance": 18883.83,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-20 13:10:00",
+        "balance": 18695.0,
+        "drawdown_pct": 1.99
+      },
+      {
+        "time": "2025-11-20 13:35:00",
+        "balance": 18881.95,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2025-11-20 14:45:00",
+        "balance": 19070.77,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2025-11-20 15:00:00",
+        "balance": 18880.06,
+        "drawdown_pct": 1.02
+      },
+      {
+        "time": "2025-11-20 15:10:00",
+        "balance": 19068.86,
+        "drawdown_pct": 0.03
+      },
+      {
+        "time": "2025-11-20 15:20:00",
+        "balance": 19259.55,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 15:30:00",
+        "balance": 19452.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 15:45:00",
+        "balance": 19646.66,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-20 19:25:00",
+        "balance": 19843.13,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 16:50:00",
+        "balance": 20041.56,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 17:50:00",
+        "balance": 19841.15,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-11-21 19:15:00",
+        "balance": 20039.56,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2025-11-21 19:20:00",
+        "balance": 20239.95,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 19:25:00",
+        "balance": 20442.35,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 19:45:00",
+        "balance": 20646.78,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 19:50:00",
+        "balance": 20853.24,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 19:55:00",
+        "balance": 21061.78,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-21 20:10:00",
+        "balance": 21272.39,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-24 15:05:00",
+        "balance": 21485.12,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-11-24 15:30:00",
+        "balance": 21699.97,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-02-02 06:35:00",
+        "balance": 21916.97,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-02-02 06:45:00",
+        "balance": 21697.8,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-03-19 12:00:00",
+        "balance": 21914.78,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-03-19 12:05:00",
+        "balance": 22133.92,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 14:00:00",
+        "balance": 22355.26,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 14:05:00",
+        "balance": 22578.82,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 14:10:00",
+        "balance": 22804.6,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 14:15:00",
+        "balance": 23032.65,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 15:05:00",
+        "balance": 23262.98,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 19:05:00",
+        "balance": 23495.61,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 19:25:00",
+        "balance": 23730.56,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 19:30:00",
+        "balance": 23967.87,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 19:35:00",
+        "balance": 24207.55,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 19:50:00",
+        "balance": 24449.62,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 23:00:00",
+        "balance": 24694.12,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 23:35:00",
+        "balance": 24941.06,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-19 23:40:00",
+        "balance": 24691.65,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-03-19 23:45:00",
+        "balance": 24938.57,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-03-20 13:50:00",
+        "balance": 25187.95,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-03-31 15:10:00",
+        "balance": 24936.07,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-03-31 16:35:00",
+        "balance": 25185.43,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-04-02 05:45:00",
+        "balance": 25437.29,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 07:20:00",
+        "balance": 25182.91,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-04-02 07:25:00",
+        "balance": 24931.09,
+        "drawdown_pct": 1.99
+      },
+      {
+        "time": "2026-04-02 08:55:00",
+        "balance": 25180.4,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2026-04-02 09:00:00",
+        "balance": 25432.2,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2026-04-02 09:05:00",
+        "balance": 25686.52,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 09:25:00",
+        "balance": 25943.39,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 09:40:00",
+        "balance": 26202.82,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 09:45:00",
+        "balance": 25940.79,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-04-02 09:55:00",
+        "balance": 25681.39,
+        "drawdown_pct": 1.99
+      },
+      {
+        "time": "2026-04-02 10:15:00",
+        "balance": 25938.2,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2026-04-02 10:25:00",
+        "balance": 26197.58,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2026-04-02 10:30:00",
+        "balance": 26459.56,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 10:45:00",
+        "balance": 26724.15,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 10:50:00",
+        "balance": 26991.39,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 10:55:00",
+        "balance": 27261.31,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 11:10:00",
+        "balance": 27533.92,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 11:25:00",
+        "balance": 27809.26,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 12:20:00",
+        "balance": 27531.17,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-04-02 12:30:00",
+        "balance": 27806.48,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-04-02 12:35:00",
+        "balance": 28084.54,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 12:40:00",
+        "balance": 28365.39,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 12:45:00",
+        "balance": 28649.04,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 12:50:00",
+        "balance": 28935.53,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 12:55:00",
+        "balance": 29224.89,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-02 13:45:00",
+        "balance": 29517.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-05 23:20:00",
+        "balance": 29812.31,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-06 00:15:00",
+        "balance": 30110.43,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-06 00:20:00",
+        "balance": 30411.54,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-06 00:45:00",
+        "balance": 30715.65,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-06 01:20:00",
+        "balance": 31022.81,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-07 01:00:00",
+        "balance": 31333.04,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-07 05:30:00",
+        "balance": 31646.37,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-07 14:05:00",
+        "balance": 31962.83,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-07 14:15:00",
+        "balance": 31643.2,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-04-28 05:40:00",
+        "balance": 31959.63,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-04-28 05:55:00",
+        "balance": 32279.23,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 06:15:00",
+        "balance": 32602.02,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 06:20:00",
+        "balance": 32928.04,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 06:30:00",
+        "balance": 33257.32,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 06:40:00",
+        "balance": 33589.9,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 07:05:00",
+        "balance": 33925.8,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 07:10:00",
+        "balance": 34265.05,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 07:15:00",
+        "balance": 34607.7,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 07:20:00",
+        "balance": 34953.78,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 07:30:00",
+        "balance": 35303.32,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 07:40:00",
+        "balance": 35656.35,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-28 08:00:00",
+        "balance": 36012.92,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 10:20:00",
+        "balance": 36373.05,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 10:25:00",
+        "balance": 36736.78,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 10:35:00",
+        "balance": 37104.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 10:45:00",
+        "balance": 37475.19,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 10:50:00",
+        "balance": 37849.94,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 10:55:00",
+        "balance": 38228.44,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 11:15:00",
+        "balance": 38610.72,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 11:20:00",
+        "balance": 38996.83,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 11:25:00",
+        "balance": 39386.8,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 11:45:00",
+        "balance": 38992.93,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-04-30 12:00:00",
+        "balance": 38603.0,
+        "drawdown_pct": 1.99
+      },
+      {
+        "time": "2026-04-30 12:10:00",
+        "balance": 38989.03,
+        "drawdown_pct": 1.01
+      },
+      {
+        "time": "2026-04-30 12:50:00",
+        "balance": 39378.92,
+        "drawdown_pct": 0.02
+      },
+      {
+        "time": "2026-04-30 12:55:00",
+        "balance": 39772.71,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-30 13:05:00",
+        "balance": 40170.44,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 02:10:00",
+        "balance": 40572.14,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 02:15:00",
+        "balance": 40977.86,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 14:00:00",
+        "balance": 41387.64,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 14:10:00",
+        "balance": 41801.52,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 14:35:00",
+        "balance": 41383.5,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-05-01 15:10:00",
+        "balance": 41797.34,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-05-01 15:15:00",
+        "balance": 42215.31,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 15:25:00",
+        "balance": 42637.46,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 15:35:00",
+        "balance": 43063.84,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 15:50:00",
+        "balance": 43494.48,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 16:30:00",
+        "balance": 43929.42,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 16:35:00",
+        "balance": 44368.71,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-01 17:40:00",
+        "balance": 44812.4,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-03 22:00:00",
+        "balance": 45260.53,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-06 02:05:00",
+        "balance": 45713.13,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-06 02:10:00",
+        "balance": 46170.26,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-06 02:15:00",
+        "balance": 46631.96,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-06 02:20:00",
+        "balance": 46165.65,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-05-06 02:40:00",
+        "balance": 46627.3,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-05-06 02:45:00",
+        "balance": 47093.57,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-06 02:50:00",
+        "balance": 47564.51,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-05-15 00:25:00",
+        "balance": 48040.16,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-19 20:50:00",
+        "balance": 48520.56,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 15:00:00",
+        "balance": 49005.76,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 15:10:00",
+        "balance": 49495.82,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 18:50:00",
+        "balance": 49990.78,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 19:05:00",
+        "balance": 50490.69,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 19:10:00",
+        "balance": 50995.59,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 19:20:00",
+        "balance": 51505.55,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 19:30:00",
+        "balance": 52020.6,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 19:35:00",
+        "balance": 52540.81,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 20:30:00",
+        "balance": 53066.22,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 22:00:00",
+        "balance": 53596.88,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 22:40:00",
+        "balance": 53060.91,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-08-20 22:50:00",
+        "balance": 53591.52,
+        "drawdown_pct": 0.01
+      },
+      {
+        "time": "2026-08-20 22:55:00",
+        "balance": 54127.44,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 23:00:00",
+        "balance": 54668.71,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 23:05:00",
+        "balance": 55215.4,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 23:25:00",
+        "balance": 55767.55,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 23:35:00",
+        "balance": 56325.23,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 23:40:00",
+        "balance": 56888.48,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 23:45:00",
+        "balance": 57457.36,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 00:05:00",
+        "balance": 58031.94,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 00:10:00",
+        "balance": 58612.26,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 00:25:00",
+        "balance": 59198.38,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 01:15:00",
+        "balance": 59790.36,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 01:20:00",
+        "balance": 60388.27,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 01:40:00",
+        "balance": 60992.15,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 02:05:00",
+        "balance": 61602.07,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 02:10:00",
+        "balance": 62218.09,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-21 02:20:00",
+        "balance": 62840.27,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-28 16:00:00",
+        "balance": 63468.68,
+        "drawdown_pct": 0.0
+      }
+    ],
+    "trades": [
+      {
+        "id": 1,
+        "time": "2025-11-05 10:05:00",
+        "direction": "LONG",
+        "entry_price": 3965.425,
+        "stop_loss": 3950.6,
+        "take_profit": 3962.125,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 100.0,
+        "balance": 10100.0
+      },
+      {
+        "id": 2,
+        "time": "2025-11-05 11:20:00",
+        "direction": "SHORT",
+        "entry_price": 3958.555,
+        "stop_loss": 3962.73,
+        "take_profit": 3957.665,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 101.0,
+        "balance": 10201.0
+      },
+      {
+        "id": 3,
+        "time": "2025-11-05 11:25:00",
+        "direction": "SHORT",
+        "entry_price": 3957.965,
+        "stop_loss": 3961.25,
+        "take_profit": 3958.58,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 102.01,
+        "balance": 10303.01
+      },
+      {
+        "id": 4,
+        "time": "2025-11-05 15:00:00",
+        "direction": "LONG",
+        "entry_price": 3970.735,
+        "stop_loss": 3959.07,
+        "take_profit": 3965.978,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 103.03,
+        "balance": 10406.04
+      },
+      {
+        "id": 5,
+        "time": "2025-11-05 23:00:00",
+        "direction": "SHORT",
+        "entry_price": 3968.348,
+        "stop_loss": 3986.135,
+        "take_profit": 3959.812,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -104.06,
+        "balance": 10301.98
+      },
+      {
+        "id": 6,
+        "time": "2025-11-05 23:05:00",
+        "direction": "SHORT",
+        "entry_price": 3968.448,
+        "stop_loss": 3978.338,
+        "take_profit": 3966.162,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 103.02,
+        "balance": 10405.0
+      },
+      {
+        "id": 7,
+        "time": "2025-11-05 23:15:00",
+        "direction": "SHORT",
+        "entry_price": 3969.685,
+        "stop_loss": 3973.555,
+        "take_profit": 3968.281,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -104.05,
+        "balance": 10300.95
+      },
+      {
+        "id": 8,
+        "time": "2025-11-05 23:20:00",
+        "direction": "SHORT",
+        "entry_price": 3969.605,
+        "stop_loss": 3972.42,
+        "take_profit": 3968.501,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 103.01,
+        "balance": 10403.96
+      },
+      {
+        "id": 9,
+        "time": "2025-11-06 01:05:00",
+        "direction": "SHORT",
+        "entry_price": 3966.455,
+        "stop_loss": 3977.18,
+        "take_profit": 3967.041,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 104.04,
+        "balance": 10508.0
+      },
+      {
+        "id": 10,
+        "time": "2025-11-06 01:25:00",
+        "direction": "SHORT",
+        "entry_price": 3968.885,
+        "stop_loss": 3978.705,
+        "take_profit": 3964.56,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -105.08,
+        "balance": 10402.92
+      },
+      {
+        "id": 11,
+        "time": "2025-11-06 01:50:00",
+        "direction": "LONG",
+        "entry_price": 3975.445,
+        "stop_loss": 3969.605,
+        "take_profit": 3971.335,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 104.03,
+        "balance": 10506.95
+      },
+      {
+        "id": 12,
+        "time": "2025-11-06 15:00:00",
+        "direction": "SHORT",
+        "entry_price": 3979.025,
+        "stop_loss": 4001.229,
+        "take_profit": 3969.221,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 105.07,
+        "balance": 10612.02
+      },
+      {
+        "id": 13,
+        "time": "2025-11-06 15:35:00",
+        "direction": "SHORT",
+        "entry_price": 3979.235,
+        "stop_loss": 3989.385,
+        "take_profit": 3978.392,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 106.12,
+        "balance": 10718.14
+      },
+      {
+        "id": 14,
+        "time": "2025-11-06 15:40:00",
+        "direction": "SHORT",
+        "entry_price": 3978.215,
+        "stop_loss": 3988.755,
+        "take_profit": 3978.564,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 107.18,
+        "balance": 10825.32
+      },
+      {
+        "id": 15,
+        "time": "2025-11-06 15:55:00",
+        "direction": "SHORT",
+        "entry_price": 3979.945,
+        "stop_loss": 3986.415,
+        "take_profit": 3978.792,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 108.25,
+        "balance": 10933.57
+      },
+      {
+        "id": 16,
+        "time": "2025-11-06 16:15:00",
+        "direction": "SHORT",
+        "entry_price": 3978.455,
+        "stop_loss": 3986.565,
+        "take_profit": 3979.434,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 109.34,
+        "balance": 11042.91
+      },
+      {
+        "id": 17,
+        "time": "2025-11-06 16:30:00",
+        "direction": "SHORT",
+        "entry_price": 3978.015,
+        "stop_loss": 3987.03,
+        "take_profit": 3979.004,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 110.43,
+        "balance": 11153.34
+      },
+      {
+        "id": 18,
+        "time": "2025-11-06 16:40:00",
+        "direction": "SHORT",
+        "entry_price": 3979.005,
+        "stop_loss": 3983.045,
+        "take_profit": 3979.853,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 111.53,
+        "balance": 11264.87
+      },
+      {
+        "id": 19,
+        "time": "2025-11-06 16:45:00",
+        "direction": "SHORT",
+        "entry_price": 3979.105,
+        "stop_loss": 3984.955,
+        "take_profit": 3979.931,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 112.65,
+        "balance": 11377.52
+      },
+      {
+        "id": 20,
+        "time": "2025-11-06 16:55:00",
+        "direction": "SHORT",
+        "entry_price": 3980.695,
+        "stop_loss": 3984.485,
+        "take_profit": 3979.724,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -113.78,
+        "balance": 11263.74
+      },
+      {
+        "id": 21,
+        "time": "2025-11-06 17:10:00",
+        "direction": "SHORT",
+        "entry_price": 3978.535,
+        "stop_loss": 3988.405,
+        "take_profit": 3977.898,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 112.64,
+        "balance": 11376.38
+      },
+      {
+        "id": 22,
+        "time": "2025-11-06 18:30:00",
+        "direction": "LONG",
+        "entry_price": 3987.205,
+        "stop_loss": 3979.075,
+        "take_profit": 3983.5,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 113.76,
+        "balance": 11490.14
+      },
+      {
+        "id": 23,
+        "time": "2025-11-06 19:50:00",
+        "direction": "LONG",
+        "entry_price": 3985.035,
+        "stop_loss": 3980.295,
+        "take_profit": 3983.19,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 114.9,
+        "balance": 11605.05
+      },
+      {
+        "id": 24,
+        "time": "2025-11-06 20:45:00",
+        "direction": "SHORT",
+        "entry_price": 3981.118,
+        "stop_loss": 3985.21,
+        "take_profit": 3979.886,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 116.05,
+        "balance": 11721.1
+      },
+      {
+        "id": 25,
+        "time": "2025-11-06 20:55:00",
+        "direction": "SHORT",
+        "entry_price": 3980.388,
+        "stop_loss": 3983.524,
+        "take_profit": 3980.875,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 117.21,
+        "balance": 11838.31
+      },
+      {
+        "id": 26,
+        "time": "2025-11-06 21:00:00",
+        "direction": "SHORT",
+        "entry_price": 3980.445,
+        "stop_loss": 3983.413,
+        "take_profit": 3980.873,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 118.38,
+        "balance": 11956.69
+      },
+      {
+        "id": 27,
+        "time": "2025-11-06 21:05:00",
+        "direction": "SHORT",
+        "entry_price": 3980.115,
+        "stop_loss": 3982.155,
+        "take_profit": 3980.858,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 119.57,
+        "balance": 12076.26
+      },
+      {
+        "id": 28,
+        "time": "2025-11-06 21:15:00",
+        "direction": "SHORT",
+        "entry_price": 3979.575,
+        "stop_loss": 3981.675,
+        "take_profit": 3981.337,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 120.76,
+        "balance": 12197.02
+      },
+      {
+        "id": 29,
+        "time": "2025-11-06 21:25:00",
+        "direction": "SHORT",
+        "entry_price": 3980.345,
+        "stop_loss": 3982.94,
+        "take_profit": 3980.893,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 121.97,
+        "balance": 12318.99
+      },
+      {
+        "id": 30,
+        "time": "2025-11-06 21:30:00",
+        "direction": "SHORT",
+        "entry_price": 3978.855,
+        "stop_loss": 3982.17,
+        "take_profit": 3980.891,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 123.19,
+        "balance": 12442.18
+      },
+      {
+        "id": 31,
+        "time": "2025-11-06 23:10:00",
+        "direction": "SHORT",
+        "entry_price": 3981.015,
+        "stop_loss": 3984.749,
+        "take_profit": 3980.508,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 124.42,
+        "balance": 12566.6
+      },
+      {
+        "id": 32,
+        "time": "2025-11-06 23:15:00",
+        "direction": "LONG",
+        "entry_price": 3983.795,
+        "stop_loss": 3978.795,
+        "take_profit": 3982.989,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 125.67,
+        "balance": 12692.27
+      },
+      {
+        "id": 33,
+        "time": "2025-11-06 23:20:00",
+        "direction": "LONG",
+        "entry_price": 3984.645,
+        "stop_loss": 3981.735,
+        "take_profit": 3982.752,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 126.92,
+        "balance": 12819.19
+      },
+      {
+        "id": 34,
+        "time": "2025-11-06 23:30:00",
+        "direction": "LONG",
+        "entry_price": 3983.465,
+        "stop_loss": 3980.395,
+        "take_profit": 3982.471,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 128.19,
+        "balance": 12947.38
+      },
+      {
+        "id": 35,
+        "time": "2025-11-06 23:35:00",
+        "direction": "LONG",
+        "entry_price": 3985.965,
+        "stop_loss": 3981.635,
+        "take_profit": 3982.858,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 129.47,
+        "balance": 13076.86
+      },
+      {
+        "id": 36,
+        "time": "2025-11-14 13:10:00",
+        "direction": "SHORT",
+        "entry_price": 4086.155,
+        "stop_loss": 4119.495,
+        "take_profit": 4093.764,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 130.77,
+        "balance": 13207.63
+      },
+      {
+        "id": 37,
+        "time": "2025-11-14 16:20:00",
+        "direction": "LONG",
+        "entry_price": 4100.985,
+        "stop_loss": 4088.535,
+        "take_profit": 4103.899,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 132.08,
+        "balance": 13339.7
+      },
+      {
+        "id": 38,
+        "time": "2025-11-14 16:25:00",
+        "direction": "LONG",
+        "entry_price": 4101.948,
+        "stop_loss": 4095.988,
+        "take_profit": 4101.59,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 133.4,
+        "balance": 13473.1
+      },
+      {
+        "id": 39,
+        "time": "2025-11-14 16:30:00",
+        "direction": "SHORT",
+        "entry_price": 4098.035,
+        "stop_loss": 4105.47,
+        "take_profit": 4096.557,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -134.73,
+        "balance": 13338.37
+      },
+      {
+        "id": 40,
+        "time": "2025-11-14 16:35:00",
+        "direction": "LONG",
+        "entry_price": 4105.295,
+        "stop_loss": 4091.185,
+        "take_profit": 4102.771,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 133.38,
+        "balance": 13471.75
+      },
+      {
+        "id": 41,
+        "time": "2025-11-14 17:00:00",
+        "direction": "LONG",
+        "entry_price": 4109.555,
+        "stop_loss": 4096.795,
+        "take_profit": 4102.252,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -134.72,
+        "balance": 13337.03
+      },
+      {
+        "id": 42,
+        "time": "2025-11-14 17:05:00",
+        "direction": "LONG",
+        "entry_price": 4103.949,
+        "stop_loss": 4089.11,
+        "take_profit": 4103.566,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 133.37,
+        "balance": 13470.4
+      },
+      {
+        "id": 43,
+        "time": "2025-11-14 17:10:00",
+        "direction": "LONG",
+        "entry_price": 4102.265,
+        "stop_loss": 4090.75,
+        "take_profit": 4103.568,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 134.7,
+        "balance": 13605.11
+      },
+      {
+        "id": 44,
+        "time": "2025-11-14 17:20:00",
+        "direction": "LONG",
+        "entry_price": 4100.905,
+        "stop_loss": 4095.545,
+        "take_profit": 4101.252,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -136.05,
+        "balance": 13469.06
+      },
+      {
+        "id": 45,
+        "time": "2025-11-14 17:30:00",
+        "direction": "LONG",
+        "entry_price": 4104.215,
+        "stop_loss": 4094.16,
+        "take_profit": 4101.788,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 134.69,
+        "balance": 13603.75
+      },
+      {
+        "id": 46,
+        "time": "2025-11-14 17:50:00",
+        "direction": "LONG",
+        "entry_price": 4102.655,
+        "stop_loss": 4091.695,
+        "take_profit": 4103.102,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -136.04,
+        "balance": 13467.71
+      },
+      {
+        "id": 47,
+        "time": "2025-11-14 18:00:00",
+        "direction": "SHORT",
+        "entry_price": 4088.775,
+        "stop_loss": 4107.2,
+        "take_profit": 4095.263,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 134.68,
+        "balance": 13602.39
+      },
+      {
+        "id": 48,
+        "time": "2025-11-14 18:35:00",
+        "direction": "LONG",
+        "entry_price": 4100.635,
+        "stop_loss": 4093.02,
+        "take_profit": 4102.178,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 136.02,
+        "balance": 13738.41
+      },
+      {
+        "id": 49,
+        "time": "2025-11-14 18:50:00",
+        "direction": "LONG",
+        "entry_price": 4100.945,
+        "stop_loss": 4092.955,
+        "take_profit": 4102.757,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -137.38,
+        "balance": 13601.03
+      },
+      {
+        "id": 50,
+        "time": "2025-11-14 19:00:00",
+        "direction": "SHORT",
+        "entry_price": 4094.915,
+        "stop_loss": 4102.28,
+        "take_profit": 4098.017,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 136.01,
+        "balance": 13737.04
+      },
+      {
+        "id": 51,
+        "time": "2025-11-16 23:10:00",
+        "direction": "SHORT",
+        "entry_price": 4098.445,
+        "stop_loss": 4116.468,
+        "take_profit": 4090.569,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 137.37,
+        "balance": 13874.41
+      },
+      {
+        "id": 52,
+        "time": "2025-11-16 23:15:00",
+        "direction": "SHORT",
+        "entry_price": 4096.885,
+        "stop_loss": 4106.577,
+        "take_profit": 4096.165,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 138.74,
+        "balance": 14013.15
+      },
+      {
+        "id": 53,
+        "time": "2025-11-16 23:20:00",
+        "direction": "LONG",
+        "entry_price": 4103.755,
+        "stop_loss": 4090.965,
+        "take_profit": 4102.54,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 140.13,
+        "balance": 14153.28
+      },
+      {
+        "id": 54,
+        "time": "2025-11-16 23:30:00",
+        "direction": "LONG",
+        "entry_price": 4102.055,
+        "stop_loss": 4095.74,
+        "take_profit": 4100.939,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 141.53,
+        "balance": 14294.82
+      },
+      {
+        "id": 55,
+        "time": "2025-11-16 23:35:00",
+        "direction": "LONG",
+        "entry_price": 4103.245,
+        "stop_loss": 4098.21,
+        "take_profit": 4100.939,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 142.95,
+        "balance": 14437.76
+      },
+      {
+        "id": 56,
+        "time": "2025-11-17 01:35:00",
+        "direction": "LONG",
+        "entry_price": 4100.975,
+        "stop_loss": 4094.75,
+        "take_profit": 4100.94,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 144.38,
+        "balance": 14582.14
+      },
+      {
+        "id": 57,
+        "time": "2025-11-17 01:55:00",
+        "direction": "SHORT",
+        "entry_price": 4090.915,
+        "stop_loss": 4100.905,
+        "take_profit": 4097.0,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 145.82,
+        "balance": 14727.96
+      },
+      {
+        "id": 58,
+        "time": "2025-11-19 05:20:00",
+        "direction": "LONG",
+        "entry_price": 4091.175,
+        "stop_loss": 4081.253,
+        "take_profit": 4093.959,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 147.28,
+        "balance": 14875.24
+      },
+      {
+        "id": 59,
+        "time": "2025-11-19 05:30:00",
+        "direction": "LONG",
+        "entry_price": 4095.205,
+        "stop_loss": 4082.915,
+        "take_profit": 4093.08,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 148.75,
+        "balance": 15024.0
+      },
+      {
+        "id": 60,
+        "time": "2025-11-19 05:40:00",
+        "direction": "LONG",
+        "entry_price": 4092.068,
+        "stop_loss": 4085.987,
+        "take_profit": 4092.2,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 150.24,
+        "balance": 15174.24
+      },
+      {
+        "id": 61,
+        "time": "2025-11-19 05:45:00",
+        "direction": "LONG",
+        "entry_price": 4093.515,
+        "stop_loss": 4087.9,
+        "take_profit": 4091.475,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 151.74,
+        "balance": 15325.98
+      },
+      {
+        "id": 62,
+        "time": "2025-11-19 05:55:00",
+        "direction": "LONG",
+        "entry_price": 4095.325,
+        "stop_loss": 4090.46,
+        "take_profit": 4091.282,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 153.26,
+        "balance": 15479.24
+      },
+      {
+        "id": 63,
+        "time": "2025-11-19 06:25:00",
+        "direction": "LONG",
+        "entry_price": 4091.985,
+        "stop_loss": 4086.725,
+        "take_profit": 4091.723,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 154.79,
+        "balance": 15634.03
+      },
+      {
+        "id": 64,
+        "time": "2025-11-19 06:30:00",
+        "direction": "LONG",
+        "entry_price": 4093.685,
+        "stop_loss": 4086.845,
+        "take_profit": 4091.724,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 156.34,
+        "balance": 15790.37
+      },
+      {
+        "id": 65,
+        "time": "2025-11-19 06:35:00",
+        "direction": "LONG",
+        "entry_price": 4095.005,
+        "stop_loss": 4089.515,
+        "take_profit": 4091.58,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 157.9,
+        "balance": 15948.27
+      },
+      {
+        "id": 66,
+        "time": "2025-11-19 06:40:00",
+        "direction": "LONG",
+        "entry_price": 4093.925,
+        "stop_loss": 4090.42,
+        "take_profit": 4091.344,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 159.48,
+        "balance": 16107.76
+      },
+      {
+        "id": 67,
+        "time": "2025-11-19 07:00:00",
+        "direction": "LONG",
+        "entry_price": 4092.365,
+        "stop_loss": 4088.14,
+        "take_profit": 4091.646,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -161.08,
+        "balance": 15946.68
+      },
+      {
+        "id": 68,
+        "time": "2025-11-19 07:30:00",
+        "direction": "LONG",
+        "entry_price": 4090.745,
+        "stop_loss": 4086.225,
+        "take_profit": 4092.674,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 159.47,
+        "balance": 16106.15
+      },
+      {
+        "id": 69,
+        "time": "2025-11-19 07:35:00",
+        "direction": "LONG",
+        "entry_price": 4093.775,
+        "stop_loss": 4088.56,
+        "take_profit": 4091.308,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 161.06,
+        "balance": 16267.21
+      },
+      {
+        "id": 70,
+        "time": "2025-11-19 08:30:00",
+        "direction": "SHORT",
+        "entry_price": 4084.165,
+        "stop_loss": 4091.075,
+        "take_profit": 4088.657,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 162.67,
+        "balance": 16429.88
+      },
+      {
+        "id": 71,
+        "time": "2025-11-19 09:25:00",
+        "direction": "LONG",
+        "entry_price": 4090.985,
+        "stop_loss": 4086.025,
+        "take_profit": 4092.176,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 164.3,
+        "balance": 16594.18
+      },
+      {
+        "id": 72,
+        "time": "2025-11-19 09:40:00",
+        "direction": "LONG",
+        "entry_price": 4098.185,
+        "stop_loss": 4085.479,
+        "take_profit": 4092.832,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 165.94,
+        "balance": 16760.12
+      },
+      {
+        "id": 73,
+        "time": "2025-11-19 15:55:00",
+        "direction": "LONG",
+        "entry_price": 4096.515,
+        "stop_loss": 4081.27,
+        "take_profit": 4096.73,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 167.6,
+        "balance": 16927.72
+      },
+      {
+        "id": 74,
+        "time": "2025-11-19 16:00:00",
+        "direction": "SHORT",
+        "entry_price": 4090.655,
+        "stop_loss": 4105.72,
+        "take_profit": 4083.509,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 169.28,
+        "balance": 17097.0
+      },
+      {
+        "id": 75,
+        "time": "2025-11-19 16:05:00",
+        "direction": "SHORT",
+        "entry_price": 4089.375,
+        "stop_loss": 4101.15,
+        "take_profit": 4086.524,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 170.97,
+        "balance": 17267.97
+      },
+      {
+        "id": 76,
+        "time": "2025-11-19 16:15:00",
+        "direction": "SHORT",
+        "entry_price": 4083.995,
+        "stop_loss": 4102.015,
+        "take_profit": 4086.665,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 172.68,
+        "balance": 17440.65
+      },
+      {
+        "id": 77,
+        "time": "2025-11-19 16:20:00",
+        "direction": "SHORT",
+        "entry_price": 4085.798,
+        "stop_loss": 4097.968,
+        "take_profit": 4086.845,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 174.41,
+        "balance": 17615.05
+      },
+      {
+        "id": 78,
+        "time": "2025-11-19 18:55:00",
+        "direction": "SHORT",
+        "entry_price": 4086.785,
+        "stop_loss": 4094.64,
+        "take_profit": 4087.795,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 176.15,
+        "balance": 17791.2
+      },
+      {
+        "id": 79,
+        "time": "2025-11-19 23:35:00",
+        "direction": "LONG",
+        "entry_price": 4095.095,
+        "stop_loss": 4083.295,
+        "take_profit": 4093.266,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 177.91,
+        "balance": 17969.12
+      },
+      {
+        "id": 80,
+        "time": "2025-11-20 01:20:00",
+        "direction": "LONG",
+        "entry_price": 4096.285,
+        "stop_loss": 4089.273,
+        "take_profit": 4092.294,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 179.69,
+        "balance": 18148.81
+      },
+      {
+        "id": 81,
+        "time": "2025-11-20 01:30:00",
+        "direction": "LONG",
+        "entry_price": 4091.255,
+        "stop_loss": 4085.015,
+        "take_profit": 4093.007,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 181.49,
+        "balance": 18330.3
+      },
+      {
+        "id": 82,
+        "time": "2025-11-20 01:40:00",
+        "direction": "LONG",
+        "entry_price": 4091.455,
+        "stop_loss": 4086.34,
+        "take_profit": 4092.967,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 183.3,
+        "balance": 18513.6
+      },
+      {
+        "id": 83,
+        "time": "2025-11-20 01:45:00",
+        "direction": "LONG",
+        "entry_price": 4094.955,
+        "stop_loss": 4088.125,
+        "take_profit": 4092.626,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 185.14,
+        "balance": 18698.74
+      },
+      {
+        "id": 84,
+        "time": "2025-11-20 01:50:00",
+        "direction": "SHORT",
+        "entry_price": 4089.175,
+        "stop_loss": 4099.29,
+        "take_profit": 4085.423,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 186.99,
+        "balance": 18885.72
+      },
+      {
+        "id": 85,
+        "time": "2025-11-20 01:55:00",
+        "direction": "SHORT",
+        "entry_price": 4081.235,
+        "stop_loss": 4093.33,
+        "take_profit": 4088.12,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 188.86,
+        "balance": 19074.58
+      },
+      {
+        "id": 86,
+        "time": "2025-11-20 13:05:00",
+        "direction": "LONG",
+        "entry_price": 4090.905,
+        "stop_loss": 4082.115,
+        "take_profit": 4093.166,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -190.75,
+        "balance": 18883.83
+      },
+      {
+        "id": 87,
+        "time": "2025-11-20 13:10:00",
+        "direction": "LONG",
+        "entry_price": 4089.875,
+        "stop_loss": 4081.655,
+        "take_profit": 4093.625,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -188.84,
+        "balance": 18695.0
+      },
+      {
+        "id": 88,
+        "time": "2025-11-20 13:35:00",
+        "direction": "LONG",
+        "entry_price": 4092.615,
+        "stop_loss": 4063.084,
+        "take_profit": 4105.236,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 186.95,
+        "balance": 18881.95
+      },
+      {
+        "id": 89,
+        "time": "2025-11-20 14:45:00",
+        "direction": "LONG",
+        "entry_price": 4102.325,
+        "stop_loss": 4077.36,
+        "take_profit": 4094.932,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 188.82,
+        "balance": 19070.77
+      },
+      {
+        "id": 90,
+        "time": "2025-11-20 15:00:00",
+        "direction": "LONG",
+        "entry_price": 4094.575,
+        "stop_loss": 4084.032,
+        "take_profit": 4092.699,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -190.71,
+        "balance": 18880.06
+      },
+      {
+        "id": 91,
+        "time": "2025-11-20 15:10:00",
+        "direction": "LONG",
+        "entry_price": 4092.185,
+        "stop_loss": 4080.239,
+        "take_profit": 4093.655,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 188.8,
+        "balance": 19068.86
+      },
+      {
+        "id": 92,
+        "time": "2025-11-20 15:20:00",
+        "direction": "LONG",
+        "entry_price": 4093.755,
+        "stop_loss": 4082.37,
+        "take_profit": 4093.067,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 190.69,
+        "balance": 19259.55
+      },
+      {
+        "id": 93,
+        "time": "2025-11-20 15:30:00",
+        "direction": "SHORT",
+        "entry_price": 4078.515,
+        "stop_loss": 4104.36,
+        "take_profit": 4083.493,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 192.6,
+        "balance": 19452.14
+      },
+      {
+        "id": 94,
+        "time": "2025-11-20 15:45:00",
+        "direction": "SHORT",
+        "entry_price": 4081.225,
+        "stop_loss": 4093.729,
+        "take_profit": 4086.438,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 194.52,
+        "balance": 19646.66
+      },
+      {
+        "id": 95,
+        "time": "2025-11-20 19:25:00",
+        "direction": "SHORT",
+        "entry_price": 4084.005,
+        "stop_loss": 4093.385,
+        "take_profit": 4085.034,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 196.47,
+        "balance": 19843.13
+      },
+      {
+        "id": 96,
+        "time": "2025-11-21 16:50:00",
+        "direction": "LONG",
+        "entry_price": 4093.619,
+        "stop_loss": 4075.155,
+        "take_profit": 4090.638,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 198.43,
+        "balance": 20041.56
+      },
+      {
+        "id": 97,
+        "time": "2025-11-21 17:50:00",
+        "direction": "LONG",
+        "entry_price": 4087.695,
+        "stop_loss": 4081.06,
+        "take_profit": 4089.215,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -200.42,
+        "balance": 19841.15
+      },
+      {
+        "id": 98,
+        "time": "2025-11-21 19:15:00",
+        "direction": "LONG",
+        "entry_price": 4086.729,
+        "stop_loss": 4082.603,
+        "take_profit": 4088.563,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 198.41,
+        "balance": 20039.56
+      },
+      {
+        "id": 99,
+        "time": "2025-11-21 19:20:00",
+        "direction": "LONG",
+        "entry_price": 4088.855,
+        "stop_loss": 4084.693,
+        "take_profit": 4087.258,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 200.4,
+        "balance": 20239.95
+      },
+      {
+        "id": 100,
+        "time": "2025-11-21 19:25:00",
+        "direction": "LONG",
+        "entry_price": 4090.348,
+        "stop_loss": 4085.783,
+        "take_profit": 4087.559,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 202.4,
+        "balance": 20442.35
+      },
+      {
+        "id": 101,
+        "time": "2025-11-21 19:45:00",
+        "direction": "LONG",
+        "entry_price": 4087.949,
+        "stop_loss": 4081.853,
+        "take_profit": 4088.535,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 204.42,
+        "balance": 20646.78
+      },
+      {
+        "id": 102,
+        "time": "2025-11-21 19:50:00",
+        "direction": "LONG",
+        "entry_price": 4087.519,
+        "stop_loss": 4082.483,
+        "take_profit": 4087.906,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 206.47,
+        "balance": 20853.24
+      },
+      {
+        "id": 103,
+        "time": "2025-11-21 19:55:00",
+        "direction": "LONG",
+        "entry_price": 4087.359,
+        "stop_loss": 4084.092,
+        "take_profit": 4087.657,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 208.53,
+        "balance": 21061.78
+      },
+      {
+        "id": 104,
+        "time": "2025-11-21 20:10:00",
+        "direction": "SHORT",
+        "entry_price": 4080.865,
+        "stop_loss": 4086.77,
+        "take_profit": 4085.025,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 210.62,
+        "balance": 21272.39
+      },
+      {
+        "id": 105,
+        "time": "2025-11-24 15:05:00",
+        "direction": "LONG",
+        "entry_price": 4089.335,
+        "stop_loss": 4080.85,
+        "take_profit": 4087.238,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 212.72,
+        "balance": 21485.12
+      },
+      {
+        "id": 106,
+        "time": "2025-11-24 15:30:00",
+        "direction": "LONG",
+        "entry_price": 4091.815,
+        "stop_loss": 4083.849,
+        "take_profit": 4087.039,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 214.85,
+        "balance": 21699.97
+      },
+      {
+        "id": 107,
+        "time": "2026-02-02 06:35:00",
+        "direction": "SHORT",
+        "entry_price": 4404.758,
+        "stop_loss": 4508.798,
+        "take_profit": 4422.028,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 217.0,
+        "balance": 21916.97
+      },
+      {
+        "id": 108,
+        "time": "2026-02-02 06:45:00",
+        "direction": "SHORT",
+        "entry_price": 4437.805,
+        "stop_loss": 4487.391,
+        "take_profit": 4431.434,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -219.17,
+        "balance": 21697.8
+      },
+      {
+        "id": 109,
+        "time": "2026-03-19 12:00:00",
+        "direction": "SHORT",
+        "entry_price": 4630.315,
+        "stop_loss": 4667.77,
+        "take_profit": 4618.124,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 216.98,
+        "balance": 21914.78
+      },
+      {
+        "id": 110,
+        "time": "2026-03-19 12:05:00",
+        "direction": "SHORT",
+        "entry_price": 4628.895,
+        "stop_loss": 4653.64,
+        "take_profit": 4627.563,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 219.15,
+        "balance": 22133.92
+      },
+      {
+        "id": 111,
+        "time": "2026-03-19 14:00:00",
+        "direction": "SHORT",
+        "entry_price": 4625.605,
+        "stop_loss": 4655.458,
+        "take_profit": 4628.43,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 221.34,
+        "balance": 22355.26
+      },
+      {
+        "id": 112,
+        "time": "2026-03-19 14:05:00",
+        "direction": "SHORT",
+        "entry_price": 4625.345,
+        "stop_loss": 4651.056,
+        "take_profit": 4628.933,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 223.55,
+        "balance": 22578.82
+      },
+      {
+        "id": 113,
+        "time": "2026-03-19 14:10:00",
+        "direction": "SHORT",
+        "entry_price": 4630.595,
+        "stop_loss": 4662.335,
+        "take_profit": 4622.83,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 225.79,
+        "balance": 22804.6
+      },
+      {
+        "id": 114,
+        "time": "2026-03-19 14:15:00",
+        "direction": "SHORT",
+        "entry_price": 4614.155,
+        "stop_loss": 4650.85,
+        "take_profit": 4626.529,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 228.05,
+        "balance": 23032.65
+      },
+      {
+        "id": 115,
+        "time": "2026-03-19 15:05:00",
+        "direction": "SHORT",
+        "entry_price": 4616.995,
+        "stop_loss": 4650.485,
+        "take_profit": 4628.58,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 230.33,
+        "balance": 23262.98
+      },
+      {
+        "id": 116,
+        "time": "2026-03-19 19:05:00",
+        "direction": "LONG",
+        "entry_price": 4649.615,
+        "stop_loss": 4620.13,
+        "take_profit": 4643.335,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 232.63,
+        "balance": 23495.61
+      },
+      {
+        "id": 117,
+        "time": "2026-03-19 19:25:00",
+        "direction": "LONG",
+        "entry_price": 4643.785,
+        "stop_loss": 4625.145,
+        "take_profit": 4640.271,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 234.96,
+        "balance": 23730.56
+      },
+      {
+        "id": 118,
+        "time": "2026-03-19 19:30:00",
+        "direction": "LONG",
+        "entry_price": 4646.105,
+        "stop_loss": 4630.023,
+        "take_profit": 4639.698,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 237.31,
+        "balance": 23967.87
+      },
+      {
+        "id": 119,
+        "time": "2026-03-19 19:35:00",
+        "direction": "LONG",
+        "entry_price": 4640.325,
+        "stop_loss": 4625.085,
+        "take_profit": 4640.091,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 239.68,
+        "balance": 24207.55
+      },
+      {
+        "id": 120,
+        "time": "2026-03-19 19:50:00",
+        "direction": "LONG",
+        "entry_price": 4640.185,
+        "stop_loss": 4626.47,
+        "take_profit": 4639.736,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 242.08,
+        "balance": 24449.62
+      },
+      {
+        "id": 121,
+        "time": "2026-03-19 23:00:00",
+        "direction": "LONG",
+        "entry_price": 4643.175,
+        "stop_loss": 4628.692,
+        "take_profit": 4639.834,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 244.5,
+        "balance": 24694.12
+      },
+      {
+        "id": 122,
+        "time": "2026-03-19 23:35:00",
+        "direction": "LONG",
+        "entry_price": 4639.685,
+        "stop_loss": 4632.05,
+        "take_profit": 4638.576,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 246.94,
+        "balance": 24941.06
+      },
+      {
+        "id": 123,
+        "time": "2026-03-19 23:40:00",
+        "direction": "SHORT",
+        "entry_price": 4635.375,
+        "stop_loss": 4642.575,
+        "take_profit": 4631.749,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -249.41,
+        "balance": 24691.65
+      },
+      {
+        "id": 124,
+        "time": "2026-03-19 23:45:00",
+        "direction": "LONG",
+        "entry_price": 4644.275,
+        "stop_loss": 4630.26,
+        "take_profit": 4638.624,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 246.92,
+        "balance": 24938.57
+      },
+      {
+        "id": 125,
+        "time": "2026-03-20 13:50:00",
+        "direction": "SHORT",
+        "entry_price": 4621.745,
+        "stop_loss": 4669.595,
+        "take_profit": 4618.863,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 249.39,
+        "balance": 25187.95
+      },
+      {
+        "id": 126,
+        "time": "2026-03-31 15:10:00",
+        "direction": "LONG",
+        "entry_price": 4622.825,
+        "stop_loss": 4608.235,
+        "take_profit": 4627.776,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -251.88,
+        "balance": 24936.07
+      },
+      {
+        "id": 127,
+        "time": "2026-03-31 16:35:00",
+        "direction": "LONG",
+        "entry_price": 4632.685,
+        "stop_loss": 4605.56,
+        "take_profit": 4626.381,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 249.36,
+        "balance": 25185.43
+      },
+      {
+        "id": 128,
+        "time": "2026-04-02 05:45:00",
+        "direction": "SHORT",
+        "entry_price": 4590.955,
+        "stop_loss": 4657.225,
+        "take_profit": 4608.612,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 251.85,
+        "balance": 25437.29
+      },
+      {
+        "id": 129,
+        "time": "2026-04-02 07:20:00",
+        "direction": "SHORT",
+        "entry_price": 4619.155,
+        "stop_loss": 4631.62,
+        "take_profit": 4616.555,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -254.37,
+        "balance": 25182.91
+      },
+      {
+        "id": 130,
+        "time": "2026-04-02 07:25:00",
+        "direction": "SHORT",
+        "entry_price": 4620.365,
+        "stop_loss": 4628.18,
+        "take_profit": 4619.165,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -251.83,
+        "balance": 24931.09
+      },
+      {
+        "id": 131,
+        "time": "2026-04-02 08:55:00",
+        "direction": "SHORT",
+        "entry_price": 4620.645,
+        "stop_loss": 4634.593,
+        "take_profit": 4615.129,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 249.31,
+        "balance": 25180.4
+      },
+      {
+        "id": 132,
+        "time": "2026-04-02 09:00:00",
+        "direction": "SHORT",
+        "entry_price": 4618.475,
+        "stop_loss": 4630.646,
+        "take_profit": 4618.252,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 251.8,
+        "balance": 25432.2
+      },
+      {
+        "id": 133,
+        "time": "2026-04-02 09:05:00",
+        "direction": "SHORT",
+        "entry_price": 4616.965,
+        "stop_loss": 4626.807,
+        "take_profit": 4618.376,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 254.32,
+        "balance": 25686.52
+      },
+      {
+        "id": 134,
+        "time": "2026-04-02 09:25:00",
+        "direction": "SHORT",
+        "entry_price": 4620.685,
+        "stop_loss": 4635.665,
+        "take_profit": 4614.269,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 256.87,
+        "balance": 25943.39
+      },
+      {
+        "id": 135,
+        "time": "2026-04-02 09:40:00",
+        "direction": "SHORT",
+        "entry_price": 4621.255,
+        "stop_loss": 4629.13,
+        "take_profit": 4619.082,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 259.43,
+        "balance": 26202.82
+      },
+      {
+        "id": 136,
+        "time": "2026-04-02 09:45:00",
+        "direction": "SHORT",
+        "entry_price": 4620.055,
+        "stop_loss": 4625.324,
+        "take_profit": 4620.292,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -262.03,
+        "balance": 25940.79
+      },
+      {
+        "id": 137,
+        "time": "2026-04-02 09:55:00",
+        "direction": "SHORT",
+        "entry_price": 4621.505,
+        "stop_loss": 4632.215,
+        "take_profit": 4615.529,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -259.41,
+        "balance": 25681.39
+      },
+      {
+        "id": 138,
+        "time": "2026-04-02 10:15:00",
+        "direction": "SHORT",
+        "entry_price": 4614.615,
+        "stop_loss": 4633.645,
+        "take_profit": 4617.12,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 256.81,
+        "balance": 25938.2
+      },
+      {
+        "id": 139,
+        "time": "2026-04-02 10:25:00",
+        "direction": "SHORT",
+        "entry_price": 4618.175,
+        "stop_loss": 4627.58,
+        "take_profit": 4617.72,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 259.38,
+        "balance": 26197.58
+      },
+      {
+        "id": 140,
+        "time": "2026-04-02 10:30:00",
+        "direction": "SHORT",
+        "entry_price": 4614.035,
+        "stop_loss": 4623.055,
+        "take_profit": 4619.877,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 261.98,
+        "balance": 26459.56
+      },
+      {
+        "id": 141,
+        "time": "2026-04-02 10:45:00",
+        "direction": "LONG",
+        "entry_price": 4628.145,
+        "stop_loss": 4613.215,
+        "take_profit": 4626.867,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 264.6,
+        "balance": 26724.15
+      },
+      {
+        "id": 142,
+        "time": "2026-04-02 10:50:00",
+        "direction": "SHORT",
+        "entry_price": 4620.385,
+        "stop_loss": 4632.849,
+        "take_profit": 4615.449,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 267.24,
+        "balance": 26991.39
+      },
+      {
+        "id": 143,
+        "time": "2026-04-02 10:55:00",
+        "direction": "SHORT",
+        "entry_price": 4620.265,
+        "stop_loss": 4630.439,
+        "take_profit": 4617.859,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 269.91,
+        "balance": 27261.31
+      },
+      {
+        "id": 144,
+        "time": "2026-04-02 11:10:00",
+        "direction": "LONG",
+        "entry_price": 4627.275,
+        "stop_loss": 4621.35,
+        "take_profit": 4623.53,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 272.61,
+        "balance": 27533.92
+      },
+      {
+        "id": 145,
+        "time": "2026-04-02 11:25:00",
+        "direction": "SHORT",
+        "entry_price": 4614.635,
+        "stop_loss": 4638.74,
+        "take_profit": 4613.239,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 275.34,
+        "balance": 27809.26
+      },
+      {
+        "id": 146,
+        "time": "2026-04-02 12:20:00",
+        "direction": "LONG",
+        "entry_price": 4627.975,
+        "stop_loss": 4603.035,
+        "take_profit": 4632.068,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -278.09,
+        "balance": 27531.17
+      },
+      {
+        "id": 147,
+        "time": "2026-04-02 12:30:00",
+        "direction": "SHORT",
+        "entry_price": 4621.705,
+        "stop_loss": 4630.39,
+        "take_profit": 4617.138,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 275.31,
+        "balance": 27806.48
+      },
+      {
+        "id": 148,
+        "time": "2026-04-02 12:35:00",
+        "direction": "SHORT",
+        "entry_price": 4621.145,
+        "stop_loss": 4628.2,
+        "take_profit": 4619.328,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 278.06,
+        "balance": 28084.54
+      },
+      {
+        "id": 149,
+        "time": "2026-04-02 12:40:00",
+        "direction": "SHORT",
+        "entry_price": 4618.005,
+        "stop_loss": 4625.16,
+        "take_profit": 4619.928,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 280.85,
+        "balance": 28365.39
+      },
+      {
+        "id": 150,
+        "time": "2026-04-02 12:45:00",
+        "direction": "SHORT",
+        "entry_price": 4619.265,
+        "stop_loss": 4629.73,
+        "take_profit": 4618.602,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 283.65,
+        "balance": 28649.04
+      },
+      {
+        "id": 151,
+        "time": "2026-04-02 12:50:00",
+        "direction": "SHORT",
+        "entry_price": 4619.865,
+        "stop_loss": 4631.93,
+        "take_profit": 4617.188,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 286.49,
+        "balance": 28935.53
+      },
+      {
+        "id": 152,
+        "time": "2026-04-02 12:55:00",
+        "direction": "SHORT",
+        "entry_price": 4601.598,
+        "stop_loss": 4632.019,
+        "take_profit": 4615.459,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 289.36,
+        "balance": 29224.89
+      },
+      {
+        "id": 153,
+        "time": "2026-04-02 13:45:00",
+        "direction": "LONG",
+        "entry_price": 4634.095,
+        "stop_loss": 4582.065,
+        "take_profit": 4643.467,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 292.25,
+        "balance": 29517.14
+      },
+      {
+        "id": 154,
+        "time": "2026-04-05 23:20:00",
+        "direction": "SHORT",
+        "entry_price": 4619.435,
+        "stop_loss": 4630.26,
+        "take_profit": 4618.584,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 295.17,
+        "balance": 29812.31
+      },
+      {
+        "id": 155,
+        "time": "2026-04-06 00:15:00",
+        "direction": "SHORT",
+        "entry_price": 4614.405,
+        "stop_loss": 4636.565,
+        "take_profit": 4615.14,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 298.12,
+        "balance": 30110.43
+      },
+      {
+        "id": 156,
+        "time": "2026-04-06 00:20:00",
+        "direction": "SHORT",
+        "entry_price": 4616.555,
+        "stop_loss": 4628.785,
+        "take_profit": 4617.426,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 301.1,
+        "balance": 30411.54
+      },
+      {
+        "id": 157,
+        "time": "2026-04-06 00:45:00",
+        "direction": "SHORT",
+        "entry_price": 4617.305,
+        "stop_loss": 4626.895,
+        "take_profit": 4618.607,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 304.12,
+        "balance": 30715.65
+      },
+      {
+        "id": 158,
+        "time": "2026-04-06 01:20:00",
+        "direction": "LONG",
+        "entry_price": 4632.268,
+        "stop_loss": 4610.845,
+        "take_profit": 4627.513,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 307.16,
+        "balance": 31022.81
+      },
+      {
+        "id": 159,
+        "time": "2026-04-07 01:00:00",
+        "direction": "LONG",
+        "entry_price": 4661.365,
+        "stop_loss": 4605.85,
+        "take_profit": 4633.53,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 310.23,
+        "balance": 31333.04
+      },
+      {
+        "id": 160,
+        "time": "2026-04-07 05:30:00",
+        "direction": "LONG",
+        "entry_price": 4631.535,
+        "stop_loss": 4614.3,
+        "take_profit": 4627.427,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 313.33,
+        "balance": 31646.37
+      },
+      {
+        "id": 161,
+        "time": "2026-04-07 14:05:00",
+        "direction": "SHORT",
+        "entry_price": 4612.445,
+        "stop_loss": 4638.457,
+        "take_profit": 4615.727,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 316.46,
+        "balance": 31962.83
+      },
+      {
+        "id": 162,
+        "time": "2026-04-07 14:15:00",
+        "direction": "SHORT",
+        "entry_price": 4615.358,
+        "stop_loss": 4631.4,
+        "take_profit": 4618.112,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -319.63,
+        "balance": 31643.2
+      },
+      {
+        "id": 163,
+        "time": "2026-04-28 05:40:00",
+        "direction": "SHORT",
+        "entry_price": 4624.395,
+        "stop_loss": 4644.463,
+        "take_profit": 4630.922,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 316.43,
+        "balance": 31959.63
+      },
+      {
+        "id": 164,
+        "time": "2026-04-28 05:55:00",
+        "direction": "SHORT",
+        "entry_price": 4631.795,
+        "stop_loss": 4636.898,
+        "take_profit": 4633.403,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 319.6,
+        "balance": 32279.23
+      },
+      {
+        "id": 165,
+        "time": "2026-04-28 06:15:00",
+        "direction": "SHORT",
+        "entry_price": 4633.725,
+        "stop_loss": 4645.025,
+        "take_profit": 4629.115,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 322.79,
+        "balance": 32602.02
+      },
+      {
+        "id": 166,
+        "time": "2026-04-28 06:20:00",
+        "direction": "SHORT",
+        "entry_price": 4625.855,
+        "stop_loss": 4638.905,
+        "take_profit": 4631.887,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 326.02,
+        "balance": 32928.04
+      },
+      {
+        "id": 167,
+        "time": "2026-04-28 06:30:00",
+        "direction": "SHORT",
+        "entry_price": 4629.525,
+        "stop_loss": 4638.535,
+        "take_profit": 4632.456,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 329.28,
+        "balance": 33257.32
+      },
+      {
+        "id": 168,
+        "time": "2026-04-28 06:40:00",
+        "direction": "SHORT",
+        "entry_price": 4629.595,
+        "stop_loss": 4637.735,
+        "take_profit": 4633.11,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 332.57,
+        "balance": 33589.9
+      },
+      {
+        "id": 169,
+        "time": "2026-04-28 07:05:00",
+        "direction": "SHORT",
+        "entry_price": 4633.685,
+        "stop_loss": 4645.22,
+        "take_profit": 4630.852,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 335.9,
+        "balance": 33925.8
+      },
+      {
+        "id": 170,
+        "time": "2026-04-28 07:10:00",
+        "direction": "SHORT",
+        "entry_price": 4634.045,
+        "stop_loss": 4639.72,
+        "take_profit": 4632.909,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 339.26,
+        "balance": 34265.05
+      },
+      {
+        "id": 171,
+        "time": "2026-04-28 07:15:00",
+        "direction": "SHORT",
+        "entry_price": 4632.545,
+        "stop_loss": 4636.885,
+        "take_profit": 4633.715,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 342.65,
+        "balance": 34607.7
+      },
+      {
+        "id": 172,
+        "time": "2026-04-28 07:20:00",
+        "direction": "SHORT",
+        "entry_price": 4629.615,
+        "stop_loss": 4636.57,
+        "take_profit": 4633.322,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 346.08,
+        "balance": 34953.78
+      },
+      {
+        "id": 173,
+        "time": "2026-04-28 07:30:00",
+        "direction": "SHORT",
+        "entry_price": 4626.595,
+        "stop_loss": 4639.735,
+        "take_profit": 4632.251,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 349.54,
+        "balance": 35303.32
+      },
+      {
+        "id": 174,
+        "time": "2026-04-28 07:40:00",
+        "direction": "SHORT",
+        "entry_price": 4629.225,
+        "stop_loss": 4636.595,
+        "take_profit": 4633.079,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 353.03,
+        "balance": 35656.35
+      },
+      {
+        "id": 175,
+        "time": "2026-04-28 08:00:00",
+        "direction": "SHORT",
+        "entry_price": 4620.105,
+        "stop_loss": 4641.52,
+        "take_profit": 4630.176,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 356.56,
+        "balance": 36012.92
+      },
+      {
+        "id": 176,
+        "time": "2026-04-30 10:20:00",
+        "direction": "LONG",
+        "entry_price": 4634.045,
+        "stop_loss": 4624.94,
+        "take_profit": 4639.435,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 360.13,
+        "balance": 36373.05
+      },
+      {
+        "id": 177,
+        "time": "2026-04-30 10:25:00",
+        "direction": "LONG",
+        "entry_price": 4643.545,
+        "stop_loss": 4627.795,
+        "take_profit": 4637.116,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 363.73,
+        "balance": 36736.78
+      },
+      {
+        "id": 178,
+        "time": "2026-04-30 10:35:00",
+        "direction": "LONG",
+        "entry_price": 4637.685,
+        "stop_loss": 4628.51,
+        "take_profit": 4637.246,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 367.37,
+        "balance": 37104.14
+      },
+      {
+        "id": 179,
+        "time": "2026-04-30 10:45:00",
+        "direction": "LONG",
+        "entry_price": 4636.755,
+        "stop_loss": 4631.572,
+        "take_profit": 4635.301,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 371.04,
+        "balance": 37475.19
+      },
+      {
+        "id": 180,
+        "time": "2026-04-30 10:50:00",
+        "direction": "LONG",
+        "entry_price": 4636.805,
+        "stop_loss": 4633.275,
+        "take_profit": 4635.233,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 374.75,
+        "balance": 37849.94
+      },
+      {
+        "id": 181,
+        "time": "2026-04-30 10:55:00",
+        "direction": "LONG",
+        "entry_price": 4639.475,
+        "stop_loss": 4630.658,
+        "take_profit": 4635.681,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 378.5,
+        "balance": 38228.44
+      },
+      {
+        "id": 182,
+        "time": "2026-04-30 11:15:00",
+        "direction": "LONG",
+        "entry_price": 4635.595,
+        "stop_loss": 4628.825,
+        "take_profit": 4636.578,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 382.28,
+        "balance": 38610.72
+      },
+      {
+        "id": 183,
+        "time": "2026-04-30 11:20:00",
+        "direction": "LONG",
+        "entry_price": 4636.545,
+        "stop_loss": 4628.79,
+        "take_profit": 4636.84,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 386.11,
+        "balance": 38996.83
+      },
+      {
+        "id": 184,
+        "time": "2026-04-30 11:25:00",
+        "direction": "LONG",
+        "entry_price": 4637.395,
+        "stop_loss": 4625.28,
+        "take_profit": 4637.63,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 389.97,
+        "balance": 39386.8
+      },
+      {
+        "id": 185,
+        "time": "2026-04-30 11:45:00",
+        "direction": "LONG",
+        "entry_price": 4634.785,
+        "stop_loss": 4625.08,
+        "take_profit": 4639.389,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -393.87,
+        "balance": 38992.93
+      },
+      {
+        "id": 186,
+        "time": "2026-04-30 12:00:00",
+        "direction": "LONG",
+        "entry_price": 4635.605,
+        "stop_loss": 4625.64,
+        "take_profit": 4638.509,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -389.93,
+        "balance": 38603.0
+      },
+      {
+        "id": 187,
+        "time": "2026-04-30 12:10:00",
+        "direction": "LONG",
+        "entry_price": 4635.595,
+        "stop_loss": 4627.45,
+        "take_profit": 4636.829,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 386.03,
+        "balance": 38989.03
+      },
+      {
+        "id": 188,
+        "time": "2026-04-30 12:50:00",
+        "direction": "LONG",
+        "entry_price": 4635.115,
+        "stop_loss": 4620.84,
+        "take_profit": 4642.087,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 389.89,
+        "balance": 39378.92
+      },
+      {
+        "id": 189,
+        "time": "2026-04-30 12:55:00",
+        "direction": "LONG",
+        "entry_price": 4639.415,
+        "stop_loss": 4627.82,
+        "take_profit": 4636.826,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 393.79,
+        "balance": 39772.71
+      },
+      {
+        "id": 190,
+        "time": "2026-04-30 13:05:00",
+        "direction": "LONG",
+        "entry_price": 4639.785,
+        "stop_loss": 4631.285,
+        "take_profit": 4635.731,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 397.73,
+        "balance": 40170.44
+      },
+      {
+        "id": 191,
+        "time": "2026-05-01 02:10:00",
+        "direction": "SHORT",
+        "entry_price": 4630.575,
+        "stop_loss": 4638.48,
+        "take_profit": 4631.34,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 401.7,
+        "balance": 40572.14
+      },
+      {
+        "id": 192,
+        "time": "2026-05-01 02:15:00",
+        "direction": "SHORT",
+        "entry_price": 4633.325,
+        "stop_loss": 4639.87,
+        "take_profit": 4631.34,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 405.72,
+        "balance": 40977.86
+      },
+      {
+        "id": 193,
+        "time": "2026-05-01 14:00:00",
+        "direction": "LONG",
+        "entry_price": 4634.455,
+        "stop_loss": 4615.31,
+        "take_profit": 4643.374,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 409.78,
+        "balance": 41387.64
+      },
+      {
+        "id": 194,
+        "time": "2026-05-01 14:10:00",
+        "direction": "LONG",
+        "entry_price": 4656.015,
+        "stop_loss": 4621.525,
+        "take_profit": 4641.416,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 413.88,
+        "balance": 41801.52
+      },
+      {
+        "id": 195,
+        "time": "2026-05-01 14:35:00",
+        "direction": "LONG",
+        "entry_price": 4638.405,
+        "stop_loss": 4631.895,
+        "take_profit": 4635.996,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -418.02,
+        "balance": 41383.5
+      },
+      {
+        "id": 196,
+        "time": "2026-05-01 15:10:00",
+        "direction": "LONG",
+        "entry_price": 4636.535,
+        "stop_loss": 4617.185,
+        "take_profit": 4643.842,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 413.84,
+        "balance": 41797.34
+      },
+      {
+        "id": 197,
+        "time": "2026-05-01 15:15:00",
+        "direction": "LONG",
+        "entry_price": 4639.215,
+        "stop_loss": 4628.705,
+        "take_profit": 4637.609,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 417.97,
+        "balance": 42215.31
+      },
+      {
+        "id": 198,
+        "time": "2026-05-01 15:25:00",
+        "direction": "LONG",
+        "entry_price": 4636.065,
+        "stop_loss": 4631.05,
+        "take_profit": 4635.47,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 422.15,
+        "balance": 42637.46
+      },
+      {
+        "id": 199,
+        "time": "2026-05-01 15:35:00",
+        "direction": "LONG",
+        "entry_price": 4640.935,
+        "stop_loss": 4631.65,
+        "take_profit": 4635.932,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 426.37,
+        "balance": 43063.84
+      },
+      {
+        "id": 200,
+        "time": "2026-05-01 15:50:00",
+        "direction": "LONG",
+        "entry_price": 4645.545,
+        "stop_loss": 4625.825,
+        "take_profit": 4637.906,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 430.64,
+        "balance": 43494.48
+      },
+      {
+        "id": 201,
+        "time": "2026-05-01 16:30:00",
+        "direction": "LONG",
+        "entry_price": 4636.925,
+        "stop_loss": 4631.805,
+        "take_profit": 4635.483,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 434.94,
+        "balance": 43929.42
+      },
+      {
+        "id": 202,
+        "time": "2026-05-01 16:35:00",
+        "direction": "LONG",
+        "entry_price": 4640.315,
+        "stop_loss": 4630.48,
+        "take_profit": 4635.75,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 439.29,
+        "balance": 44368.71
+      },
+      {
+        "id": 203,
+        "time": "2026-05-01 17:40:00",
+        "direction": "SHORT",
+        "entry_price": 4627.915,
+        "stop_loss": 4634.32,
+        "take_profit": 4632.211,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 443.69,
+        "balance": 44812.4
+      },
+      {
+        "id": 204,
+        "time": "2026-05-03 22:00:00",
+        "direction": "SHORT",
+        "entry_price": 4625.365,
+        "stop_loss": 4648.108,
+        "take_profit": 4627.279,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 448.12,
+        "balance": 45260.53
+      },
+      {
+        "id": 205,
+        "time": "2026-05-06 02:05:00",
+        "direction": "LONG",
+        "entry_price": 4632.805,
+        "stop_loss": 4624.385,
+        "take_profit": 4638.015,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 452.61,
+        "balance": 45713.13
+      },
+      {
+        "id": 206,
+        "time": "2026-05-06 02:10:00",
+        "direction": "LONG",
+        "entry_price": 4633.285,
+        "stop_loss": 4626.945,
+        "take_profit": 4635.455,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 457.13,
+        "balance": 46170.26
+      },
+      {
+        "id": 207,
+        "time": "2026-05-06 02:15:00",
+        "direction": "LONG",
+        "entry_price": 4633.885,
+        "stop_loss": 4630.185,
+        "take_profit": 4633.936,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 461.7,
+        "balance": 46631.96
+      },
+      {
+        "id": 208,
+        "time": "2026-05-06 02:20:00",
+        "direction": "LONG",
+        "entry_price": 4633.425,
+        "stop_loss": 4629.695,
+        "take_profit": 4633.894,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -466.32,
+        "balance": 46165.65
+      },
+      {
+        "id": 209,
+        "time": "2026-05-06 02:40:00",
+        "direction": "LONG",
+        "entry_price": 4634.365,
+        "stop_loss": 4627.57,
+        "take_profit": 4635.385,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 461.66,
+        "balance": 46627.3
+      },
+      {
+        "id": 210,
+        "time": "2026-05-06 02:45:00",
+        "direction": "LONG",
+        "entry_price": 4635.495,
+        "stop_loss": 4631.09,
+        "take_profit": 4634.173,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 466.27,
+        "balance": 47093.57
+      },
+      {
+        "id": 211,
+        "time": "2026-05-06 02:50:00",
+        "direction": "LONG",
+        "entry_price": 4638.485,
+        "stop_loss": 4631.93,
+        "take_profit": 4634.173,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 470.94,
+        "balance": 47564.51
+      },
+      {
+        "id": 212,
+        "time": "2026-05-15 00:25:00",
+        "direction": "SHORT",
+        "entry_price": 4629.715,
+        "stop_loss": 4652.238,
+        "take_profit": 4627.948,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 475.65,
+        "balance": 48040.16
+      },
+      {
+        "id": 213,
+        "time": "2026-08-19 20:50:00",
+        "direction": "LONG",
+        "entry_price": 4523.625,
+        "stop_loss": 4518.775,
+        "take_profit": 4524.444,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 480.4,
+        "balance": 48520.56
+      },
+      {
+        "id": 214,
+        "time": "2026-08-20 15:00:00",
+        "direction": "LONG",
+        "entry_price": 4535.525,
+        "stop_loss": 4504.15,
+        "take_profit": 4529.899,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 485.21,
+        "balance": 49005.76
+      },
+      {
+        "id": 215,
+        "time": "2026-08-20 15:10:00",
+        "direction": "LONG",
+        "entry_price": 4534.565,
+        "stop_loss": 4513.7,
+        "take_profit": 4527.095,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 490.06,
+        "balance": 49495.82
+      },
+      {
+        "id": 216,
+        "time": "2026-08-20 18:50:00",
+        "direction": "LONG",
+        "entry_price": 4524.455,
+        "stop_loss": 4518.78,
+        "take_profit": 4523.873,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 494.96,
+        "balance": 49990.78
+      },
+      {
+        "id": 217,
+        "time": "2026-08-20 19:05:00",
+        "direction": "LONG",
+        "entry_price": 4525.885,
+        "stop_loss": 4518.61,
+        "take_profit": 4523.869,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 499.91,
+        "balance": 50490.69
+      },
+      {
+        "id": 218,
+        "time": "2026-08-20 19:10:00",
+        "direction": "LONG",
+        "entry_price": 4527.465,
+        "stop_loss": 4521.62,
+        "take_profit": 4523.869,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 504.91,
+        "balance": 50995.59
+      },
+      {
+        "id": 219,
+        "time": "2026-08-20 19:20:00",
+        "direction": "LONG",
+        "entry_price": 4526.915,
+        "stop_loss": 4521.41,
+        "take_profit": 4523.701,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 509.96,
+        "balance": 51505.55
+      },
+      {
+        "id": 220,
+        "time": "2026-08-20 19:30:00",
+        "direction": "LONG",
+        "entry_price": 4523.915,
+        "stop_loss": 4519.225,
+        "take_profit": 4523.92,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 515.06,
+        "balance": 52020.6
+      },
+      {
+        "id": 221,
+        "time": "2026-08-20 19:35:00",
+        "direction": "LONG",
+        "entry_price": 4528.795,
+        "stop_loss": 4519.6,
+        "take_profit": 4524.379,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 520.21,
+        "balance": 52540.81
+      },
+      {
+        "id": 222,
+        "time": "2026-08-20 20:30:00",
+        "direction": "SHORT",
+        "entry_price": 4517.745,
+        "stop_loss": 4523.015,
+        "take_profit": 4521.1,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 525.41,
+        "balance": 53066.22
+      },
+      {
+        "id": 223,
+        "time": "2026-08-20 22:00:00",
+        "direction": "SHORT",
+        "entry_price": 4518.415,
+        "stop_loss": 4523.54,
+        "take_profit": 4520.587,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 530.66,
+        "balance": 53596.88
+      },
+      {
+        "id": 224,
+        "time": "2026-08-20 22:40:00",
+        "direction": "LONG",
+        "entry_price": 4522.395,
+        "stop_loss": 4519.35,
+        "take_profit": 4523.894,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -535.97,
+        "balance": 53060.91
+      },
+      {
+        "id": 225,
+        "time": "2026-08-20 22:50:00",
+        "direction": "LONG",
+        "entry_price": 4523.715,
+        "stop_loss": 4519.26,
+        "take_profit": 4523.665,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 530.61,
+        "balance": 53591.52
+      },
+      {
+        "id": 226,
+        "time": "2026-08-20 22:55:00",
+        "direction": "LONG",
+        "entry_price": 4523.705,
+        "stop_loss": 4521.57,
+        "take_profit": 4523.275,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 535.92,
+        "balance": 54127.44
+      },
+      {
+        "id": 227,
+        "time": "2026-08-20 23:00:00",
+        "direction": "LONG",
+        "entry_price": 4528.715,
+        "stop_loss": 4519.565,
+        "take_profit": 4524.382,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 541.27,
+        "balance": 54668.71
+      },
+      {
+        "id": 228,
+        "time": "2026-08-20 23:05:00",
+        "direction": "LONG",
+        "entry_price": 4526.645,
+        "stop_loss": 4520.995,
+        "take_profit": 4524.382,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 546.69,
+        "balance": 55215.4
+      },
+      {
+        "id": 229,
+        "time": "2026-08-20 23:25:00",
+        "direction": "LONG",
+        "entry_price": 4526.865,
+        "stop_loss": 4518.53,
+        "take_profit": 4524.673,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 552.15,
+        "balance": 55767.55
+      },
+      {
+        "id": 230,
+        "time": "2026-08-20 23:35:00",
+        "direction": "LONG",
+        "entry_price": 4523.395,
+        "stop_loss": 4517.28,
+        "take_profit": 4524.356,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 557.68,
+        "balance": 56325.23
+      },
+      {
+        "id": 231,
+        "time": "2026-08-20 23:40:00",
+        "direction": "LONG",
+        "entry_price": 4524.255,
+        "stop_loss": 4521.495,
+        "take_profit": 4523.459,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 563.25,
+        "balance": 56888.48
+      },
+      {
+        "id": 232,
+        "time": "2026-08-20 23:45:00",
+        "direction": "LONG",
+        "entry_price": 4526.925,
+        "stop_loss": 4520.575,
+        "take_profit": 4523.705,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 568.88,
+        "balance": 57457.36
+      },
+      {
+        "id": 233,
+        "time": "2026-08-21 00:05:00",
+        "direction": "SHORT",
+        "entry_price": 4519.845,
+        "stop_loss": 4525.555,
+        "take_profit": 4520.741,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 574.57,
+        "balance": 58031.94
+      },
+      {
+        "id": 234,
+        "time": "2026-08-21 00:10:00",
+        "direction": "SHORT",
+        "entry_price": 4518.295,
+        "stop_loss": 4525.875,
+        "take_profit": 4520.615,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 580.32,
+        "balance": 58612.26
+      },
+      {
+        "id": 235,
+        "time": "2026-08-21 00:25:00",
+        "direction": "SHORT",
+        "entry_price": 4514.435,
+        "stop_loss": 4524.015,
+        "take_profit": 4520.254,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 586.12,
+        "balance": 59198.38
+      },
+      {
+        "id": 236,
+        "time": "2026-08-21 01:15:00",
+        "direction": "LONG",
+        "entry_price": 4523.885,
+        "stop_loss": 4515.385,
+        "take_profit": 4525.125,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 591.98,
+        "balance": 59790.36
+      },
+      {
+        "id": 237,
+        "time": "2026-08-21 01:20:00",
+        "direction": "LONG",
+        "entry_price": 4526.165,
+        "stop_loss": 4518.235,
+        "take_profit": 4524.651,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 597.9,
+        "balance": 60388.27
+      },
+      {
+        "id": 238,
+        "time": "2026-08-21 01:40:00",
+        "direction": "LONG",
+        "entry_price": 4525.835,
+        "stop_loss": 4514.97,
+        "take_profit": 4527.451,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 603.88,
+        "balance": 60992.15
+      },
+      {
+        "id": 239,
+        "time": "2026-08-21 02:05:00",
+        "direction": "LONG",
+        "entry_price": 4522.955,
+        "stop_loss": 4515.625,
+        "take_profit": 4525.402,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 609.92,
+        "balance": 61602.07
+      },
+      {
+        "id": 240,
+        "time": "2026-08-21 02:10:00",
+        "direction": "SHORT",
+        "entry_price": 4520.895,
+        "stop_loss": 4526.115,
+        "take_profit": 4520.716,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 616.02,
+        "balance": 62218.09
+      },
+      {
+        "id": 241,
+        "time": "2026-08-21 02:20:00",
+        "direction": "LONG",
+        "entry_price": 4526.935,
+        "stop_loss": 4519.4,
+        "take_profit": 4523.935,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 622.18,
+        "balance": 62840.27
+      },
+      {
+        "id": 242,
+        "time": "2026-08-28 16:00:00",
+        "direction": "SHORT",
+        "entry_price": 4520.485,
+        "stop_loss": 4537.68,
+        "take_profit": 4518.791,
+        "verdict": "WIN",
+        "r_multiple": 1.0,
+        "pnl": 628.4,
+        "balance": 63468.68
+      }
+    ]
+  },
+  "report_file": "d:\\CSV\\dukascopy-downloader\\reports\\report_vwap_bounce_2_1793873453630.html",
+  "set_file": "d:\\CSV\\dukascopy-downloader\\reports\\strategy_vwap_bounce_2_1793873453630.set",
+  "set_content": "; ===========================================================\n; MT5 EA Configuration: VWAP_BOUNCE_2 Strategy\n; Generated on: 2026-11-05 17:10:56\n; ===========================================================\nInpStrategyName=vwap_bounce_2\nInpRiskPercent=1.00\nInpRewardRiskRatio=1.00\nInpSwingStrength=5\nInpMinFVGPoints=0.50\nInpSLBufferPoints=0.00\nInpPullbackWindow=10\nInpTrendFilterMethod=ema\nInpCloseConfirmation=0\nInpMaxRiskPoints=0\nInpMagicNumber=888555\nInpSlippagePips=3",
+  "mql5_blueprint": "//+------------------------------------------------------------------+\n//| MQL5 LOGIC BLUEPRINT: VWAP_BOUNCE_2\n//| Adaptasi Strategi dari Python Backtester ke MetaTrader 5\n//+------------------------------------------------------------------+\n\n// 1. INPUT PARAMETER\ninput double InpRiskPercent      = 1.0;          // Risk % per trade\ninput double InpRewardRiskRatio  = 1.00;        // Target RR (1.0:1)\ninput int    InpSwingStrength    = 5;            // Swing pivot bars\ninput double InpMinFVG           = 0.50;        // Min FVG size\ninput string InpTrendMethod      = \"ema\";     // Trend filter (ema / structure)\n\n// 2. ATURAN ENTRY (ON TICK / ON NEW BAR)\nbool CheckEntrySignal(ENUM_ORDER_TYPE &orderType, double &slPrice, double &tpPrice)\n{\n    // A. Deteksi Swing High / Low sebelumnya menggunakan pivot bar\n    // B. Verifikasi apakah ada Liquidity Sweep (Wick melampaui level, candle close di dalam)\n    // C. Verifikasi konfirmasi Fair Value Gap (FVG) atau Inbalance 3-bar\n    // D. Filter Trend: EMA harus sejalan dengan arah transaksi\n    \n    // Contoh Kalkulasi SL & TP:\n    // double riskDistance = MathAbs(entryPrice - slPrice);\n    // tpPrice = entryPrice + (riskDistance * InpRewardRiskRatio); // for Buy\n    return false;\n}\n\n// 3. ATURAN MONEY MANAGEMENT ($10.000 Akun Standar)\ndouble CalculateLotSize(double slDistancePoints)\n{\n    double accountBalance = AccountInfoDouble(ACCOUNT_BALANCE);\n    double riskMoney = accountBalance * (InpRiskPercent / 100.0);\n    double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);\n    double lotSize = riskMoney / (slDistancePoints * tickValue);\n    return NormalizeDouble(lotSize, 2);\n}\n"
+}
