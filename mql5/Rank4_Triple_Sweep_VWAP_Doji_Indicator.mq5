@@ -65,6 +65,9 @@ int handleATR, handleEMA20, handleEMA50;
 
 int OnInit()
 {
+   ObjectsDeleteAll(0, "LST4_");
+   ObjectsDeleteAll(0, PFX);
+
    SetIndexBuffer(0, BufVWAP, INDICATOR_DATA);
    PlotIndexSetInteger(0, PLOT_DRAW_TYPE, DRAW_LINE);
    PlotIndexSetInteger(0, PLOT_LINE_WIDTH, 2);

@@ -59,6 +59,9 @@ double BufVWAP[], BufBuy[], BufSell[];
 
 int OnInit()
 {
+   ObjectsDeleteAll(0, "LST4_");
+   ObjectsDeleteAll(0, PFX);
+
    IndicatorBuffers(3);
 
    SetIndexBuffer(0, BufVWAP);
