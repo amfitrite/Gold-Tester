@@ -91,8 +91,6 @@ int OnInit()
    // Bersihkan objek lama jika ada
    ObjectsDeleteAll(0, PREFIX);
 
-   ChartSetInteger(0, CHART_EVENT_OBJECT_DELETE, false);
-
    return INIT_SUCCEEDED;
 }
 
@@ -275,8 +273,16 @@ void OnChartEvent(const int id,
       if(sparam == PREFIX + "BTN_TOGGLE")
       {
          ExtIsMinimized = !ExtIsMinimized;
-         // Refresh chart
-         ChartSetInteger(0, CHART_REDRAW, 0, 1);
+
+         double curPrice = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+         MqlDateTime dt;
+         TimeCurrent(dt);
+         bool inSession = (dt.hour >= InpSessionStartHour && dt.hour <= InpSessionEndHour);
+         int total = ArraySize(BufferVWAP);
+         double curVWAP = (total > 0) ? BufferVWAP[total - 1] : 0.0;
+
+         UpdateDashboard(inSession, curVWAP, curPrice);
+         ChartRedraw(0);
       }
    }
 }
