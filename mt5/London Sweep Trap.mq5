@@ -200,6 +200,8 @@ int OnCalculate(const int rates_total,
    double last_sig_sl = 0.0;
    double last_sig_tp = 0.0;
    bool last_sig_is_buy = false;
+   bool last_sig_active = false;
+   string last_sig_result = "STANDBY";
 
    int newest_bar = InpWaitClose ? 1 : 0;
 
@@ -390,14 +392,22 @@ int OnCalculate(const int rates_total,
       if(isB) buys++; else sells++;
 
       double entry = InpWaitClose ? open[i-1] : close[i];
-      if(isB) BufBuy[i] = low[i] - (curAtr * 0.3);
-      else    BufSell[i] = high[i] + (curAtr * 0.3);
-
-      last_sig_time = time[i];
-      last_sig_entry = entry;
-      last_sig_sl = sl;
-      last_sig_tp = tp;
-      last_sig_is_buy = isB;
+      if(isB)
+      {
+         BufBuy[i] = low[i] - (curAtr * 0.3);
+         if(sl >= entry || sl <= 0.0) sl = low[i] - (curAtr * 0.5);
+         if(sl >= entry) sl = entry - (curAtr * 0.5);
+         double risk = entry - sl;
+         if(tp <= entry) tp = entry + MathMax(risk * 1.0, curAtr * 0.5);
+      }
+      else
+      {
+         BufSell[i] = high[i] + (curAtr * 0.3);
+         if(sl <= entry || sl <= 0.0) sl = high[i] + (curAtr * 0.5);
+         if(sl <= entry) sl = entry + (curAtr * 0.5);
+         double risk = sl - entry;
+         if(tp >= entry) tp = entry - MathMax(risk * 1.0, curAtr * 0.5);
+      }
 
       double sl_dist = MathAbs(entry - sl);
       if(sl_dist <= 0.0) sl_dist = curAtr;
@@ -425,6 +435,15 @@ int OnCalculate(const int rates_total,
          }
          exit_idx--;
       }
+
+      // Record for Chart Lines
+      last_sig_time   = time[i];
+      last_sig_entry  = entry;
+      last_sig_sl     = sl;
+      last_sig_tp     = tp;
+      last_sig_is_buy = isB;
+      last_sig_active = (!hit && exit_idx < 0);
+      last_sig_result = hit ? (won ? "TP HIT" : "SL HIT") : "RUNNING";
 
       double pnl = 0.0;
       double swap_cost = 0.0;
@@ -475,10 +494,15 @@ int OnCalculate(const int rates_total,
    double wr = (closed > 0) ? (100.0 * wins / closed) : 0.0;
    double growth_pct = ((equity - InpInitialDeposit) / InpInitialDeposit) * 100.0;
 
-   // 3. Draw Chart Lines for Active/Latest Signal
-   if(InpDrawTradeLines && last_sig_time > 0)
+   // 3. Draw Chart Lines for Active Signal
+   if(InpDrawTradeLines && last_sig_time > 0 && last_sig_active)
    {
       DrawTradeLines(last_sig_time, last_sig_entry, last_sig_sl, last_sig_tp, last_sig_is_buy);
+   }
+   else
+   {
+      ObjectsDeleteAll(0, PFX + "Line_");
+      ObjectsDeleteAll(0, PFX + "Lbl_");
    }
 
    // 4. Update Dashboard HUD
@@ -504,9 +528,9 @@ int OnCalculate(const int rates_total,
       s += "-----------------------------------------\n";
       if(last_sig_time > 0)
       {
-         s += StringFormat("Sinyal Terakhir : [%s] @ %.2f\n", last_sig_is_buy ? "BUY" : "SELL", last_sig_entry);
+         s += StringFormat("Sinyal Terakhir : [%s] @ %.2f (%s)\n", last_sig_is_buy ? "BUY" : "SELL", last_sig_entry, last_sig_result);
          s += StringFormat("Target TP/SL    : TP %.2f | SL %.2f\n", last_sig_tp, last_sig_sl);
-         s += "Status Garis    : [ON] Tergambar di Chart\n";
+         s += StringFormat("Status Trade    : %s\n", last_sig_active ? "[ACTIVE] Garis Aktif di Chart" : ("[SELESAI - " + last_sig_result + "] Standby"));
       }
       else
       {
