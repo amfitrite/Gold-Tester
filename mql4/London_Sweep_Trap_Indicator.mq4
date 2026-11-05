@@ -146,13 +146,13 @@ int OnCalculate(const int rates_total,
          runningVol = 0.0;
       }
 
-      double p = (High[k] + Low[k] + Close[k]) / 3.0;
-      double v = (Volume[k] > 0) ? (double)Volume[k] : 1.0;
+      double barPrice = (High[k] + Low[k] + Close[k]) / 3.0;
+      double barVol   = (Volume[k] > 0) ? (double)Volume[k] : 1.0;
 
-      runningPV += p * v;
-      runningVol += v;
+      runningPV += barPrice * barVol;
+      runningVol += barVol;
 
-      BufferVWAP[k] = (runningVol > 0.0) ? (runningPV / runningVol) : p;
+      BufferVWAP[k] = (runningVol > 0.0) ? (runningPV / runningVol) : barPrice;
       if(k > 2)
       {
          BufferBuy[k]  = EMPTY_VALUE;
