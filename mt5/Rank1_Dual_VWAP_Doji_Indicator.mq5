@@ -544,7 +544,6 @@ void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_
 {
    datetime t_now  = TimeCurrent();
    datetime t_text = (datetime)(t_now + PeriodSeconds() * 2);
-   datetime t_end  = (datetime)(t_now + PeriodSeconds() * MathMax(12, InpLineExtendBars));
 
    string nameEntry = PFX + "Line_Entry";
    string nameSL    = PFX + "Line_SL";
@@ -561,21 +560,22 @@ void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_
    string txtTP    = StringFormat("---> TP  : %.2f", tp);
    string txtSL    = StringFormat("---> SL  : %.2f", sl);
 
-   DrawOneTrendLine(nameEntry, t_sig, entry, t_end, entry, colEntry, STYLE_SOLID, 2);
-   DrawOneTrendLine(nameSL,    t_sig, sl,    t_end, sl,    colSL,    STYLE_DASH,  2);
-   DrawOneTrendLine(nameTP,    t_sig, tp,    t_end, tp,    colTP,    STYLE_DASH,  2);
+   DrawOneTrendLine(nameEntry, t_sig, entry, colEntry, STYLE_SOLID, 2);
+   DrawOneTrendLine(nameSL,    t_sig, sl,    colSL,    STYLE_DASH,  2);
+   DrawOneTrendLine(nameTP,    t_sig, tp,    colTP,    STYLE_DASH,  2);
 
    DrawOneText(lblEntry, t_text, entry, txtEntry, colEntry);
    DrawOneText(lblSL,    t_text, sl,    txtSL,    colSL);
    DrawOneText(lblTP,    t_text, tp,    txtTP,    colTP);
 }
 
-void DrawOneTrendLine(string name, datetime t1, double p1, datetime t2, double p2, color clr, int style, int width)
+void DrawOneTrendLine(string name, datetime t1, double p1, color clr, int style, int width)
 {
+   datetime t2 = (datetime)(TimeCurrent() + PeriodSeconds() * 10);
    if(ObjectFind(0, name) < 0)
    {
-      ObjectCreate(0, name, OBJ_TREND, 0, t1, p1, t2, p2);
-      ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, false);
+      ObjectCreate(0, name, OBJ_TREND, 0, t1, p1, t2, p1);
+      ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, true);
       ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_BACK, false);
    }
@@ -584,7 +584,8 @@ void DrawOneTrendLine(string name, datetime t1, double p1, datetime t2, double p
       ObjectSetInteger(0, name, OBJPROP_TIME, 0, t1);
       ObjectSetDouble(0, name, OBJPROP_PRICE, 0, p1);
       ObjectSetInteger(0, name, OBJPROP_TIME, 1, t2);
-      ObjectSetDouble(0, name, OBJPROP_PRICE, 1, p2);
+      ObjectSetDouble(0, name, OBJPROP_PRICE, 1, p1);
+      ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, true);
    }
    ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
    ObjectSetInteger(0, name, OBJPROP_STYLE, style);
@@ -623,14 +624,14 @@ void ShowPanel(string text)
 
    string sep = "\n"; ushort u_sep = StringGetCharacter(sep, 0);
    string lines[]; int count = StringSplit(text, u_sep, lines);
-   int boxH = count * 15 + 15;
+   int boxH = count * 14 + 10;
 
    if(ObjectFind(0, bgName) < 0) {
       ObjectCreate(0, bgName, OBJ_RECTANGLE_LABEL, 0, 0, 0);
       ObjectSetInteger(0, bgName, OBJPROP_CORNER, CORNER_LEFT_UPPER);
       ObjectSetInteger(0, bgName, OBJPROP_XDISTANCE, InpPanelX - 5);
       ObjectSetInteger(0, bgName, OBJPROP_YDISTANCE, InpPanelY - 5);
-      ObjectSetInteger(0, bgName, OBJPROP_XSIZE, 350);
+      ObjectSetInteger(0, bgName, OBJPROP_XSIZE, 290);
       ObjectSetInteger(0, bgName, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, bgName, OBJPROP_BACK, false);
    }
@@ -646,10 +647,10 @@ void ShowPanel(string text)
          ObjectSetInteger(0, name, OBJPROP_CORNER, CORNER_LEFT_UPPER);
          ObjectSetInteger(0, name, OBJPROP_XDISTANCE, InpPanelX);
          ObjectSetString(0, name, OBJPROP_FONT, "Consolas");
-         ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 9);
+         ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 8);
          ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       }
-      ObjectSetInteger(0, name, OBJPROP_YDISTANCE, InpPanelY + (i * 15));
+      ObjectSetInteger(0, name, OBJPROP_YDISTANCE, InpPanelY + (i * 14));
       color lineCol = textCol;
       if(InpTheme == THEME_DARK) {
          lineCol = (i == 1) ? clrGold : ((i >= 7 && i <= 9) ? clrLimeGreen : textCol);
