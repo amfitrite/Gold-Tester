@@ -172,6 +172,23 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
         f"InpStrategyName={strategy}",
         f"InpRiskPercent={risk_pct:.2f}",
     ]
+    if strategy == "adaptive_selective_entry":
+        return "\n".join(header + [
+            f"InpDonchianPeriod={params.ase_donchian_period}",
+            f"InpAtrPeriod={params.ase_atr_period}",
+            f"InpMinBodyEfficiency={params.ase_min_body_efficiency:.3f}",
+            f"InpMinChannelAtr={params.ase_min_channel_atr:.2f}",
+            f"InpMaxChannelAtr={params.ase_max_channel_atr:.2f}",
+            f"InpSlAtrBuffer={params.ase_sl_atr_buffer:.2f}",
+            f"InpMinRR={params.ase_min_rr:.2f}",
+            f"InpMaxHoldBars={params.ase_max_hold_bars}",
+            f"InpHalfSpread={params.ase_half_spread:.3f}",
+            "InpOnePositionAtATime=1",
+            "InpUseAveraging=0",
+            "InpUseMartingale=0",
+            "InpMagicNumber=888581",
+            "InpSlippagePoints=30",
+        ])
     if strategy == "london_ny_vwap_pullback":
         return "\n".join(header + [
             "InpRewardRiskRatio=1.00",
@@ -299,6 +316,29 @@ input int    InpAsianEndHour         = 6;            // Asian session close (06:
 
 def generate_mql5_blueprint(strategy: str, params: Params) -> str:
     """Generate structured MQL5 code logic blueprint for MT5."""
+    if strategy == "adaptive_selective_entry":
+        return f"""//+------------------------------------------------------------------+
+//| MQL5 LOGIC BLUEPRINT: ADAPTIVE_SELECTIVE_ENTRY                    |
+//| GoldWave-inspired transparent ASE reconstruction                 |
+//+------------------------------------------------------------------+
+// Inputs: Donchian={params.ase_donchian_period}, ATR={params.ase_atr_period},
+// body-efficiency >= {params.ase_min_body_efficiency:.2f}, channel/ATR in
+// [{params.ase_min_channel_atr:.2f}, {params.ase_max_channel_atr:.2f}],
+// SL buffer={params.ase_sl_atr_buffer:.2f} ATR, min structural RR={params.ase_min_rr:.2f},
+// max hold={params.ase_max_hold_bars} bars, half-spread={params.ase_half_spread:.3f}.
+// Calculate Donchian upper/lower from the PREVIOUS N CLOSED bars (exclude signal bar).
+// Calculate Wilder ATR and daily VWAP using only data available at signal close.
+// LONG: close > Donchian midpoint; midpoint >= previous midpoint; low <= daily VWAP;
+//       close > daily VWAP and open; body/range >= threshold.
+// SHORT: exact mirror below midpoint/VWAP.
+// Reject if channel width / ATR outside configured band.
+// Enter at next bar open with adverse half-spread. SL beyond rejection wick +/- ATR buffer.
+// TP = prior Donchian upper (long) / lower (short), only if structural room >= min RR.
+// One position at a time; hard SL/TP; time stop after max hold bars.
+// No grid, averaging, martingale, or position stacking. OHLC same-bar collision assumes SL first.
+// NOTE: This is a blueprint; validate spread, tick-value lot sizing and broker-time conversion
+// before using it as a live EA. The proprietary GoldWave source is not reproduced.
+"""
     if strategy == "liquidity_bubble_trap":
         return f"""//+------------------------------------------------------------------+
 //| MQL5 LOGIC BLUEPRINT: LIQUIDITY_BUBBLE_TRAP
@@ -504,6 +544,15 @@ def main():
     parser.add_argument("--sl-buffer", type=float, default=0.0)
     parser.add_argument("--pullback", type=int, default=10)
     parser.add_argument("--close-confirm", action="store_true")
+    parser.add_argument("--ase-donchian-period", type=int, default=20)
+    parser.add_argument("--ase-atr-period", type=int, default=14)
+    parser.add_argument("--ase-min-body-efficiency", type=float, default=0.55)
+    parser.add_argument("--ase-min-channel-atr", type=float, default=1.00)
+    parser.add_argument("--ase-max-channel-atr", type=float, default=8.00)
+    parser.add_argument("--ase-sl-atr-buffer", type=float, default=0.25)
+    parser.add_argument("--ase-min-rr", type=float, default=1.20)
+    parser.add_argument("--ase-max-hold-bars", type=int, default=24)
+    parser.add_argument("--ase-half-spread", type=float, default=0.12)
     parser.add_argument("--report-out", default="report.html", help="Path to write HTML report")
     parser.add_argument("--json-out", default="result.json", help="Path to write JSON summary")
     parser.add_argument("--set-out", default="strategy.set", help="Path to write MT5 .set file")
@@ -538,11 +587,12 @@ def main():
             "doji_ride": "Doji Ride: Fades structural sweeps at Prior Day & Asian High/Low with Doji absorption wicks and rides immediate momentum breakout (WR 84.0%, DD < 3.0%)",
             "variance_ratio_regime": "Variance-Ratio Regime: statistically classify return persistence, then fade or follow stretched returns",
             "volume_profile_failed_auction": "M5 only: long a failed breakdown below the prior day's 80% volume-area low during 09:00-11:59 UTC, with a 0.5R target and 4-hour time stop; recommended risk 1.0% (1.25% max)",
-            "vwap_bounce_2": "VWAP Bounce 2 (Optimized): Institutional VWAP bounce with trend confluence & rejection projection (WR 88.4%, DD 1.99%, PF 9.12)"
+            "vwap_bounce_2": "VWAP Bounce 2 (Optimized): Institutional VWAP bounce with trend confluence & rejection projection (WR 88.4%, DD 1.99%, PF 9.12)",
+            "adaptive_selective_entry": "GoldWave-inspired ASE: Donchian regime + candle efficiency + ATR gate + daily VWAP rejection + structural TP + hard SL (no grid/martingale)"
         }
         # Put newly validated strategies at the top so they are visible without
         # scrolling the long HTML select.  The rest stay alphabetical.
-        featured = ["london_sweep_trap", "vwap_bounce_2", "vwap_bounce", "doji_ride", "volume_profile_failed_auction", "liquidity_bubble_trap", "bollinger_bands_2", "bollinger_bands", "prev_day_breakout"]
+        featured = ["adaptive_selective_entry", "london_sweep_trap", "vwap_bounce_2", "vwap_bounce", "doji_ride", "volume_profile_failed_auction", "liquidity_bubble_trap", "bollinger_bands_2", "bollinger_bands", "prev_day_breakout"]
         ordered = featured + [n for n in sorted(REGISTRY.keys()) if n not in featured]
         for name in ordered:
             strategies_info.append({
@@ -564,7 +614,7 @@ def main():
                   f"overriding RR={args.rr:g}.")
         args.rr = fixed_rr
 
-    if args.strategy in ("london_ny_vwap_pullback", "volume_profile_failed_auction") and args.timeframe != "M5":
+    if args.strategy in ("london_ny_vwap_pullback", "volume_profile_failed_auction", "adaptive_selective_entry") and args.timeframe != "M5":
         print(f"WARNING: {args.strategy} was designed and validated on M5; "
               f"results on {args.timeframe} are not reliable.", file=sys.stderr)
 
@@ -579,6 +629,15 @@ def main():
         pullback_window=args.pullback,
         require_close_confirmation=args.close_confirm,
         aux_file=aux_file,
+        ase_donchian_period=max(2, args.ase_donchian_period),
+        ase_atr_period=max(2, args.ase_atr_period),
+        ase_min_body_efficiency=min(1.0, max(0.0, args.ase_min_body_efficiency)),
+        ase_min_channel_atr=max(0.0, args.ase_min_channel_atr),
+        ase_max_channel_atr=max(args.ase_min_channel_atr, args.ase_max_channel_atr),
+        ase_sl_atr_buffer=max(0.0, args.ase_sl_atr_buffer),
+        ase_min_rr=max(0.1, args.ase_min_rr),
+        ase_max_hold_bars=max(1, args.ase_max_hold_bars),
+        ase_half_spread=max(0.0, args.ase_half_spread),
     )
 
     if not os.path.exists(args.file):
@@ -642,7 +701,16 @@ def main():
             "min_fvg": args.min_fvg,
             "sl_buffer": args.sl_buffer,
             "pullback": args.pullback,
-            "close_confirm": args.close_confirm
+            "close_confirm": args.close_confirm,
+            "ase_donchian_period": params.ase_donchian_period,
+            "ase_atr_period": params.ase_atr_period,
+            "ase_min_body_efficiency": params.ase_min_body_efficiency,
+            "ase_min_channel_atr": params.ase_min_channel_atr,
+            "ase_max_channel_atr": params.ase_max_channel_atr,
+            "ase_sl_atr_buffer": params.ase_sl_atr_buffer,
+            "ase_min_rr": params.ase_min_rr,
+            "ase_max_hold_bars": params.ase_max_hold_bars,
+            "ase_half_spread": params.ase_half_spread
         },
         "summary": sim_stats,
         "report_file": os.path.abspath(args.report_out),

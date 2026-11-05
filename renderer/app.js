@@ -56,6 +56,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btSlBuffer = document.getElementById('btSlBuffer');
   const btPullback = document.getElementById('btPullback');
   const btCloseConfirm = document.getElementById('btCloseConfirm');
+  const btAseDonchian = document.getElementById('btAseDonchian');
+  const btAseAtr = document.getElementById('btAseAtr');
+  const btAseBody = document.getElementById('btAseBody');
+  const btAseMinWidth = document.getElementById('btAseMinWidth');
+  const btAseMaxWidth = document.getElementById('btAseMaxWidth');
+  const btAseSlBuffer = document.getElementById('btAseSlBuffer');
+  const btAseMinRr = document.getElementById('btAseMinRr');
+  const btAseHold = document.getElementById('btAseHold');
+  const btAseSpread = document.getElementById('btAseSpread');
 
   const btnRunBacktest = document.getElementById('btnRunBacktest');
   const btnCancelBacktest = document.getElementById('btnCancelBacktest');
@@ -452,6 +461,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const slBuffer = parseFloat(btSlBuffer ? btSlBuffer.value : 0.0) || 0.0;
     const pullback = parseInt(btPullback ? btPullback.value : 10, 10) || 10;
     const closeConfirm = btCloseConfirm.checked;
+    const aseDonchianPeriod = Number.parseInt(btAseDonchian.value, 10) || 20;
+    const aseAtrPeriod = Number.parseInt(btAseAtr.value, 10) || 14;
+    const aseMinBodyRaw = Number.parseFloat(btAseBody.value);
+    const aseMinBodyEfficiency = Number.isFinite(aseMinBodyRaw) ? aseMinBodyRaw : 0.55;
+    const aseMinWidthRaw = Number.parseFloat(btAseMinWidth.value);
+    const aseMinChannelAtr = Number.isFinite(aseMinWidthRaw) ? aseMinWidthRaw : 1.0;
+    const aseMaxChannelAtr = Number.parseFloat(btAseMaxWidth.value) || 8.0;
+    const aseSlBufferRaw = Number.parseFloat(btAseSlBuffer.value);
+    const aseSlAtrBuffer = Number.isFinite(aseSlBufferRaw) ? aseSlBufferRaw : 0.25;
+    const aseMinRrRaw = Number.parseFloat(btAseMinRr.value);
+    const aseMinRr = Number.isFinite(aseMinRrRaw) ? aseMinRrRaw : 1.2;
+    const aseMaxHoldBars = Number.parseInt(btAseHold.value, 10) || 24;
+    const aseHalfSpreadRaw = Number.parseFloat(btAseSpread.value);
+    const aseHalfSpread = Number.isFinite(aseHalfSpreadRaw) ? aseHalfSpreadRaw : 0.12;
 
     btnRunBacktest.style.display = 'none';
     btnCancelBacktest.style.display = 'inline-flex';
@@ -473,7 +496,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         minFvg,
         slBuffer,
         pullback,
-        closeConfirm
+        closeConfirm,
+        aseDonchianPeriod,
+        aseAtrPeriod,
+        aseMinBodyEfficiency,
+        aseMinChannelAtr,
+        aseMaxChannelAtr,
+        aseSlAtrBuffer,
+        aseMinRr,
+        aseMaxHoldBars,
+        aseHalfSpread
       });
 
       btnRunBacktest.style.display = 'inline-flex';

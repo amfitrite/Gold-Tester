@@ -385,7 +385,16 @@ ipcMain.handle('run-backtest', async (event, options) => {
     minFvg = 0.5,
     slBuffer = 0.0,
     pullback = 10,
-    closeConfirm = false
+    closeConfirm = false,
+    aseDonchianPeriod = 20,
+    aseAtrPeriod = 14,
+    aseMinBodyEfficiency = 0.55,
+    aseMinChannelAtr = 1.0,
+    aseMaxChannelAtr = 8.0,
+    aseSlAtrBuffer = 0.25,
+    aseMinRr = 1.2,
+    aseMaxHoldBars = 24,
+    aseHalfSpread = 0.12
   } = options;
 
   if (!file || !fs.existsSync(file)) {
@@ -417,6 +426,15 @@ ipcMain.handle('run-backtest', async (event, options) => {
     '--min-fvg', String(minFvg),
     '--sl-buffer', String(slBuffer),
     '--pullback', String(pullback),
+    '--ase-donchian-period', String(aseDonchianPeriod),
+    '--ase-atr-period', String(aseAtrPeriod),
+    '--ase-min-body-efficiency', String(aseMinBodyEfficiency),
+    '--ase-min-channel-atr', String(aseMinChannelAtr),
+    '--ase-max-channel-atr', String(aseMaxChannelAtr),
+    '--ase-sl-atr-buffer', String(aseSlAtrBuffer),
+    '--ase-min-rr', String(aseMinRr),
+    '--ase-max-hold-bars', String(aseMaxHoldBars),
+    '--ase-half-spread', String(aseHalfSpread),
     '--report-out', reportPath,
     '--json-out', jsonPath,
     '--set-out', setPath

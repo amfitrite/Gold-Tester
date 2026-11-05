@@ -21,7 +21,7 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
 * **1-Click Pipeline:** Tombol cepat *"⚡ Uji di Backtester Sekarang"* setelah download selesai.
 
 ### 2. 🧪 Sweep Backtester & Strategy Lab ($10.000 Account Simulator)
-* **23 Strategi Bawaan Terintegrasi:**
+* **27 Strategi Bawaan Terintegrasi:**
   * `ict_ifvg` (ICT Inversion Fair Value Gap Retest)
   * `liquidity_imbalance` (Liquidity Sweep + Fair Value Gap)
   * `ict_fvg` (ICT Fair Value Gap + Market Structure Shift)
@@ -32,7 +32,9 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
   * `gold_session_sweep` (Rolling Liquidity Sweep + 50% Rejection Retest)
   * `london_ny_vwap_pullback` (London/NY Session VWAP Reclaim + EMA-200, M5)
   * `volume_profile_failed_auction` (Prior-Day Value-Area Failed Breakdown, M5)
+  * `adaptive_selective_entry` (GoldWave-inspired Donchian Regime + Momentum Efficiency + ATR + VWAP Rejection + Structural Dynamic TP, M5)
   * `supply_demand`, `order_flow`, `vwap_bounce`, `session_gap`, `bollinger_bands`, dll.
+* **Adaptive Selective Entry (ASE):** Parameter dapat di-tuning manual; aturan, asumsi biaya, batasan OHLC, dan blueprint MT5 ada di [`reports/GOLDWAVE_INSPIRED_ASE.md`](reports/GOLDWAVE_INSPIRED_ASE.md). Strategi ini belum memiliki klaim performa sampai lolos backtest out-of-sample.
 * **Simulasi Portofolio Akun $10.000:**
   * 📈 **Growth Scorecard:** Pertumbuhan saldo modal dalam nominal ($) dan persentase (%).
   * 🎯 **Win Rate (WR):** Persentase kemenangan (%) dan rasio Win/Loss.
