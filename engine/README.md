@@ -5,7 +5,7 @@ mechanically detects setups for several strategies, simulates a fixed
 risk:reward outcome on each, marks the ICT structure on the chart, and lets you
 sweep RR / trend-filter / timeframe / session to see **which trades bleed money**.
 
-**17 strategies** ship in the registry (add more by dropping a module in
+**18 strategies** ship in the registry (add more by dropping a module in
 `strategies/`):
 
 1. **Liquidity sweep → imbalance → reversal** (the original ICT setup).
@@ -25,6 +25,7 @@ sweep RR / trend-filter / timeframe / session to see **which trades bleed money*
 15. **Session gap fade** — fade a gap at the next session boundary.
 16. **VWAP bounce** — trade a cross/reclaim around cumulative VWAP.
 17. **Gold Rolling Sweep** — previous-range liquidity sweep + rejection wick + 50% limit retrace.
+18. **Adaptive Selective Entry (ASE)** — Donchian regime + ATR/body-efficiency filters, then VWAP trend reclaim or approximate Value Area rejection with structural TP and hard SL.
 
 Pick any strategy in the lab and a one-line plain-English description plus a
 **best-setup recommendation** (the timeframe × RR with the highest expectancy on
@@ -200,6 +201,26 @@ comparable. Each is intentionally *selective*:
 - **Bollinger bands** — mean reversion from an outer band toward the middle.
 - **Session gap** — fade a gap at a configured session transition.
 - **VWAP bounce** — trade price reclaiming/crossing cumulative VWAP.
+
+## Strategy 18 — Adaptive Selective Entry (ASE)
+
+ASE is a GoldWave-inspired, transparent reconstruction, not a copy of GoldWave's
+private source code. In trend regimes it trades daily VWAP reclaims/rejections;
+in range regimes it trades rolling approximate VAL/VAH rejections toward POC.
+Donchian width/slope classifies regime, ATR ratio filters volatility, candle-body
+ efficiency filters weak rejection candles, and every trade uses a hard stop with
+no grid, martingale or averaging. The OHLCV profile assigns each candle's volume
+to its typical-price bin, so it is an approximation rather than true per-price
+exchange volume. Defaults and all ASE CLI tuning flags are documented in
+[ADAPTIVE_SELECTIVE_ENTRY.md](docs/ADAPTIVE_SELECTIVE_ENTRY.md).
+
+Example:
+
+```bash
+PYTHONPATH=src python -m sweepbt.cli "data/XAUUSDM5.csv" --timeframe M5 \\
+    --strategy adaptive_selective_entry --rr 1:2 --ase-donchian 24 \\
+    --ase-body-efficiency 0.60 --out ase-report.html
+```
 
 ## Chart markings (context, not signals)
 
