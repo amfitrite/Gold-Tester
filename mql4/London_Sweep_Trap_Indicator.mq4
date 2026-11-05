@@ -123,6 +123,13 @@ int OnCalculate(const int rates_total,
    int limit = Bars - IndicatorCounted() - 1;
    if(limit > Bars - 5) limit = Bars - 5;
 
+   double tp = 0.0;
+   double vol = 0.0;
+   double slVal = 0.0;
+   double trapDist = 0.0;
+   double tpVal = 0.0;
+   string msg = "";
+
    // 1. Hitung Session VWAP dengan Reset Jam 00:00 Harian
    // Di MT4, bar index 0 adalah candle terbaru, Bars-1 candle tertua.
    // Loop berjalan mundur dari limit ke 0 (bergerak maju dalam waktu).
@@ -142,8 +149,8 @@ int OnCalculate(const int rates_total,
             cumVol = 0.0;
          }
 
-         double tp = (High[k] + Low[k] + Close[k]) / 3.0;
-         double vol = (Volume[k] > 0) ? (double)Volume[k] : 1.0;
+         tp = (High[k] + Low[k] + Close[k]) / 3.0;
+         vol = (Volume[k] > 0) ? (double)Volume[k] : 1.0;
 
          cumPV += tp * vol;
          cumVol += vol;
@@ -161,8 +168,8 @@ int OnCalculate(const int rates_total,
          cumPV = 0.0;
          cumVol = 0.0;
       }
-      double tp = (High[0] + Low[0] + Close[0]) / 3.0;
-      double vol = (Volume[0] > 0) ? (double)Volume[0] : 1.0;
+      tp = (High[0] + Low[0] + Close[0]) / 3.0;
+      vol = (Volume[0] > 0) ? (double)Volume[0] : 1.0;
       cumPV += tp * vol;
       cumVol += vol;
       BufferVWAP[0] = (cumVol > 0.0) ? (cumPV / cumVol) : tp;
@@ -211,9 +218,9 @@ int OnCalculate(const int rates_total,
       {
          BufferBuy[i] = Low[i] - (atr * 0.3);
 
-         double slVal = Low[i] - atr * InpAtrStopBuffer;
-         double trapDist = v - Low[i];
-         double tpVal = v + trapDist * InpRewardRiskRatio;
+         slVal = Low[i] - atr * InpAtrStopBuffer;
+         trapDist = v - Low[i];
+         tpVal = v + trapDist * InpRewardRiskRatio;
 
          ExtLastSignal     = 1;
          ExtLastSignalTime = Time[i];
@@ -224,8 +231,8 @@ int OnCalculate(const int rates_total,
          if(i <= 1 && Time[i] != ExtLastAlertBar)
          {
             ExtLastAlertBar = Time[i];
-            string msg = StringFormat("[MT4 LONDON TRAP BUY] %s @ %.2f | SL: %.2f | TP: %.2f | RR: %.1f",
-                                      Symbol(), Close[i], slVal, tpVal, InpRewardRiskRatio);
+            msg = StringFormat("[MT4 LONDON TRAP BUY] %s @ %.2f | SL: %.2f | TP: %.2f | RR: %.1f",
+                               Symbol(), Close[i], slVal, tpVal, InpRewardRiskRatio);
             if(InpEnableAlert) Alert(msg);
             if(InpPlaySound)   PlaySound("alert.wav");
             if(InpEnablePush)  SendNotification(msg);
@@ -240,9 +247,9 @@ int OnCalculate(const int rates_total,
       {
          BufferSell[i] = High[i] + (atr * 0.3);
 
-         double slVal = High[i] + atr * InpAtrStopBuffer;
-         double trapDist = High[i] - v;
-         double tpVal = v - trapDist * InpRewardRiskRatio;
+         slVal = High[i] + atr * InpAtrStopBuffer;
+         trapDist = High[i] - v;
+         tpVal = v - trapDist * InpRewardRiskRatio;
 
          ExtLastSignal     = -1;
          ExtLastSignalTime = Time[i];
@@ -253,8 +260,8 @@ int OnCalculate(const int rates_total,
          if(i <= 1 && Time[i] != ExtLastAlertBar)
          {
             ExtLastAlertBar = Time[i];
-            string msg = StringFormat("[MT4 LONDON TRAP SELL] %s @ %.2f | SL: %.2f | TP: %.2f | RR: %.1f",
-                                      Symbol(), Close[i], slVal, tpVal, InpRewardRiskRatio);
+            msg = StringFormat("[MT4 LONDON TRAP SELL] %s @ %.2f | SL: %.2f | TP: %.2f | RR: %.1f",
+                               Symbol(), Close[i], slVal, tpVal, InpRewardRiskRatio);
             if(InpEnableAlert) Alert(msg);
             if(InpPlaySound)   PlaySound("alert.wav");
             if(InpEnablePush)  SendNotification(msg);
