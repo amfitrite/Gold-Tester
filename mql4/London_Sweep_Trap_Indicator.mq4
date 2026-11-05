@@ -134,6 +134,7 @@ int OnCalculate(const int rates_total,
    double slVal = 0.0;
    double risk = 0.0;
    double tpVal = 0.0;
+   double offset = 0.0;
    string msg = "";
 
    // 1. Hitung Akumulasi Session VWAP Presisi (Reset 00:00 Harian)
@@ -200,7 +201,7 @@ int OnCalculate(const int rates_total,
       // Bullish Trap (Long / BUY)
       if(allowBuy && Close[i + 2] < vPrev2 && Close[i + 1] < v && Close[i] >= v)
       {
-         double offset = MathMax(atr * 0.4, 20 * _Point);
+         offset = MathMax(atr * 0.4, 20 * _Point);
          BufferBuy[i] = Low[i] - offset;
 
          // Kalkulasi SL & TP Presisi Sesuai RR 1:2
@@ -232,7 +233,7 @@ int OnCalculate(const int rates_total,
       // Bearish Trap (Short / SELL)
       if(allowSell && Close[i + 2] > vPrev2 && Close[i + 1] > v && Close[i] <= v)
       {
-         double offset = MathMax(atr * 0.4, 20 * _Point);
+         offset = MathMax(atr * 0.4, 20 * _Point);
          BufferSell[i] = High[i] + offset;
 
          // Kalkulasi SL & TP Presisi Sesuai RR 1:2
