@@ -180,6 +180,24 @@ Bagian ini mendokumentasikan strategi-strategi yang secara teoritis populer di k
 
 ---
 
+### 7. FVG Crossfire State Machine (Flux Charts Pine Script v6)
+* **Asal Usul**: Konversi Pine Script v6 (`FVG_Crossfire.mq4`) dengan State Machine 5 tahap (*Sweep $\rightarrow$ Rejection $\rightarrow$ BOS $\rightarrow$ Displacement $\rightarrow$ Retest*) dan sistem skor kualitas (*Scoring System*).
+* **Hasil Uji Default Asli (Skor $\ge 70$, HTF Bias M15, Target RR 2.0)**:
+  * **Total Trades**: 1 trade (selama 12 bulan penuh / 70.891 bar M5) ❌
+  * **Win Rate**: 100.0% (1 Win / 0 Loss)
+  * **Net Growth**: +2.00% (+$200.00 pada akun $10.000)
+* **Hasil Uji Setelah Tuning Menyeluruh (8 Grid Permutasi)**:
+  * **Win Rate**: Mentok di kisaran **35.7% – 44.4%** ❌
+  * **Max Drawdown**: -2.97% s/d -4.18%
+  * **Profit Factor**: 0.66 – 1.26
+  * **Net Growth**: -3.03% s/d +2.85% (Stagnan / BEP)
+* **Diagnosa Mengapa Gagal / Mentok di Win Rate Rendah**:
+  1. *Definisi Crossfire Adalah Area Konsolidasi*: Zona Crossfire terbentuk dari tabrakan dua FVG yang berlawanan arah. Ini menandakan pasar sedang mengalami *choppiness* / sideways. Membeli/menjual retest BOS di tengah rentang sideways pada komoditas agresif seperti Emas selalu rentan terhadap jebakan *fakeout* (*whipsaw*).
+  2. *Self-Cancelling Filter & Premature Invalidation*: Pada parameter default asli, ambang skor $\ge 70$ menuntut seluruh syarat ekstrem terjadi serentak, mematikan 99.9% peluang trade. Selain itu, aturan `mitigated = loSrc <= bottom` sering kali membunuh zona saat wick retest menyentuh batas bawah sesaat sebelum panah entry dieksekusi.
+  3. *Kesimpulan Riset*: Kode disimpan dan dikompilasi ke `mt4/FVG_Crossfire.ex4` sebagai alat bantu visual pemetaan zona di chart MT4, namun **tidak direkomendasikan** untuk sinyal eksekusi trading otomatis.
+
+---
+
 ## BAGIAN III: KESIMPULAN & FORMULA EMAS UNTUK PASAR XAUUSD
 
 Dari seluruh eksperimen dan audit di atas, dapat ditarik hukum baku trading kuantitatif pada instrumen Emas (XAUUSD):

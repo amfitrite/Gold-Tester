@@ -154,3 +154,4 @@
 [2026-11-05 17:10:10] Strategy: vwap_bounce_2        | TF: M5  | Growth: +534.69% | WR: 88.4% | DD: -1.99% | Trades: 242 | PnL: $53468.68
 [2026-11-05 17:10:45] Strategy: vwap_bounce          | TF: M5  | Growth: +125.72% | WR: 84.8% | DD: -2.00% | Trades: 118 | PnL: $12572.04
 [2026-11-05 17:10:56] Strategy: vwap_bounce_2        | TF: M5  | Growth: +534.69% | WR: 88.4% | DD: -1.99% | Trades: 242 | PnL: $53468.68
+[2026-11-05 18:14:15] Strategy: volume_profile_failed_auction | TF: M5  | Growth: +17.44% | WR: 81.5% | DD: -2.15% | Trades: 81  | PnL: $1743.84
