@@ -240,6 +240,46 @@ Bagian ini mendokumentasikan strategi-strategi yang secara teoritis populer di k
 
 ---
 
+### 9. Machine Learning: Lorentzian Classification v2.0 (jdehorty)
+* **Asal Usul**: Indikator TradingView open-source terpopuler dalam kategori Machine Learning (*Lorentzian Classification v2.0* oleh `@jdehorty`).
+* **Arsitektur Model**:
+  * Menggunakan algoritma *Approximate k-Nearest Neighbors* ($k=8$) dengan fungsi jarak *Lorentzian Distance* pada ruang 5 fitur (RSI 14, WaveTrend, CCI 20, ADX 20, RSI 9).
+  * Filter tren *Nadaraya-Watson Rational Quadratic Kernel Regression*.
+  * Label prediksi: Arah penutupan 4 bar ke depan ($Close_{t+4} \gtrless Close_t$).
+* **Hasil Uji Backtest Objektif (12 Bulan / 70.891 Bar M5 XAUUSD, Modal $10.000)**:
+  * **Uji 1 (Default Pine Script: Strict 4-Bar Holding Exit, 24/5)**:
+    * Total Trades: 5.595 trade
+    * Win Rate: **48.50%** ❌
+    * Max Drawdown: **-32.73%** ⚠️
+    * Profit Factor: 1.05 | Saldo: $23.938,55 (+139.39%) *(Hanya efek tren makro emas, kurva sangat bergejolak)*
+  * **Uji 2 (Default Pine Script + Sesi London/NY 07-18 UTC)**:
+    * Total Trades: 2.705 trade
+    * Win Rate: **48.40%** ❌
+    * Max Drawdown: **-21.04%** ⚠️
+    * Profit Factor: 1.03 | Saldo: $12.997,51 (+29.98%)
+  * **Uji 3 (Target RR 1.5, SL 1.5x ATR, 24/5)**:
+    * Total Trades: 3.509 trade
+    * Win Rate: **40.90%** ❌
+    * Max Drawdown: **-49.74%** ⚠️
+    * Profit Factor: 1.01 | Saldo: $12.587,26 (+25.87%)
+  * **Uji 4 (Target RR 2.0, SL 1.5x ATR, London/NY)**:
+    * Total Trades: 1.603 trade
+    * Win Rate: **34.10%** ❌
+    * Max Drawdown: **-55.57%** ⚠️
+    * Profit Factor: 0.94 | Saldo: $6.101,62 **(-38.98% / Kerugian Besar)** ❌
+  * **Uji 5 (High Confidence: Pred $\ge 5$, RR 1.5, London/NY)**:
+    * Total Trades: 696 trade
+    * Win Rate: **40.70%** ❌
+    * Max Drawdown: **-29.86%** ⚠️
+    * Profit Factor: 1.00 | Saldo: $9.867,81 (-1.32%)
+* **Diagnosa Mengapa Algoritma Machine Learning Ini Gagal Memenuhi Kriteria Juara**:
+  1. *Ilusi Label Jangka Pendek (4-Bar Horizon)*: Menugaskan k-NN untuk memprediksi arah lilin 4 bar ke depan hanya berdasarkan level osilator ritel (RSI/CCI/WT) pada dasarnya setara dengan melempar koin (*coin flip*, Win Rate 40% – 48.5%).
+  2. *Drawdown Ekstrem (-21% hingga -55%)*: Karena sinyal tidak memperhitungkan zona akumulasi institusi atau struktur likuiditas, model ini sering memicu puluhan sinyal searah di pucuk tren sesaat sebelum terjadi pembalikan tajam.
+  3. *Overtrading Parah (2.700–5.500 Trades)*: Dalam akun broker riil, frekuensi trading sebesar ini akan habis terpotong spread dan slippage.
+  4. *Kesimpulan*: Kemasan canggih "Machine Learning / Lorentzian Space" tidak mampu mengubah kenyataan bahwa fitur inputnya adalah osilator ritel standar. Model ini tidak mampu mendekati kriteria emas kita (WR $\ge 75\%$, DD $< 5\%$).
+
+---
+
 ## BAGIAN III: KESIMPULAN & FORMULA EMAS UNTUK PASAR XAUUSD
 
 Dari seluruh eksperimen dan audit di atas, dapat ditarik hukum baku trading kuantitatif pada instrumen Emas (XAUUSD):
