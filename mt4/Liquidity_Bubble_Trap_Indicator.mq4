@@ -15,6 +15,7 @@
 #property indicator_width1  3
 #property indicator_color2  clrCrimson
 #property indicator_width2  3
+#property strict
 
 //--- INPUT PARAMETERS
 extern string         s1                     = "=== JAM SESI AKTIF (LONDON & NY UTC) ===";
@@ -62,13 +63,6 @@ datetime              ExtLastSignalTime      = 0;
 double                ExtLastEntry           = 0.0;
 double                ExtLastSL              = 0.0;
 double                ExtLastTP              = 0.0;
-
-// Function Forward Declarations
-void UpdateDashboard(bool inSession, double currentPrice, bool isBullTrend);
-void DrawTargetLines(datetime t, double entry, double sl, double tp, color sigColor);
-void CreateRectLabel(string name, int x, int y, int width, int height, color bg, color border, int corner);
-void CreateTextLabel(string name, int x, int y, string text, color clr, int fontSize, string font, int corner);
-void CreateButton(string name, int x, int y, int width, int height, string text, color bg, color clr, int corner, int fontSize);
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
