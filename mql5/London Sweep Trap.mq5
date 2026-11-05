@@ -1,122 +1,106 @@
 //+------------------------------------------------------------------+
-//|                                London_Sweep_Trap_Indicator.mq5   |
-//|               Custom Indicator: London & NY Session VWAP Trap    |
-//|                      Win Rate: 75.3% | Max DD: 2.97%             |
-//|                    Interactive HUD Dashboard & On-Chart Toggle   |
-//|                                  Copyright 2026, Quant Trading   |
+//|                                    London_Sweep_Trap_Indicator.mq5  |
+//|      LONDON SWEEP TRAP (INSTITUTIONAL VWAP) - TUNED FOR MT5                                     |
+//|     Indikator Real Sim Live + Dummy Modal $10,000 + Chart Lines  |
 //+------------------------------------------------------------------+
-#property copyright   "Quant Trading"
-#property link        "https://github.com/amfitrite/Gold-Tester"
-#property version     "2.10"
-#property description "London Sweep Trap: Institutional Session VWAP Liquidity Trap (WR 75.3% | DD 2.97% | PF 4.86)"
+#property copyright "Quant Trading Lab - High Visibility Lines"
+#property link      "https://github.com/amfitrite/Gold-Tester"
+#property version   "9.50"
 #property indicator_chart_window
 #property indicator_buffers 3
 #property indicator_plots   3
 
-//--- PLOT 1: Garis Session VWAP
 #property indicator_label1  "Session VWAP"
 #property indicator_type1   DRAW_LINE
-#property indicator_color1  clrGold
-#property indicator_style1  STYLE_SOLID
+#property indicator_color1  C'0,102,204'
 #property indicator_width1  2
 
-//--- PLOT 2: Sinyal Buy (Arrow)
-#property indicator_label2  "London Bull Trap Buy"
+#property indicator_label2  "Buy Signal"
 #property indicator_type2   DRAW_ARROW
-#property indicator_color2  clrLimeGreen
-#property indicator_style2  STYLE_SOLID
-#property indicator_width2  4
+#property indicator_color2  C'8,153,129'
+#property indicator_width2  3
 
-//--- PLOT 3: Sinyal Sell (Arrow)
-#property indicator_label3  "London Bear Trap Sell"
+#property indicator_label3  "Sell Signal"
 #property indicator_type3   DRAW_ARROW
-#property indicator_color3  clrCrimson
-#property indicator_style3  STYLE_SOLID
-#property indicator_width3  4
+#property indicator_color3  C'242,54,69'
+#property indicator_width3  3
 
-//--- INPUT PARAMETERS
-input group "=== JAM SESI AKTIF (LONDON & NY UTC) ==="
-input int              InpSessionStartHour = 7;          // Jam Buka Sesi (07:00 UTC / London Open)
-input int              InpSessionEndHour   = 18;         // Jam Tutup Sesi (18:00 UTC / NY Close)
+enum ENUM_THEME {
+   THEME_DARK,
+   THEME_LIGHT
+};
 
-input group "=== PARAMETER FILTER TREN (EMA) ==="
-input bool             InpUseEMATrend      = true;       // Aktifkan Filter Tren EMA (Fast 20 / Slow 50)
-input int              InpFastEMA          = 20;         // Periode Fast EMA
-input int              InpSlowEMA          = 50;         // Periode Slow EMA
+input group "=== TAMPILAN & TEMA ==="
+input ENUM_THEME     InpTheme           = THEME_DARK;
+input bool           InpShowPanel       = true;
+input int            InpPanelX          = 15;
+input int            InpPanelY          = 30;
+input bool           InpDrawTradeLines  = true;  // Gambar Garis Entry, TP, SL di Chart
+input int            InpLineExtendBars  = 25;    // Panjang Garis ke Kanan (Bar)
 
-input group "=== PARAMETER ENTRY & STOP LOSS ==="
-input double           InpRewardRiskRatio  = 1.5;        // Rasio Take Profit Trap (1.5x Sesuai Backtest Engine)
-input double           InpAtrStopBuffer    = 0.5;        // Buffer ATR Stop Loss
+input group "=== BROKER TIMEZONE & SESI ==="
+input int            InpBrokerGMTOffset = 3;     // GMT Offset Server Broker (FBS = 3)
+input int            InpUTCStart        = 7;     // Jam Mulai UTC (07:00 UTC = 10:00 FBS)
+input int            InpUTCEnd          = 18;    // Jam Selesai UTC (18:00 UTC = 21:00 FBS)
+input bool           InpWaitClose       = true;  // Sinyal Terkonfirmasi di Close Bar
 
-input group "=== DASHBOARD HUD (SIMULASI MODAL $10,000) ==="
-input bool             InpShowDashboard    = true;       // Tampilkan Dashboard di Chart
-input ENUM_BASE_CORNER InpDashboardCorner  = CORNER_LEFT_UPPER; // Posisi Sudut Dashboard
-input int              InpDashboardX       = 25;         // Jarak Horisontal X (Pixel)
-input int              InpDashboardY       = 35;         // Jarak Vertikal Y (Pixel)
-input bool             InpShowTargetLines  = true;       // Gambar Garis SL & TP di Chart
+input group "=== PARAMETER TRADE & TARGET ==="
+input int            InpAtrPeriod       = 14;
+input int            InpMaxBars         = 48;
+input int            InpLookback        = 1500;
 
-input group "=== NOTIFIKASI & ALERT ==="
-input bool             InpEnableAlert      = true;       // Popup Alert di MT5
-input bool             InpEnablePush       = false;      // Push Notifikasi ke HP
-input bool             InpPlaySound        = true;       // Bunyi Suara Alert
+input group "=== SIMULASI DUMMY MODAL ($10,000) ==="
+input double         InpInitialDeposit  = 10000.0;
+input double         InpRiskPercent     = 1.0;
 
-//--- BUFFERS
-double                 BufferVWAP[];
-double                 BufferBuy[];
-double                 BufferSell[];
+input group "=== PARAMETER SWAP ==="
+input bool           InpAutoSwap        = true;
+input double         InpManualSwapLong  = -5.0;
+input double         InpManualSwapShort = -2.0;
 
-//--- VARIABEL GLOBAL
-const string           PREFIX              = "LST_";
-datetime               ExtLastAlertBar     = 0;
-bool                   ExtIsMinimized      = false;
-int                    ExtLastSignal       = 0;          // 0: Neutral, 1: Buy, -1: Sell
-datetime               ExtLastSignalTime   = 0;
-double                 ExtLastEntry        = 0.0;
-double                 ExtLastSL           = 0.0;
-double                 ExtLastTP           = 0.0;
-int                    ExtFastEmaHandle    = INVALID_HANDLE;
-int                    ExtSlowEmaHandle    = INVALID_HANDLE;
+double BufVWAP[], BufBuy[], BufSell[];
+int handleATR, handleEMA20, handleEMA50;
+#define PFX "LST_"
+#define STRAT_TAG "LST"
 
-//+------------------------------------------------------------------+
-//| Custom indicator initialization function                         |
-//+------------------------------------------------------------------+
 int OnInit()
 {
-   SetIndexBuffer(0, BufferVWAP, INDICATOR_DATA);
-   SetIndexBuffer(1, BufferBuy,  INDICATOR_DATA);
-   SetIndexBuffer(2, BufferSell, INDICATOR_DATA);
+   SetIndexBuffer(0, BufVWAP, INDICATOR_DATA);
+   PlotIndexSetInteger(0, PLOT_DRAW_TYPE, DRAW_LINE);
+   PlotIndexSetInteger(0, PLOT_LINE_WIDTH, 2);
+   PlotIndexSetInteger(0, PLOT_LINE_COLOR, C'0,102,204');
 
-   PlotIndexSetInteger(1, PLOT_ARROW, 233); // Panah ke atas
-   PlotIndexSetInteger(2, PLOT_ARROW, 234); // Panah ke bawah
+   SetIndexBuffer(1, BufBuy, INDICATOR_DATA);
+   PlotIndexSetInteger(1, PLOT_DRAW_TYPE, DRAW_ARROW);
+   PlotIndexSetInteger(1, PLOT_ARROW, 233);
+   PlotIndexSetInteger(1, PLOT_LINE_COLOR, C'8,153,129');
+
+   SetIndexBuffer(2, BufSell, INDICATOR_DATA);
+   PlotIndexSetInteger(2, PLOT_DRAW_TYPE, DRAW_ARROW);
+   PlotIndexSetInteger(2, PLOT_ARROW, 234);
+   PlotIndexSetInteger(2, PLOT_LINE_COLOR, C'242,54,69');
 
    PlotIndexSetDouble(0, PLOT_EMPTY_VALUE, EMPTY_VALUE);
-   PlotIndexSetDouble(1, PLOT_EMPTY_VALUE, EMPTY_VALUE);
-   PlotIndexSetDouble(2, PLOT_EMPTY_VALUE, EMPTY_VALUE);
+   PlotIndexSetDouble(1, PLOT_EMPTY_VALUE, 0.0);
+   PlotIndexSetDouble(2, PLOT_EMPTY_VALUE, 0.0);
 
-   if(InpUseEMATrend)
-   {
-      ExtFastEmaHandle = iMA(_Symbol, _Period, InpFastEMA, 0, MODE_EMA, PRICE_CLOSE);
-      ExtSlowEmaHandle = iMA(_Symbol, _Period, InpSlowEMA, 0, MODE_EMA, PRICE_CLOSE);
-   }
+   handleATR = iATR(_Symbol, _Period, InpAtrPeriod);
+   handleEMA20 = iMA(_Symbol, _Period, 20, 0, MODE_EMA, PRICE_CLOSE);
+   handleEMA50 = iMA(_Symbol, _Period, 50, 0, MODE_EMA, PRICE_CLOSE);
 
-   IndicatorSetString(INDICATOR_SHORTNAME, "London Sweep Trap (MT5)");
-   return(INIT_SUCCEEDED);
+   IndicatorSetString(INDICATOR_SHORTNAME, "LONDON SWEEP TRAP (INSTITUTIONAL VWAP)");
+   return INIT_SUCCEEDED;
 }
 
-//+------------------------------------------------------------------+
-//| Custom indicator deinitialization function                       |
-//+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-   if(ExtFastEmaHandle != INVALID_HANDLE) IndicatorRelease(ExtFastEmaHandle);
-   if(ExtSlowEmaHandle != INVALID_HANDLE) IndicatorRelease(ExtSlowEmaHandle);
-   ObjectsDeleteAll(0, PREFIX);
+   ObjectsDeleteAll(0, PFX);
+   IndicatorRelease(handleATR);
+   IndicatorRelease(handleEMA20);
+   IndicatorRelease(handleEMA50);
    ChartRedraw(0);
 }
 
-//+------------------------------------------------------------------+
-//| Custom indicator iteration function                              |
-//+------------------------------------------------------------------+
 int OnCalculate(const int rates_total,
                 const int prev_calculated,
                 const datetime &time[],
@@ -128,392 +112,523 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
 {
-   if(rates_total < 10) return(0);
+   if(rates_total < 100) return 0;
 
-   int start = prev_calculated - 1;
-   if(start < 2)
-   {
-      start = 2;
-      ArrayInitialize(BufferBuy,  EMPTY_VALUE);
-      ArrayInitialize(BufferSell, EMPTY_VALUE);
-      ArrayInitialize(BufferVWAP, EMPTY_VALUE);
-   }
+   ArraySetAsSeries(time, true);
+   ArraySetAsSeries(open, true);
+   ArraySetAsSeries(high, true);
+   ArraySetAsSeries(low, true);
+   ArraySetAsSeries(close, true);
+   ArraySetAsSeries(tick_volume, true);
+   ArraySetAsSeries(BufVWAP, true);
+   ArraySetAsSeries(BufBuy, true);
+   ArraySetAsSeries(BufSell, true);
 
-   // 1. Hitung Akumulasi Harian Session VWAP
-   int vwapStart = start;
-   MqlDateTime dtCurrent, dtPrev;
-   TimeToStruct(time[vwapStart], dtCurrent);
+   int lookback = MathMin(InpLookback, rates_total - 50);
 
-   while(vwapStart > 0)
-   {
-      TimeToStruct(time[vwapStart - 1], dtPrev);
-      if(dtPrev.day != dtCurrent.day)
-         break;
-      vwapStart--;
-      dtCurrent = dtPrev;
-   }
+   // 1. Session VWAP Calculation
+   int startBar = MathMin(rates_total - 1, lookback + 100);
+   double runningPV = 0.0;
+   double runningVol = 0.0;
 
-   double cumPV  = 0.0;
-   double cumVol = 0.0;
-   int lastDay   = -1;
-
-   for(int i = vwapStart; i < rates_total; i++)
+   for(int k = startBar; k >= 0; k--)
    {
       MqlDateTime dt;
-      TimeToStruct(time[i], dt);
+      TimeToStruct(time[k], dt);
 
-      if(dt.day != lastDay)
+      if(k == rates_total - 1)
       {
-         cumPV   = 0.0;
-         cumVol  = 0.0;
-         lastDay = dt.day;
+         runningPV = 0.0;
+         runningVol = 0.0;
+      }
+      else
+      {
+         MqlDateTime prev_dt;
+         TimeToStruct(time[k+1], prev_dt);
+         if(dt.day != prev_dt.day)
+         {
+            runningPV = 0.0;
+            runningVol = 0.0;
+         }
       }
 
-      double tp  = (high[i] + low[i] + close[i]) / 3.0;
-      double vol = (volume[i] > 0) ? (double)volume[i] : (tick_volume[i] > 0 ? (double)tick_volume[i] : 1.0);
+      double tpPrice = (high[k] + low[k] + close[k]) / 3.0;
+      double vol = (tick_volume[k] > 0) ? (double)tick_volume[k] : 1.0;
+      runningPV += tpPrice * vol;
+      runningVol += vol;
 
-      cumPV += tp * vol;
-      cumVol += vol;
-
-      BufferVWAP[i] = (cumVol > 0.0) ? (cumPV / cumVol) : tp;
+      BufVWAP[k] = (runningVol > 0.0) ? (runningPV / runningVol) : tpPrice;
+      BufBuy[k] = 0.0;
+      BufSell[k] = 0.0;
    }
 
-   // 2. Deteksi Jebakan Likuiditas Sesi London/NY
-   bool currentInSession = false;
+   // 2. Real Simulation Engine
+   double equity = InpInitialDeposit;
+   double peak_equity = InpInitialDeposit;
+   double max_dd_amount = 0.0;
+   double max_dd_percent = 0.0;
+   int total = 0, wins = 0, losses = 0, buys = 0, sells = 0, expired = 0;
+   double total_swap_impact = 0.0;
 
-   // Siapkan buffer EMA jika filter tren aktif
-   double fastEmaVal[1], slowEmaVal[1];
-
-   for(int i = start; i < rates_total; i++)
+   double swap_long = InpManualSwapLong;
+   double swap_short = InpManualSwapShort;
+   if(InpAutoSwap)
    {
-      BufferBuy[i]  = EMPTY_VALUE;
-      BufferSell[i] = EMPTY_VALUE;
+      double broker_sl = SymbolInfoDouble(_Symbol, SYMBOL_SWAP_LONG);
+      double broker_ss = SymbolInfoDouble(_Symbol, SYMBOL_SWAP_SHORT);
+      if(broker_sl != 0.0 || broker_ss != 0.0)
+      {
+         swap_long = broker_sl;
+         swap_short = broker_ss;
+      }
+   }
 
+   double atrArr[], ema20Arr[], ema50Arr[];
+   ArraySetAsSeries(atrArr, true);
+   ArraySetAsSeries(ema20Arr, true);
+   ArraySetAsSeries(ema50Arr, true);
+   CopyBuffer(handleATR, 0, 0, lookback + 10, atrArr);
+   CopyBuffer(handleEMA20, 0, 0, lookback + 10, ema20Arr);
+   CopyBuffer(handleEMA50, 0, 0, lookback + 10, ema50Arr);
+
+   // Track Last Signal
+   datetime last_sig_time = 0;
+   double last_sig_entry = 0.0;
+   double last_sig_sl = 0.0;
+   double last_sig_tp = 0.0;
+   bool last_sig_is_buy = false;
+
+   int newest_bar = InpWaitClose ? 1 : 0;
+
+   for(int i = lookback; i >= newest_bar; i--)
+   {
       MqlDateTime dt;
       TimeToStruct(time[i], dt);
+      int utc_hour = (dt.hour - InpBrokerGMTOffset + 24) % 24;
 
-      bool inSession = (dt.hour >= InpSessionStartHour && dt.hour <= InpSessionEndHour);
-      if(i == rates_total - 1)
-         currentInSession = inSession;
-
-      if(!inSession) continue;
-
-      double v      = BufferVWAP[i];
-      double vPrev  = BufferVWAP[i - 1];
-      double vPrev2 = BufferVWAP[i - 2];
-
-      if(v == EMPTY_VALUE || vPrev == EMPTY_VALUE || vPrev2 == EMPTY_VALUE)
+      if(utc_hour < InpUTCStart || utc_hour > InpUTCEnd)
          continue;
 
-      double atr = MathMax(high[i] - low[i], high[i - 1] - low[i - 1]);
-      if(atr <= 0.05) continue;
+      double curAtr = (i < ArraySize(atrArr)) ? atrArr[i] : (high[i] - low[i]);
+      if(curAtr <= 0.05) curAtr = MathMax(high[i] - low[i], 1.0);
 
-      bool allowBuy = true;
-      bool allowSell = true;
-      if(InpUseEMATrend && ExtFastEmaHandle != INVALID_HANDLE && ExtSlowEmaHandle != INVALID_HANDLE)
+      double vwapVal = BufVWAP[i];
+      if(vwapVal == EMPTY_VALUE || vwapVal <= 0.0) continue;
+
+      double ema20 = (i < ArraySize(ema20Arr)) ? ema20Arr[i] : close[i];
+      double ema50 = (i < ArraySize(ema50Arr)) ? ema50Arr[i] : close[i];
+
+      double candleRng = MathMax(high[i] - low[i], _Point * 10);
+      double upperWick = high[i] - MathMax(open[i], close[i]);
+      double lowerWick = MathMin(open[i], close[i]) - low[i];
+
+      double asiaHigh = 0.0;
+      double asiaLow  = 999999.0;
+      for(int a = i + 1; a <= i + 72 && a < rates_total; a++)
       {
-         if(CopyBuffer(ExtFastEmaHandle, 0, rates_total - 1 - i, 1, fastEmaVal) > 0 &&
-            CopyBuffer(ExtSlowEmaHandle, 0, rates_total - 1 - i, 1, slowEmaVal) > 0)
+         MqlDateTime a_dt;
+         TimeToStruct(time[a], a_dt);
+         int a_utc = (a_dt.hour - InpBrokerGMTOffset + 24) % 24;
+         if(a_utc >= 0 && a_utc < 7)
          {
-            allowBuy  = (fastEmaVal[0] >= slowEmaVal[0]);
-            allowSell = (fastEmaVal[0] <= slowEmaVal[0]);
+            if(high[a] > asiaHigh) asiaHigh = high[a];
+            if(low[a] < asiaLow)   asiaLow  = low[a];
+         }
+         if(a_utc >= 22) break;
+      }
+
+      bool isB = false;
+      bool isS = false;
+      double sl = 0.0, tp = 0.0;
+
+      // ENGINE: PURE LONDON SWEEP TRAP (INSTITUTIONAL VWAP TRAP)
+      if(true && i < lookback - 2)
+      {
+         double vPrev  = BufVWAP[i + 1];
+         double vPrev2 = BufVWAP[i + 2];
+         if(vPrev != EMPTY_VALUE && vPrev2 != EMPTY_VALUE)
+         {
+            bool allowBuy  = (close[i] >= ema50 || ema20 >= ema50);
+            bool allowSell = (close[i] <= ema50 || ema20 <= ema50);
+
+            if(allowBuy && close[i + 2] < vPrev2 && close[i + 1] < vPrev && close[i] >= vwapVal)
+            {
+               isB = true;
+               sl = low[i] - (curAtr * 0.5);
+               double trapDist = MathMax(vwapVal - low[i], curAtr * 0.3);
+               tp = vwapVal + (trapDist * 1.5);
+            }
+            else if(allowSell && close[i + 2] > vPrev2 && close[i + 1] > vPrev && close[i] <= vwapVal)
+            {
+               isS = true;
+               sl = high[i] + (curAtr * 0.5);
+               double trapDist = MathMax(high[i] - vwapVal, curAtr * 0.3);
+               tp = vwapVal - (trapDist * 1.5);
+            }
          }
       }
 
-      // Bullish Trap (Long): Lilin sebelumnya di bawah VWAP, lilin saat ini merebut kembali VWAP
-      if(allowBuy && close[i - 2] < vPrev2 && close[i - 1] < v && close[i] >= v)
+      // ENGINE 1: VWAP BOUNCE 2
+      if(false)
       {
-         BufferBuy[i] = low[i] - (atr * 0.5);
-
-         double trapDistance = v - low[i];
-         if(trapDistance < 0.0) trapDistance = atr * 0.5;
-         double slVal = low[i] - (atr * InpAtrStopBuffer);
-         double tpVal = v + (trapDistance * InpRewardRiskRatio);
-
-         ExtLastSignal     = 1;
-         ExtLastSignalTime = time[i];
-         ExtLastEntry      = close[i];
-         ExtLastSL         = slVal;
-         ExtLastTP         = tpVal;
-
-         if(i == rates_total - 1 && time[i] != ExtLastAlertBar)
+         if(low[i] <= (vwapVal * 1.0005) && close[i] >= vwapVal && (close[i] >= open[i] || lowerWick >= 0.35 * candleRng) && (close[i] >= ema50 || ema20 >= ema50))
          {
-            ExtLastAlertBar = time[i];
-            string msg = StringFormat("[LONDON TRAP BUY] %s @ %.2f | SL: %.2f | TP: %.2f | WR 75.3%%",
-                                      _Symbol, close[i], slVal, tpVal);
-            if(InpEnableAlert) Alert(msg);
-            if(InpPlaySound)   PlaySound("alert.wav");
-            if(InpEnablePush)  SendNotification(msg);
-
-            if(InpShowTargetLines)
-               DrawTargetLines(time[i], close[i], slVal, tpVal, clrLimeGreen);
+            isB = true;
+            sl = low[i] - (curAtr * 0.5);
+            double dist = vwapVal - low[i];
+            double tp_dist = MathMax(dist, curAtr * 0.3) * 1.0;
+            tp = vwapVal + tp_dist;
+         }
+         else if(high[i] >= (vwapVal * 0.9995) && close[i] <= vwapVal && (close[i] <= open[i] || upperWick >= 0.35 * candleRng) && (close[i] <= ema50 || ema20 <= ema50))
+         {
+            isS = true;
+            sl = high[i] + (curAtr * 0.5);
+            double dist = high[i] - vwapVal;
+            double tp_dist = MathMax(dist, curAtr * 0.3) * 1.0;
+            tp = vwapVal - tp_dist;
          }
       }
 
-      // Bearish Trap (Short): Lilin sebelumnya di atas VWAP, lilin saat ini slip kembali ke bawah VWAP
-      if(allowSell && close[i - 2] > vPrev2 && close[i - 1] > v && close[i] <= v)
+      // ENGINE 2: DOJI RIDE
+      if(false && !isB && !isS && i < lookback - 1)
       {
-         BufferSell[i] = high[i] + (atr * 0.5);
-
-         double trapDistance = high[i] - v;
-         if(trapDistance < 0.0) trapDistance = atr * 0.5;
-         double slVal = high[i] + (atr * InpAtrStopBuffer);
-         double tpVal = v - (trapDistance * InpRewardRiskRatio);
-
-         ExtLastSignal     = -1;
-         ExtLastSignalTime = time[i];
-         ExtLastEntry      = close[i];
-         ExtLastSL         = slVal;
-         ExtLastTP         = tpVal;
-
-         if(i == rates_total - 1 && time[i] != ExtLastAlertBar)
+         double body = MathAbs(close[i] - open[i]);
+         if((body / candleRng) <= 0.10 && candleRng >= (0.4 * curAtr))
          {
-            ExtLastAlertBar = time[i];
-            string msg = StringFormat("[LONDON TRAP SELL] %s @ %.2f | SL: %.2f | TP: %.2f | WR 75.3%%",
-                                      _Symbol, close[i], slVal, tpVal);
-            if(InpEnableAlert) Alert(msg);
-            if(InpPlaySound)   PlaySound("alert.wav");
-            if(InpEnablePush)  SendNotification(msg);
-
-            if(InpShowTargetLines)
-               DrawTargetLines(time[i], close[i], slVal, tpVal, clrCrimson);
+            if(asiaLow < 999990.0 && low[i] < asiaLow && close[i] > asiaLow && (lowerWick / candleRng) >= 0.45)
+            {
+               isB = true;
+               sl = low[i] - (0.2 * curAtr);
+               double risk = MathAbs(open[i-1] - sl);
+               tp = open[i-1] + (risk * 0.40);
+            }
+            else if(asiaHigh > 0 && high[i] > asiaHigh && close[i] < asiaHigh && (upperWick / candleRng) >= 0.45)
+            {
+               isS = true;
+               sl = high[i] + (0.2 * curAtr);
+               double risk = MathAbs(sl - open[i-1]);
+               tp = open[i-1] - (risk * 0.40);
+            }
          }
       }
+
+      // ENGINE 3: LONDON SWEEP TRAP (MULTI-PORTFOLIO)
+      if(false && !isB && !isS && asiaHigh > 0 && asiaLow < 999990.0)
+      {
+         if(high[i] > asiaHigh && close[i] < asiaHigh && close[i] < open[i])
+         {
+            isS = true;
+            sl = high[i] + (curAtr * 0.5);
+            double dist = high[i] - vwapVal;
+            tp = vwapVal - MathMax(dist, curAtr * 0.5);
+         }
+         else if(low[i] < asiaLow && close[i] > asiaLow && close[i] > open[i])
+         {
+            isB = true;
+            sl = low[i] - (curAtr * 0.5);
+            double dist = vwapVal - low[i];
+            tp = vwapVal + MathMax(dist, curAtr * 0.5);
+         }
+      }
+
+      // ENGINE 4: VP FAILED AUCTION
+      if(false && !isB && !isS)
+      {
+         MqlRates dailyRates[];
+         ArraySetAsSeries(dailyRates, true);
+         if(CopyRates(_Symbol, PERIOD_D1, 1, 1, dailyRates) > 0)
+         {
+            double dLow = dailyRates[0].low;
+            double dHigh = dailyRates[0].high;
+            double dRng = dHigh - dLow;
+            double val = dLow + dRng * 0.20;
+            double vah = dLow + dRng * 0.80;
+            if(low[i] < val && close[i] > val && close[i] > open[i])
+            {
+               isB = true;
+               sl = low[i] - (curAtr * 0.5);
+               tp = open[i-1] + (MathAbs(open[i-1] - sl) * 0.50);
+            }
+            else if(high[i] > vah && close[i] < vah && close[i] < open[i])
+            {
+               isS = true;
+               sl = high[i] + (curAtr * 0.5);
+               tp = open[i-1] - (MathAbs(sl - open[i-1]) * 0.50);
+            }
+         }
+      }
+
+      // ENGINE 5: LIQUIDITY BUBBLE TRAP
+      if(false && !isB && !isS && i < lookback - 20)
+      {
+         double vMA = 0.0;
+         for(int v = 1; v <= 20; v++) vMA += (double)tick_volume[i + v];
+         vMA /= 20.0;
+         if(vMA > 0 && ((double)tick_volume[i] / vMA) >= 2.2)
+         {
+            if(lowerWick > (candleRng * 0.40) && close[i] > open[i])
+            {
+               isB = true;
+               sl = low[i] - (curAtr * 0.5);
+               tp = open[i-1] + (MathAbs(open[i-1] - sl) * 0.85);
+            }
+            else if(upperWick > (candleRng * 0.40) && close[i] < open[i])
+            {
+               isS = true;
+               sl = high[i] + (curAtr * 0.5);
+               tp = open[i-1] - (MathAbs(sl - open[i-1]) * 0.85);
+            }
+         }
+      }
+
+      if(!isB && !isS) continue;
+
+      total++;
+      if(isB) buys++; else sells++;
+
+      double entry = InpWaitClose ? open[i-1] : close[i];
+      if(isB) BufBuy[i] = low[i] - (curAtr * 0.3);
+      else    BufSell[i] = high[i] + (curAtr * 0.3);
+
+      last_sig_time = time[i];
+      last_sig_entry = entry;
+      last_sig_sl = sl;
+      last_sig_tp = tp;
+      last_sig_is_buy = isB;
+
+      double sl_dist = MathAbs(entry - sl);
+      if(sl_dist <= 0.0) sl_dist = curAtr;
+      double risk_amount = equity * (InpRiskPercent / 100.0);
+      double lot = (sl_dist > 0.0) ? (risk_amount / (sl_dist * 100.0)) : 0.01;
+      lot = MathMax(0.01, MathMin(10.0, NormalizeDouble(lot, 2)));
+
+      int exit_idx = i - 1;
+      bool won = false;
+      bool hit = false;
+      int holding_bars = 0;
+
+      while(exit_idx >= 0 && holding_bars < InpMaxBars)
+      {
+         holding_bars++;
+         if(isB)
+         {
+            if(low[exit_idx] <= sl)  { won = false; hit = true; break; }
+            if(high[exit_idx] >= tp) { won = true;  hit = true; break; }
+         }
+         else
+         {
+            if(high[exit_idx] >= sl) { won = false; hit = true; break; }
+            if(low[exit_idx] <= tp)  { won = true;  hit = true; break; }
+         }
+         exit_idx--;
+      }
+
+      double pnl = 0.0;
+      double swap_cost = 0.0;
+      int days_held = (holding_bars * PeriodSeconds()) / 86400;
+      if(days_held > 0)
+      {
+         double daily_swap = isB ? swap_long : swap_short;
+         swap_cost = daily_swap * lot * days_held;
+         total_swap_impact += swap_cost;
+      }
+
+      if(hit)
+      {
+         if(won)
+         {
+            wins++;
+            pnl = MathAbs(tp - entry) * 100.0 * lot + swap_cost;
+         }
+         else
+         {
+            losses++;
+            pnl = -MathAbs(entry - sl) * 100.0 * lot + swap_cost;
+         }
+      }
+      else
+      {
+         expired++;
+         double curExit = (exit_idx >= 0) ? close[exit_idx] : close[0];
+         pnl = isB ? ((curExit - entry) * 100.0 * lot) : ((entry - curExit) * 100.0 * lot);
+         pnl += swap_cost;
+         if(pnl > 0.0) wins++; else losses++;
+      }
+
+      equity += pnl;
+      if(equity > peak_equity) peak_equity = equity;
+      double cur_dd = peak_equity - equity;
+      if(cur_dd > max_dd_amount)
+      {
+         max_dd_amount = cur_dd;
+         max_dd_percent = (peak_equity > 0.0) ? ((max_dd_amount / peak_equity) * 100.0) : 0.0;
+      }
+
+      if(exit_idx < i)
+         i = exit_idx + 1;
    }
 
-   // 3. Update Dashboard HUD
-   if(InpShowDashboard)
+   int closed = wins + losses;
+   double wr = (closed > 0) ? (100.0 * wins / closed) : 0.0;
+   double growth_pct = ((equity - InpInitialDeposit) / InpInitialDeposit) * 100.0;
+
+   // 3. Draw Chart Lines for Active/Latest Signal
+   if(InpDrawTradeLines && last_sig_time > 0)
    {
-      double curVWAP = BufferVWAP[rates_total - 1];
-      UpdateDashboard(currentInSession, curVWAP, close[rates_total - 1]);
-      ChartRedraw(0);
+      DrawTradeLines(last_sig_time, last_sig_entry, last_sig_sl, last_sig_tp, last_sig_is_buy);
    }
 
-   return(rates_total);
+   // 4. Update Dashboard HUD
+   if(InpShowPanel)
+   {
+      string s = "";
+      s += "===== SIMULASI DUMMY MODAL REAL MT5 =====\n";
+      s += "LONDON SWEEP TRAP (INSTITUTIONAL VWAP) [TUNED]\n";
+      s += "-----------------------------------------\n";
+      s += StringFormat("History Lookback: %d Bar (M5)\n", lookback);
+      s += StringFormat("Broker Server   : GMT+%d (FBS Server Time)\n", InpBrokerGMTOffset);
+      s += StringFormat("Sesi Aktif (UTC): %02d:00 - %02d:00 UTC\n", InpUTCStart, InpUTCEnd);
+      s += "-----------------------------------------\n";
+      s += StringFormat("Total Sinyal    : %d (Buy: %d, Sell: %d)\n", total, buys, sells);
+      s += StringFormat("Win / Loss      : %d / %d (WR: %.2f%%)\n", wins, losses, wr);
+      s += StringFormat("Trade Expired   : %d\n", expired);
+      s += "-----------------------------------------\n";
+      s += StringFormat("Deposit Awal    : $%.2f\n", InpInitialDeposit);
+      s += StringFormat("Total Biaya Swap: $%.2f\n", total_swap_impact);
+      s += StringFormat("Saldo Akhir     : $%.2f\n", equity);
+      s += StringFormat("Net Growth      : %+.2f%%\n", growth_pct);
+      s += StringFormat("Max Drawdown    : %.2f%%\n", max_dd_percent);
+      s += "-----------------------------------------\n";
+      if(last_sig_time > 0)
+      {
+         s += StringFormat("Sinyal Terakhir : [%s] @ %.2f\n", last_sig_is_buy ? "BUY" : "SELL", last_sig_entry);
+         s += StringFormat("Target TP/SL    : TP %.2f | SL %.2f\n", last_sig_tp, last_sig_sl);
+         s += "Status Garis    : [ON] Tergambar di Chart\n";
+      }
+      else
+      {
+         s += "Sinyal Terakhir : Menunggu Setup...\n";
+      }
+      s += "-----------------------------------------\n";
+      s += InpWaitClose ? "Mode: Sinyal Terkonfirmasi (Non-Repaint)" : "Mode: Sinyal Berjalan";
+
+      ShowPanel(s);
+   }
+
+   return rates_total;
 }
 
-//+------------------------------------------------------------------+
-//| Buat atau Update Tampilan Dashboard HUD di Layar Chart           |
-//+------------------------------------------------------------------+
-void UpdateDashboard(bool inSession, double currentVWAP, double currentPrice)
+void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_buy)
 {
-   int x = InpDashboardX;
-   int y = InpDashboardY;
-   ENUM_BASE_CORNER corner = InpDashboardCorner;
+   datetime t_end = (datetime)(TimeCurrent() + PeriodSeconds() * InpLineExtendBars);
 
-   if(ExtIsMinimized)
-   {
-      ObjectsDeleteAll(0, PREFIX + "PANEL_");
-      ObjectsDeleteAll(0, PREFIX + "TXT_");
-      CreateButton(PREFIX + "BTN_TOGGLE", x, y, 160, 26, "LST HUD [OPEN]",
-                   C'25,30,44', clrGold, corner);
-      return;
-   }
+   string nameEntry = PFX + "Line_Entry";
+   string nameSL    = PFX + "Line_SL";
+   string nameTP    = PFX + "Line_TP";
+   string lblEntry  = PFX + "Lbl_Entry";
+   string lblSL     = PFX + "Lbl_SL";
+   string lblTP     = PFX + "Lbl_TP";
 
-   int width  = 295;
-   int height = 245;
+   color colEntry = C'0,90,210';
+   color colSL    = C'220,30,40';
+   color colTP    = C'0,140,50';
 
-   // 1. Background Card
-   CreateRectLabel(PREFIX + "PANEL_BG", x, y, width, height,
-                   C'18,22,32', C'40,48,68', corner);
+   DrawOneTrendLine(nameEntry, t_sig, entry, t_end, entry, colEntry, STYLE_SOLID, 2);
+   DrawOneText(lblEntry, t_end, entry, StringFormat("[%s ENTRY] %.2f", STRAT_TAG, entry), colEntry);
 
-   // 2. Header Bar Accent
-   CreateRectLabel(PREFIX + "PANEL_HDR", x, y, width, 26,
-                   C'24,30,46', C'50,62,88', corner);
+   DrawOneTrendLine(nameSL, t_sig, sl, t_end, sl, colSL, STYLE_DASH, 2);
+   DrawOneText(lblSL, t_end, sl, StringFormat("[%s SL] %.2f", STRAT_TAG, sl), colSL);
 
-   // 3. Judul Header
-   CreateTextLabel(PREFIX + "TXT_TITLE", x + 10, y + 6,
-                   "LONDON SWEEP TRAP (XAUUSD)", clrWhite, 9, "Arial Bold", corner);
-
-   // 4. Tombol Hide / Minimize
-   CreateButton(PREFIX + "BTN_TOGGLE", x + width - 68, y + 4, 60, 18,
-                "[HIDE]", C'36,44,62', clrSilver, corner, 7);
-
-   // 5. Panel Simulasi Modal $10,000 USD
-   CreateTextLabel(PREFIX + "TXT_SEC1", x + 10, y + 32,
-                   "[SIMULASI MODAL: $10,000 USD]", clrGold, 8, "Segoe UI Bold", corner);
-
-   CreateTextLabel(PREFIX + "TXT_GROWTH", x + 10, y + 49,
-                   "Saldo Akhir: $435,667,252.50 (+4.35M%)", clrLimeGreen, 8, "Segoe UI Bold", corner);
-
-   CreateTextLabel(PREFIX + "TXT_FLAT", x + 10, y + 66,
-                   "Flat Lot: +$108,000.00 (+1,080% Murni)", clrAqua, 8, "Segoe UI", corner);
-
-   // 6. Benchmark Kinerja Historis (12 Bulan M5)
-   CreateTextLabel(PREFIX + "TXT_SEC2", x + 10, y + 86,
-                   "[PERFORMA HISTORIS 12 BULAN M5]", clrSilver, 8, "Segoe UI Bold", corner);
-
-   CreateTextLabel(PREFIX + "TXT_STATS", x + 10, y + 103,
-                   "Win Rate: 75.3% (922 Win / 303 Loss)", C'110,225,130', 8, "Segoe UI Bold", corner);
-
-   CreateTextLabel(PREFIX + "TXT_DD", x + 10, y + 120,
-                   "Max DD: 2.97% | Profit Factor: 4.86", clrWhite, 8, "Segoe UI", corner);
-
-   CreateTextLabel(PREFIX + "TXT_CONF", x + 10, y + 137,
-                   StringFormat("Target: VWAP +/- 1.5x Trap | EMA: %s", (InpUseEMATrend ? "ON" : "OFF")),
-                   clrSlateGray, 8, "Segoe UI", corner);
-
-   // 7. Status Sesi & VWAP
-   string sessionTxt = inSession ? "SESI: LONDON/NY (AKTIF)" : "SESI: LUAR JAM (STANDBY)";
-   color  sessionClr = inSession ? clrLimeGreen : clrGold;
-   string vwapStr = (currentVWAP > 0 && currentVWAP != EMPTY_VALUE) ? DoubleToString(currentVWAP, 2) : "-";
-   CreateTextLabel(PREFIX + "TXT_SESSION", x + 10, y + 158,
-                   StringFormat("%s | VWAP: $%s", sessionTxt, vwapStr), sessionClr, 8, "Segoe UI", corner);
-
-   // 8. Sinyal Terakhir
-   string sigStr = "SINYAL: MENUNGGU SETUP...";
-   color sigClr = clrDarkGray;
-   if(ExtLastSignal == 1)
-   {
-      sigStr = "SINYAL: [BUY] BULL TRAP";
-      sigClr = clrLimeGreen;
-   }
-   else if(ExtLastSignal == -1)
-   {
-      sigStr = "SINYAL: [SELL] BEAR TRAP";
-      sigClr = clrCrimson;
-   }
-   CreateTextLabel(PREFIX + "TXT_SIGNAL", x + 10, y + 178,
-                   sigStr, sigClr, 9, "Segoe UI Bold", corner);
-
-   // 9. Target Entry, SL, TP
-   string levelStr = "Target: Standby sinyal baru";
-   if(ExtLastSignal != 0 && ExtLastEntry > 0)
-   {
-      levelStr = StringFormat("Entry: %.2f | SL: %.2f | TP: %.2f",
-                              ExtLastEntry, ExtLastSL, ExtLastTP);
-   }
-   CreateTextLabel(PREFIX + "TXT_TARGETS", x + 10, y + 200,
-                   levelStr, clrAqua, 8, "Segoe UI", corner);
-
-   // 10. Footer Hint
-   CreateTextLabel(PREFIX + "TXT_HINT", x + 10, y + 224,
-                   "Klik [HIDE] untuk toggle tampilan HUD",
-                   C'110,120,140', 7, "Segoe UI", corner);
+   DrawOneTrendLine(nameTP, t_sig, tp, t_end, tp, colTP, STYLE_DASH, 2);
+   DrawOneText(lblTP, t_end, tp, StringFormat("[%s TP] %.2f", STRAT_TAG, tp), colTP);
 }
 
-//+------------------------------------------------------------------+
-//| Gambar Garis Visual Target SL & TP di Chart                      |
-//+------------------------------------------------------------------+
-void DrawTargetLines(datetime t, double entry, double sl, double tp, color sigColor)
-{
-   datetime t2 = t + PeriodSeconds() * 15;
-   string nameEntry = PREFIX + "LN_ENTRY";
-   string nameSL    = PREFIX + "LN_SL";
-   string nameTP    = PREFIX + "LN_TP";
-
-   DrawLevelLine(nameEntry, t, t2, entry, clrAqua,      STYLE_SOLID, 1);
-   DrawLevelLine(nameSL,    t, t2, sl,    clrRed,       STYLE_DASH,  1);
-   DrawLevelLine(nameTP,    t, t2, tp,    clrLimeGreen, STYLE_DASH,  2);
-}
-
-//+------------------------------------------------------------------+
-//| Helper Gambar Trend Line Level Horizontal                        |
-//+------------------------------------------------------------------+
-void DrawLevelLine(string name, datetime t1, datetime t2, double price,
-                   color clr, ENUM_LINE_STYLE style, int width)
+void DrawOneTrendLine(string name, datetime t1, double p1, datetime t2, double p2, color clr, int style, int width)
 {
    if(ObjectFind(0, name) < 0)
-      ObjectCreate(0, name, OBJ_TREND, 0, t1, price, t2, price);
+   {
+      ObjectCreate(0, name, OBJ_TREND, 0, t1, p1, t2, p2);
+      ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, false);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, name, OBJPROP_BACK, false);
+   }
    else
    {
-      ObjectSetInteger(0, name, OBJPROP_TIME,  0, t1);
-      ObjectSetDouble(0,  name, OBJPROP_PRICE, 0, price);
-      ObjectSetInteger(0, name, OBJPROP_TIME,  1, t2);
-      ObjectSetDouble(0,  name, OBJPROP_PRICE, 1, price);
+      ObjectSetInteger(0, name, OBJPROP_TIME, 0, t1);
+      ObjectSetDouble(0, name, OBJPROP_PRICE, 0, p1);
+      ObjectSetInteger(0, name, OBJPROP_TIME, 1, t2);
+      ObjectSetDouble(0, name, OBJPROP_PRICE, 1, p2);
    }
    ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
    ObjectSetInteger(0, name, OBJPROP_STYLE, style);
    ObjectSetInteger(0, name, OBJPROP_WIDTH, width);
-   ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, false);
-   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
 }
 
-//+------------------------------------------------------------------+
-//| Helper Buat Background Persegi Panjang                           |
-//+------------------------------------------------------------------+
-void CreateRectLabel(string name, int x, int y, int w, int h,
-                     color bgClr, color borderClr, ENUM_BASE_CORNER corner)
+void DrawOneText(string name, datetime t, double p, string txt, color clr)
 {
    if(ObjectFind(0, name) < 0)
-      ObjectCreate(0, name, OBJ_RECTANGLE_LABEL, 0, 0, 0);
-
-   ObjectSetInteger(0, name, OBJPROP_CORNER,     corner);
-   ObjectSetInteger(0, name, OBJPROP_XDISTANCE,  x);
-   ObjectSetInteger(0, name, OBJPROP_YDISTANCE,  y);
-   ObjectSetInteger(0, name, OBJPROP_XSIZE,      w);
-   ObjectSetInteger(0, name, OBJPROP_YSIZE,      h);
-   ObjectSetInteger(0, name, OBJPROP_BGCOLOR,    bgClr);
-   ObjectSetInteger(0, name, OBJPROP_BORDER_TYPE,BORDER_FLAT);
-   ObjectSetInteger(0, name, OBJPROP_COLOR,      borderClr);
-   ObjectSetInteger(0, name, OBJPROP_BACK,       false);
-   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
-}
-
-//+------------------------------------------------------------------+
-//| Helper Buat Label Teks                                           |
-//+------------------------------------------------------------------+
-void CreateTextLabel(string name, int x, int y, string text,
-                     color clr, int fontSize, string fontName, ENUM_BASE_CORNER corner)
-{
-   if(ObjectFind(0, name) < 0)
-      ObjectCreate(0, name, OBJ_LABEL, 0, 0, 0);
-
-   ObjectSetInteger(0, name, OBJPROP_CORNER,     corner);
-   ObjectSetInteger(0, name, OBJPROP_XDISTANCE,  x);
-   ObjectSetInteger(0, name, OBJPROP_YDISTANCE,  y);
-   ObjectSetString(0,  name, OBJPROP_TEXT,       text);
-   ObjectSetString(0,  name, OBJPROP_FONT,       fontName);
-   ObjectSetInteger(0, name, OBJPROP_FONTSIZE,   fontSize);
-   ObjectSetInteger(0, name, OBJPROP_COLOR,      clr);
-   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
-}
-
-//+------------------------------------------------------------------+
-//| Helper Buat Tombol Interaktif                                    |
-//+------------------------------------------------------------------+
-void CreateButton(string name, int x, int y, int w, int h, string text,
-                  color bgClr, color txtClr, ENUM_BASE_CORNER corner, int fontSize = 8)
-{
-   if(ObjectFind(0, name) < 0)
-      ObjectCreate(0, name, OBJ_BUTTON, 0, 0, 0);
-
-   ObjectSetInteger(0, name, OBJPROP_CORNER,     corner);
-   ObjectSetInteger(0, name, OBJPROP_XDISTANCE,  x);
-   ObjectSetInteger(0, name, OBJPROP_YDISTANCE,  y);
-   ObjectSetInteger(0, name, OBJPROP_XSIZE,      w);
-   ObjectSetInteger(0, name, OBJPROP_YSIZE,      h);
-   ObjectSetInteger(0, name, OBJPROP_BGCOLOR,    bgClr);
-   ObjectSetInteger(0, name, OBJPROP_COLOR,      txtClr);
-   ObjectSetString(0,  name, OBJPROP_TEXT,       text);
-   ObjectSetString(0,  name, OBJPROP_FONT,       "Arial Bold");
-   ObjectSetInteger(0, name, OBJPROP_FONTSIZE,   fontSize);
-   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(0, name, OBJPROP_STATE,      false);
-}
-
-//+------------------------------------------------------------------+
-//| Chart Event Handler                                              |
-//+------------------------------------------------------------------+
-void OnChartEvent(const int id,
-                  const long &lparam,
-                  const double &dparam,
-                  const string &sparam)
-{
-   if(id == CHARTEVENT_OBJECT_CLICK && sparam == PREFIX + "BTN_TOGGLE")
    {
-      ExtIsMinimized = !ExtIsMinimized;
-      ObjectSetInteger(0, PREFIX + "BTN_TOGGLE", OBJPROP_STATE, false);
+      ObjectCreate(0, name, OBJ_TEXT, 0, t, p);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, name, OBJPROP_BACK, false);
+   }
+   else
+   {
+      ObjectSetInteger(0, name, OBJPROP_TIME, 0, t);
+      ObjectSetDouble(0, name, OBJPROP_PRICE, 0, p);
+   }
+   ObjectSetString(0, name, OBJPROP_TEXT, txt);
+   ObjectSetString(0, name, OBJPROP_FONT, "Segoe UI Bold");
+   ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 9);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
+}
 
-      int total = ArraySize(BufferVWAP);
-      double curVWAP = (total > 0) ? BufferVWAP[total - 1] : 0.0;
-      MqlDateTime dt;
-      TimeCurrent(dt);
-      bool inSession = (dt.hour >= InpSessionStartHour && dt.hour <= InpSessionEndHour);
+void ShowPanel(string text)
+{
+   string bgName = PFX + "BG";
+   color bgCol, textCol, borderCol;
+   if(InpTheme == THEME_DARK) {
+      bgCol = C'20,24,35'; textCol = clrWhite; borderCol = clrDeepSkyBlue;
+   } else {
+      bgCol = clrWhiteSmoke; textCol = clrBlack; borderCol = C'70,80,95';
+   }
 
-      double curPrice = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-      UpdateDashboard(inSession, curVWAP, curPrice);
-      ChartRedraw(0);
+   string sep = "\n"; ushort u_sep = StringGetCharacter(sep, 0);
+   string lines[]; int count = StringSplit(text, u_sep, lines);
+   int boxH = count * 15 + 15;
+
+   if(ObjectFind(0, bgName) < 0) {
+      ObjectCreate(0, bgName, OBJ_RECTANGLE_LABEL, 0, 0, 0);
+      ObjectSetInteger(0, bgName, OBJPROP_CORNER, CORNER_LEFT_UPPER);
+      ObjectSetInteger(0, bgName, OBJPROP_XDISTANCE, InpPanelX - 5);
+      ObjectSetInteger(0, bgName, OBJPROP_YDISTANCE, InpPanelY - 5);
+      ObjectSetInteger(0, bgName, OBJPROP_XSIZE, 350);
+      ObjectSetInteger(0, bgName, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, bgName, OBJPROP_BACK, false);
+   }
+   ObjectSetInteger(0, bgName, OBJPROP_YSIZE, boxH);
+   ObjectSetInteger(0, bgName, OBJPROP_BGCOLOR, bgCol);
+   ObjectSetInteger(0, bgName, OBJPROP_BORDER_TYPE, BORDER_FLAT);
+   ObjectSetInteger(0, bgName, OBJPROP_COLOR, borderCol);
+
+   for(int i = 0; i < count; i++) {
+      string name = PFX + "Line_" + IntegerToString(i);
+      if(ObjectFind(0, name) < 0) {
+         ObjectCreate(0, name, OBJ_LABEL, 0, 0, 0);
+         ObjectSetInteger(0, name, OBJPROP_CORNER, CORNER_LEFT_UPPER);
+         ObjectSetInteger(0, name, OBJPROP_XDISTANCE, InpPanelX);
+         ObjectSetString(0, name, OBJPROP_FONT, "Consolas");
+         ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 9);
+         ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+      }
+      ObjectSetInteger(0, name, OBJPROP_YDISTANCE, InpPanelY + (i * 15));
+      color lineCol = textCol;
+      if(InpTheme == THEME_DARK) {
+         lineCol = (i == 1) ? clrGold : ((i >= 7 && i <= 9) ? clrLimeGreen : textCol);
+      } else {
+         lineCol = (i == 1) ? C'0,90,190' : ((i >= 7 && i <= 9) ? C'0,130,50' : textCol);
+      }
+      ObjectSetInteger(0, name, OBJPROP_COLOR, lineCol);
+      ObjectSetString(0, name, OBJPROP_TEXT, lines[i]);
    }
 }
-//+------------------------------------------------------------------+

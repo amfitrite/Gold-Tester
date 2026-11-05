@@ -1,34 +1,36 @@
 //+------------------------------------------------------------------+
 //|                                    Rank2_VWAP_Bounce_2_Indicator.mq4  |
 //|      RANK 2: VWAP BOUNCE 2 ONLY - TUNED FOR FBS & MT4                               |
-//|     Indikator Real Sim Live + Simulasi Dummy Modal $10,000       |
+//|     Indikator Real Sim Live + Dummy Modal $10,000 + Chart Lines  |
 //+------------------------------------------------------------------+
-#property copyright "Quant Trading Lab - Tuned for Broker Time"
+#property copyright "Quant Trading Lab - High Visibility Lines"
 #property link      "https://github.com/amfitrite/Gold-Tester"
-#property version   "9.00"
+#property version   "9.50"
 #property strict
 #property indicator_chart_window
 #property indicator_buffers 3
 
-#property indicator_color1  clrDeepSkyBlue
+#property indicator_color1  C'0,102,204' // Deep Dodger Blue (High Contrast on White)
 #property indicator_width1  2
 
-#property indicator_color2  C'8,153,129'
+#property indicator_color2  C'8,153,129' // Dark Emerald Green (High Contrast on White)
 #property indicator_width2  3
 
-#property indicator_color3  C'242,54,69'
+#property indicator_color3  C'242,54,69' // Crimson Red (High Contrast on White)
 #property indicator_width3  3
 
 enum ENUM_THEME {
-   THEME_DARK,
-   THEME_LIGHT
+   THEME_DARK,  // Kotak Gelap Elegan (Sangat Kontras di Background Putih)
+   THEME_LIGHT  // Kotak Terang Bersih
 };
 
 extern string         s0                 = "=== TAMPILAN & TEMA ===";
 extern ENUM_THEME     InpTheme           = THEME_DARK;
 extern bool           InpShowPanel       = true;
-extern int            InpPanelX          = 15;
+extern int            InpPanelX          = 725;
 extern int            InpPanelY          = 30;
+extern bool           InpDrawTradeLines  = true;  // Gambar Garis Entry, TP, SL di Chart
+extern int            InpLineExtendBars  = 25;    // Panjang Garis ke Kanan (Bar)
 
 extern string         s1                 = "=== BROKER TIMEZONE & SESI ===";
 extern int            InpBrokerGMTOffset = 3;     // GMT Offset Server Broker (FBS Trader = 3)
@@ -52,14 +54,15 @@ extern double         InpManualSwapShort = -2.0;
 
 // Buffers
 double BufVWAP[], BufBuy[], BufSell[];
-#define PFX "Rank2_VWAP_Bounce_2_"
+#define PFX "R2_"
+#define STRAT_TAG "R2"
 
 int OnInit()
 {
    IndicatorBuffers(3);
 
    SetIndexBuffer(0, BufVWAP);
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 2, clrDeepSkyBlue);
+   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 2, C'0,102,204');
    SetIndexLabel(0, "Session VWAP");
 
    SetIndexBuffer(1, BufBuy);
@@ -76,64 +79,95 @@ int OnInit()
    SetIndexEmptyValue(1, 0.0);
    SetIndexEmptyValue(2, 0.0);
 
+   IndicatorShortName("RANK 2: VWAP BOUNCE 2 ONLY");
    return INIT_SUCCEEDED;
 }
 
 void OnDeinit(const int reason)
 {
    ObjectsDeleteAll(0, PFX);
-   Comment("");
+   ChartRedraw(0);
 }
 
-int OnCalculate(const int rates_total, const int prev_calculated, const datetime &time[],
-                const double &open[], const double &high[], const double &low[], const double &close[],
-                const long &tick_volume[], const long &volume[], const int &spread[])
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
 {
    if(rates_total < 100) return 0;
 
-   // Optimasi CPU: jalankan simulasi komplit saat candle baru
-   static datetime lastSimTime = 0;
-   if(prev_calculated > 0 && time[0] == lastSimTime)
-      return rates_total;
-   lastSimTime = time[0];
+   int lookback = MathMin(InpLookback, rates_total - 50);
 
-   int lookback = (int)MathMin(rates_total - 50, InpLookback);
-   if(lookback < 50) return 0;
+   // 1. Session VWAP Calculation (Daily Reset at 00:00 UTC)
+   int startBar = MathMin(rates_total - 1, lookback + 100);
+   double runningPV = 0.0;
+   double runningVol = 0.0;
 
-   // 1. Calculate Daily Reset VWAP (Reset setiap pergantian hari)
-   ArrayInitialize(BufBuy, 0.0);
-   ArrayInitialize(BufSell, 0.0);
-   ArrayInitialize(BufVWAP, EMPTY_VALUE);
-
-   double cumVol = 0.0, cumPV = 0.0;
-   int lastDay = -1;
-   for(int i = lookback; i >= 0; i--)
+   for(int k = startBar; k >= 0; k--)
    {
       MqlDateTime dt;
-      TimeToStruct(time[i], dt);
-      if(dt.day != lastDay)
+      TimeToStruct(time[k], dt);
+      int utc_hour = (dt.hour - InpBrokerGMTOffset + 24) % 24;
+
+      if(k == rates_total - 1)
       {
-         cumVol = 0.0;
-         cumPV  = 0.0;
-         lastDay = dt.day;
+         runningPV = 0.0;
+         runningVol = 0.0;
       }
-      double v = (double)tick_volume[i];
-      if(v <= 0) v = 1.0;
-      double typ = (high[i] + low[i] + close[i]) / 3.0;
-      cumVol += v;
-      cumPV  += (typ * v);
-      BufVWAP[i] = (cumVol > 0) ? (cumPV / cumVol) : typ;
+      else
+      {
+         MqlDateTime prev_dt;
+         TimeToStruct(time[k+1], prev_dt);
+         if(dt.day != prev_dt.day)
+         {
+            runningPV = 0.0;
+            runningVol = 0.0;
+         }
+      }
+
+      double tpPrice = (high[k] + low[k] + close[k]) / 3.0;
+      double vol = (tick_volume[k] > 0) ? (double)tick_volume[k] : 1.0;
+      runningPV += tpPrice * vol;
+      runningVol += vol;
+
+      BufVWAP[k] = (runningVol > 0.0) ? (runningPV / runningVol) : tpPrice;
+      BufBuy[k] = 0.0;
+      BufSell[k] = 0.0;
    }
 
-   // 2. Real History Simulation Engine (Non-Overlapping Sequential Execution)
+   // 2. Real Simulation Engine ($10,000 Dummy Deposit)
    double equity = InpInitialDeposit;
-   double peak_equity = equity;
+   double peak_equity = InpInitialDeposit;
+   double max_dd_amount = 0.0;
    double max_dd_percent = 0.0;
+   int total = 0, wins = 0, losses = 0, buys = 0, sells = 0, expired = 0;
    double total_swap_impact = 0.0;
-   int wins = 0, losses = 0, expired = 0, total = 0, buys = 0, sells = 0;
 
-   double asiaHigh = 0.0, asiaLow = 999999.0;
-   int curAsiaDay = -1;
+   double swap_long = InpManualSwapLong;
+   double swap_short = InpManualSwapShort;
+   if(InpAutoSwap)
+   {
+      double broker_sl = MarketInfo(Symbol(), MODE_SWAPLONG);
+      double broker_ss = MarketInfo(Symbol(), MODE_SWAPSHORT);
+      if(broker_sl != 0.0 || broker_ss != 0.0)
+      {
+         swap_long = broker_sl;
+         swap_short = broker_ss;
+      }
+   }
+
+   // Track Last Signal for Chart Lines
+   datetime last_sig_time = 0;
+   double last_sig_entry = 0.0;
+   double last_sig_sl = 0.0;
+   double last_sig_tp = 0.0;
+   bool last_sig_is_buy = false;
 
    int newest_bar = InpWaitClose ? 1 : 0;
 
@@ -141,42 +175,74 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
    {
       MqlDateTime dt;
       TimeToStruct(time[i], dt);
-
       int utc_hour = (dt.hour - InpBrokerGMTOffset + 24) % 24;
 
-      if(dt.day != curAsiaDay)
-      {
-         asiaHigh = 0.0;
-         asiaLow  = 999999.0;
-         curAsiaDay = dt.day;
-      }
-      if(utc_hour < 7)
-      {
-         if(high[i] > asiaHigh) asiaHigh = high[i];
-         if(low[i] < asiaLow)   asiaLow  = low[i];
-      }
-
-      // Check London & NY Window (07:00 - 18:00 UTC)
-      if(utc_hour < InpUTCStart || utc_hour >= InpUTCEnd) continue;
+      if(utc_hour < InpUTCStart || utc_hour > InpUTCEnd)
+         continue;
 
       double curAtr = iATR(NULL, 0, InpAtrPeriod, i);
-      if(curAtr <= 0) curAtr = Point * 20.0;
+      if(curAtr <= 0.05) curAtr = MathMax(high[i] - low[i], 1.0);
 
-      double candleRng = high[i] - low[i];
-      if(candleRng <= 0) continue;
+      double vwapVal = BufVWAP[i];
+      if(vwapVal == EMPTY_VALUE || vwapVal <= 0.0) continue;
 
-      double lowerWick = MathMin(open[i], close[i]) - low[i];
+      double ema20 = iMA(NULL, 0, 20, 0, MODE_EMA, PRICE_CLOSE, i);
+      double ema50 = iMA(NULL, 0, 50, 0, MODE_EMA, PRICE_CLOSE, i);
+
+      double candleRng = MathMax(high[i] - low[i], _Point * 10);
       double upperWick = high[i] - MathMax(open[i], close[i]);
-      double vwapVal   = BufVWAP[i];
-      double ema20     = iMA(NULL, 0, 20, 0, MODE_EMA, PRICE_CLOSE, i);
-      double ema50     = iMA(NULL, 0, 50, 0, MODE_EMA, PRICE_CLOSE, i);
+      double lowerWick = MathMin(open[i], close[i]) - low[i];
+
+      // Session Asian High/Low
+      double asiaHigh = 0.0;
+      double asiaLow  = 999999.0;
+      for(int a = i + 1; a <= i + 72 && a < rates_total; a++)
+      {
+         MqlDateTime a_dt;
+         TimeToStruct(time[a], a_dt);
+         int a_utc = (a_dt.hour - InpBrokerGMTOffset + 24) % 24;
+         if(a_utc >= 0 && a_utc < 7)
+         {
+            if(high[a] > asiaHigh) asiaHigh = high[a];
+            if(low[a] < asiaLow)   asiaLow  = low[a];
+         }
+         if(a_utc >= 22) break;
+      }
 
       bool isB = false;
       bool isS = false;
-      double sl = 0.0;
-      double tp = 0.0;
+      double sl = 0.0, tp = 0.0;
 
-      // ENGINE 1: VWAP BOUNCE 2 (Proportional Mean-Reversion Target)
+      // ENGINE: PURE LONDON SWEEP TRAP (INSTITUTIONAL VWAP TRAP)
+      if(false && i < lookback - 2)
+      {
+         double vPrev  = BufVWAP[i + 1];
+         double vPrev2 = BufVWAP[i + 2];
+         if(vPrev != EMPTY_VALUE && vPrev2 != EMPTY_VALUE)
+         {
+            bool allowBuy  = (close[i] >= ema50 || ema20 >= ema50);
+            bool allowSell = (close[i] <= ema50 || ema20 <= ema50);
+
+            // Bullish Trap: Price pushed below VWAP, sweeps liquidity, reclaims VWAP
+            if(allowBuy && close[i + 2] < vPrev2 && close[i + 1] < vPrev && close[i] >= vwapVal)
+            {
+               isB = true;
+               sl = low[i] - (curAtr * 0.5);
+               double trapDist = MathMax(vwapVal - low[i], curAtr * 0.3);
+               tp = vwapVal + (trapDist * 1.5);
+            }
+            // Bearish Trap: Price pushed above VWAP, sweeps liquidity, falls back below VWAP
+            else if(allowSell && close[i + 2] > vPrev2 && close[i + 1] > vPrev && close[i] <= vwapVal)
+            {
+               isS = true;
+               sl = high[i] + (curAtr * 0.5);
+               double trapDist = MathMax(high[i] - vwapVal, curAtr * 0.3);
+               tp = vwapVal - (trapDist * 1.5);
+            }
+         }
+      }
+
+      // ENGINE 1: VWAP BOUNCE 2
       if(true)
       {
          if(low[i] <= (vwapVal * 1.0005) && close[i] >= vwapVal && (close[i] >= open[i] || lowerWick >= 0.35 * candleRng) && (close[i] >= ema50 || ema20 >= ema50))
@@ -220,7 +286,7 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
          }
       }
 
-      // ENGINE 3: LONDON SWEEP TRAP
+      // ENGINE 3: LONDON SWEEP TRAP (MULTI-PORTFOLIO VARIANT)
       if(false && !isB && !isS && asiaHigh > 0 && asiaLow < 999990.0)
       {
          if(high[i] > asiaHigh && close[i] < asiaHigh && close[i] < open[i])
@@ -286,80 +352,107 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
 
       if(!isB && !isS) continue;
 
-      if(isB) BufBuy[i]  = low[i]  - curAtr * 0.5;
-      if(isS) BufSell[i] = high[i] + curAtr * 0.5;
-
-      int entry_idx = InpWaitClose ? i - 1 : i;
-      if(entry_idx < 0) continue;
-
       total++;
       if(isB) buys++; else sells++;
 
-      double entry = open[entry_idx];
-      double risk_dist = MathAbs(entry - sl);
-      if(risk_dist <= 0) risk_dist = Point * 15.0;
+      double entry = InpWaitClose ? open[i-1] : close[i];
+      if(isB) BufBuy[i] = low[i] - (curAtr * 0.3);
+      else    BufSell[i] = high[i] + (curAtr * 0.3);
 
-      bool resolved = false, hit_tp = false, hit_sl = false;
-      int exit_idx = entry_idx;
+      // Record for Chart Lines
+      last_sig_time = time[i];
+      last_sig_entry = entry;
+      last_sig_sl = sl;
+      last_sig_tp = tp;
+      last_sig_is_buy = isB;
 
-      for(int j = entry_idx; j >= 0 && j >= entry_idx - InpMaxBars; j--)
+      // Calculate Position Sizing
+      double sl_dist = MathAbs(entry - sl);
+      if(sl_dist <= 0.0) sl_dist = curAtr;
+      double risk_amount = equity * (InpRiskPercent / 100.0);
+      double lot = (sl_dist > 0.0) ? (risk_amount / (sl_dist * 100.0)) : 0.01;
+      lot = MathMax(0.01, MathMin(10.0, NormalizeDouble(lot, 2)));
+
+      // Non-Overlapping Sequential Forward Simulation
+      int exit_idx = i - 1;
+      bool won = false;
+      bool hit = false;
+      int holding_bars = 0;
+
+      while(exit_idx >= 0 && holding_bars < InpMaxBars)
       {
-         exit_idx = j;
+         holding_bars++;
          if(isB)
          {
-            if(low[j]  <= sl) { losses++; hit_sl = true; resolved = true; break; }
-            if(high[j] >= tp) { wins++;   hit_tp = true; resolved = true; break; }
+            if(low[exit_idx] <= sl)  { won = false; hit = true; break; }
+            if(high[exit_idx] >= tp) { won = true;  hit = true; break; }
          }
          else
          {
-            if(high[j] >= sl) { losses++; hit_sl = true; resolved = true; break; }
-            if(low[j]  <= tp) { wins++;   hit_tp = true; resolved = true; break; }
+            if(high[exit_idx] >= sl) { won = false; hit = true; break; }
+            if(low[exit_idx] <= tp)  { won = true;  hit = true; break; }
          }
+         exit_idx--;
       }
 
-      if(resolved)
+      // Calculate PnL & Swaps
+      double pnl = 0.0;
+      double swap_cost = 0.0;
+      int days_held = (holding_bars * Period()) / 1440;
+      if(days_held > 0)
       {
-         double risk_usd = equity * (InpRiskPercent / 100.0);
-         double r_mult = MathAbs(tp - entry) / risk_dist;
+         double daily_swap = isB ? swap_long : swap_short;
+         swap_cost = daily_swap * lot * days_held;
+         total_swap_impact += swap_cost;
+      }
 
-         double trade_swap_cost = 0;
-         int days_held = (int)(time[exit_idx] / 86400) - (int)(time[entry_idx] / 86400);
-         if(days_held > 0 && days_held < 60)
+      if(hit)
+      {
+         if(won)
          {
-            double swap_rate = isB ? (InpAutoSwap ? MarketInfo(Symbol(), MODE_SWAPLONG) : InpManualSwapLong) :
-                                     (InpAutoSwap ? MarketInfo(Symbol(), MODE_SWAPSHORT) : InpManualSwapShort);
-            double tick_val  = MarketInfo(Symbol(), MODE_TICKVALUE);
-            double tick_sz   = MarketInfo(Symbol(), MODE_TICKSIZE);
-            if(tick_val > 0 && tick_sz > 0 && risk_dist > 0)
-            {
-               double est_lot = risk_usd / ((risk_dist / tick_sz) * tick_val);
-               trade_swap_cost = est_lot * swap_rate * days_held;
-            }
+            wins++;
+            pnl = MathAbs(tp - entry) * 100.0 * lot + swap_cost;
          }
-         total_swap_impact += trade_swap_cost;
-
-         if(hit_tp)
-            equity += (risk_usd * r_mult) + trade_swap_cost;
-         else if(hit_sl)
-            equity += (-risk_usd) + trade_swap_cost;
-
-         if(equity > peak_equity) peak_equity = equity;
-         double dd = (peak_equity > 0) ? ((peak_equity - equity) / peak_equity * 100.0) : 0;
-         if(dd > max_dd_percent) max_dd_percent = dd;
-
-         // Non-overlapping trade skip
-         i = exit_idx;
+         else
+         {
+            losses++;
+            pnl = -MathAbs(entry - sl) * 100.0 * lot + swap_cost;
+         }
       }
       else
       {
          expired++;
+         double curExit = (exit_idx >= 0) ? close[exit_idx] : close[0];
+         pnl = isB ? ((curExit - entry) * 100.0 * lot) : ((entry - curExit) * 100.0 * lot);
+         pnl += swap_cost;
+         if(pnl > 0.0) wins++; else losses++;
       }
+
+      equity += pnl;
+      if(equity > peak_equity) peak_equity = equity;
+      double cur_dd = peak_equity - equity;
+      if(cur_dd > max_dd_amount)
+      {
+         max_dd_amount = cur_dd;
+         max_dd_percent = (peak_equity > 0.0) ? ((max_dd_amount / peak_equity) * 100.0) : 0.0;
+      }
+
+      // Advance loop index to exit_idx to prevent trade overlap spam
+      if(exit_idx < i)
+         i = exit_idx + 1; // Loop decrement will make it exit_idx
    }
 
    int closed = wins + losses;
    double wr = (closed > 0) ? (100.0 * wins / closed) : 0.0;
    double growth_pct = ((equity - InpInitialDeposit) / InpInitialDeposit) * 100.0;
 
+   // 3. Draw Chart Lines for Active/Latest Signal
+   if(InpDrawTradeLines && last_sig_time > 0)
+   {
+      DrawTradeLines(last_sig_time, last_sig_entry, last_sig_sl, last_sig_tp, last_sig_is_buy);
+   }
+
+   // 4. Update Dashboard HUD
    if(InpShowPanel)
    {
       string s = "";
@@ -380,12 +473,89 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
       s += StringFormat("Net Growth      : %+.2f%%\n", growth_pct);
       s += StringFormat("Max Drawdown    : %.2f%%\n", max_dd_percent);
       s += "-----------------------------------------\n";
+      if(last_sig_time > 0)
+      {
+         s += StringFormat("Sinyal Terakhir : [%s] @ %.2f\n", last_sig_is_buy ? "BUY" : "SELL", last_sig_entry);
+         s += StringFormat("Target TP/SL    : TP %.2f | SL %.2f\n", last_sig_tp, last_sig_sl);
+         s += "Status Garis    : [ON] Tergambar di Chart\n";
+      }
+      else
+      {
+         s += "Sinyal Terakhir : Menunggu Setup...\n";
+      }
+      s += "-----------------------------------------\n";
       s += InpWaitClose ? "Mode: Sinyal Terkonfirmasi (Non-Repaint)" : "Mode: Sinyal Berjalan";
 
       ShowPanel(s);
    }
 
    return rates_total;
+}
+
+void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_buy)
+{
+   datetime t_end = Time[0] + Period() * 60 * InpLineExtendBars;
+
+   string nameEntry = PFX + "Line_Entry";
+   string nameSL    = PFX + "Line_SL";
+   string nameTP    = PFX + "Line_TP";
+   string lblEntry  = PFX + "Lbl_Entry";
+   string lblSL     = PFX + "Lbl_SL";
+   string lblTP     = PFX + "Lbl_TP";
+
+   // High visibility colors for white background
+   color colEntry = C'0,90,210';   // Deep Dodger Blue
+   color colSL    = C'220,30,40';  // Crimson Red
+   color colTP    = C'0,140,50';   // Dark Emerald Green
+
+   DrawOneTrendLine(nameEntry, t_sig, entry, t_end, entry, colEntry, STYLE_SOLID, 2);
+   DrawOneText(lblEntry, t_end, entry, StringFormat("[%s ENTRY] %.2f", STRAT_TAG, entry), colEntry);
+
+   DrawOneTrendLine(nameSL, t_sig, sl, t_end, sl, colSL, STYLE_DASH, 2);
+   DrawOneText(lblSL, t_end, sl, StringFormat("[%s SL] %.2f", STRAT_TAG, sl), colSL);
+
+   DrawOneTrendLine(nameTP, t_sig, tp, t_end, tp, colTP, STYLE_DASH, 2);
+   DrawOneText(lblTP, t_end, tp, StringFormat("[%s TP] %.2f", STRAT_TAG, tp), colTP);
+}
+
+void DrawOneTrendLine(string name, datetime t1, double p1, datetime t2, double p2, color clr, int style, int width)
+{
+   if(ObjectFind(0, name) < 0)
+   {
+      ObjectCreate(0, name, OBJ_TREND, 0, t1, p1, t2, p2);
+      ObjectSetInteger(0, name, OBJPROP_RAY_RIGHT, false);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, name, OBJPROP_BACK, false);
+   }
+   else
+   {
+      ObjectSet(name, OBJPROP_TIME1, t1);
+      ObjectSet(name, OBJPROP_PRICE1, p1);
+      ObjectSet(name, OBJPROP_TIME2, t2);
+      ObjectSet(name, OBJPROP_PRICE2, p2);
+   }
+   ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
+   ObjectSetInteger(0, name, OBJPROP_STYLE, style);
+   ObjectSetInteger(0, name, OBJPROP_WIDTH, width);
+}
+
+void DrawOneText(string name, datetime t, double p, string txt, color clr)
+{
+   if(ObjectFind(0, name) < 0)
+   {
+      ObjectCreate(0, name, OBJ_TEXT, 0, t, p);
+      ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, name, OBJPROP_BACK, false);
+   }
+   else
+   {
+      ObjectSet(name, OBJPROP_TIME1, t);
+      ObjectSet(name, OBJPROP_PRICE1, p);
+   }
+   ObjectSetString(0, name, OBJPROP_TEXT, txt);
+   ObjectSetString(0, name, OBJPROP_FONT, "Segoe UI Bold");
+   ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 9);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
 }
 
 void ShowPanel(string text)
@@ -395,7 +565,7 @@ void ShowPanel(string text)
    if(InpTheme == THEME_DARK) {
       bgCol = C'20,24,35'; textCol = clrWhite; borderCol = clrDeepSkyBlue;
    } else {
-      bgCol = clrWhiteSmoke; textCol = clrBlack; borderCol = clrDimGray;
+      bgCol = clrWhiteSmoke; textCol = clrBlack; borderCol = C'70,80,95';
    }
 
    string sep = "\n"; ushort u_sep = StringGetCharacter(sep, 0);
@@ -407,7 +577,7 @@ void ShowPanel(string text)
       ObjectSetInteger(0, bgName, OBJPROP_CORNER, CORNER_LEFT_UPPER);
       ObjectSetInteger(0, bgName, OBJPROP_XDISTANCE, InpPanelX - 5);
       ObjectSetInteger(0, bgName, OBJPROP_YDISTANCE, InpPanelY - 5);
-      ObjectSetInteger(0, bgName, OBJPROP_XSIZE, 370);
+      ObjectSetInteger(0, bgName, OBJPROP_XSIZE, 350);
       ObjectSetInteger(0, bgName, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, bgName, OBJPROP_BACK, false);
    }
@@ -427,14 +597,13 @@ void ShowPanel(string text)
          ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       }
       ObjectSetInteger(0, name, OBJPROP_YDISTANCE, InpPanelY + (i * 15));
-      ObjectSetInteger(0, name, OBJPROP_COLOR, (i == 1) ? clrGold : ((i >= 7 && i <= 9) ? clrLimeGreen : textCol));
+      color lineCol = textCol;
+      if(InpTheme == THEME_DARK) {
+         lineCol = (i == 1) ? clrGold : ((i >= 7 && i <= 9) ? clrLimeGreen : textCol);
+      } else {
+         lineCol = (i == 1) ? C'0,90,190' : ((i >= 7 && i <= 9) ? C'0,130,50' : textCol);
+      }
+      ObjectSetInteger(0, name, OBJPROP_COLOR, lineCol);
       ObjectSetString(0, name, OBJPROP_TEXT, lines[i]);
    }
-
-   int clear_idx = count;
-   while(ObjectFind(0, PFX + "Line_" + IntegerToString(clear_idx)) >= 0) {
-      ObjectDelete(0, PFX + "Line_" + IntegerToString(clear_idx));
-      clear_idx++;
-   }
 }
-//+------------------------------------------------------------------+
