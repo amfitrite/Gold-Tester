@@ -101,6 +101,10 @@ ipcMain.handle('open-file-external', async (event, filePath) => {
 
 // IPC: Get default directory
 ipcMain.handle('get-default-directory', () => {
+  const csvSubDir = 'D:\\CSV\\csv';
+  if (fs.existsSync(csvSubDir)) {
+    return csvSubDir;
+  }
   const defaultDir = 'D:\\CSV';
   if (fs.existsSync(defaultDir)) {
     return defaultDir;
@@ -110,29 +114,38 @@ ipcMain.handle('get-default-directory', () => {
 
 // IPC: Scan for CSV files in directory
 ipcMain.handle('get-csv-files', async (event, dirPath) => {
-  const targetDir = dirPath || 'D:\\CSV';
-  if (!fs.existsSync(targetDir)) {
-    return [];
+  let targetDir = dirPath || 'D:\\CSV\\csv';
+  if (!fs.existsSync(targetDir) && fs.existsSync('D:\\CSV')) {
+    targetDir = 'D:\\CSV';
   }
-  try {
-    const files = fs.readdirSync(targetDir);
-    const csvFiles = files
-      .filter(f => f.toLowerCase().endsWith('.csv'))
-      .map(f => {
-        const full = path.join(targetDir, f);
+  const dirsToScan = [targetDir];
+  const subCsv = path.join(targetDir, 'csv');
+  if (fs.existsSync(subCsv) && !dirsToScan.includes(subCsv)) {
+    dirsToScan.push(subCsv);
+  }
+
+  const results = [];
+  const seenPaths = new Set();
+  for (const d of dirsToScan) {
+    if (!fs.existsSync(d)) continue;
+    try {
+      const files = fs.readdirSync(d);
+      for (const f of files) {
+        if (!f.toLowerCase().endsWith('.csv')) continue;
+        const full = path.join(d, f);
+        if (seenPaths.has(full)) continue;
+        seenPaths.add(full);
         const stats = fs.statSync(full);
-        return {
+        results.push({
           name: f,
           path: full,
           sizeKb: Math.round(stats.size / 1024),
           modified: stats.mtime
-        };
-      })
-      .sort((a, b) => b.modified - a.modified);
-    return csvFiles;
-  } catch (err) {
-    return [];
+        });
+      }
+    } catch (err) {}
   }
+  return results.sort((a, b) => b.modified - a.modified);
 });
 
 // IPC: Get Strategy List from Python
