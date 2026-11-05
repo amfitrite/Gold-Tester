@@ -71,15 +71,15 @@ int OnInit()
    SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 2, clrGold);
    SetIndexLabel(0, "Session VWAP");
 
-   // Buffer 1: Panah Buy
+   // Buffer 1: Panah Buy (Tebal & Jelas)
    SetIndexBuffer(1, BufferBuy);
-   SetIndexStyle(1, DRAW_ARROW, STYLE_SOLID, 2, clrLimeGreen);
+   SetIndexStyle(1, DRAW_ARROW, STYLE_SOLID, 3, clrLimeGreen);
    SetIndexArrow(1, 233);
    SetIndexLabel(1, "London Trap Buy");
 
-   // Buffer 2: Panah Sell
+   // Buffer 2: Panah Sell (Tebal & Jelas)
    SetIndexBuffer(2, BufferSell);
-   SetIndexStyle(2, DRAW_ARROW, STYLE_SOLID, 2, clrCrimson);
+   SetIndexStyle(2, DRAW_ARROW, STYLE_SOLID, 3, clrCrimson);
    SetIndexArrow(2, 234);
    SetIndexLabel(2, "London Trap Sell");
 
@@ -120,8 +120,16 @@ int OnCalculate(const int rates_total,
 {
    if(Bars < 10) return(0);
 
-   int limit = Bars - IndicatorCounted() - 1;
-   if(limit > Bars - 5) limit = Bars - 5;
+   int counted = IndicatorCounted();
+   if(counted < 0) return(-1);
+   if(counted > 0) counted--;
+   int limit = Bars - counted;
+   if(limit > Bars - 5)
+   {
+      limit = Bars - 5;
+      ArrayInitialize(BufferBuy,  EMPTY_VALUE);
+      ArrayInitialize(BufferSell, EMPTY_VALUE);
+   }
 
    double slVal = 0.0;
    double risk = 0.0;
@@ -129,7 +137,6 @@ int OnCalculate(const int rates_total,
    string msg = "";
 
    // 1. Hitung Akumulasi Session VWAP Presisi (Reset 00:00 Harian)
-   // Menghindari drift pada live tick dengan mencari awal hari bar berjalan
    int startBar = MathMin(Bars - 1, limit + 350);
    while(startBar < Bars - 1 && TimeDay(Time[startBar]) == TimeDay(Time[startBar + 1]))
       startBar++;
@@ -153,18 +160,12 @@ int OnCalculate(const int rates_total,
       runningVol += barVol;
 
       BufferVWAP[k] = (runningVol > 0.0) ? (runningPV / runningVol) : barPrice;
-      if(k > 2)
-      {
-         BufferBuy[k]  = EMPTY_VALUE;
-         BufferSell[k] = EMPTY_VALUE;
-      }
    }
 
-   // 2. Deteksi Trap Sinyal London / NY
+   // 2. Deteksi Trap Sinyal London / NY (Maju dari lampau ke bar terbaru)
    bool inSessionNow = false;
-   int checkLimit = (limit > 2) ? limit : 2;
 
-   for(int i = checkLimit; i >= 0; i--)
+   for(int i = limit; i >= 0; i--)
    {
       BufferBuy[i]  = EMPTY_VALUE;
       BufferSell[i] = EMPTY_VALUE;
@@ -196,13 +197,13 @@ int OnCalculate(const int rates_total,
          allowSell = (fastEma <= slowEma);
       }
 
-      // Bullish Trap (Long / BUY):
-      // Lilin sebelumnya berada di bawah VWAP, lilin saat ini merebut & close di atas VWAP
+      // Bullish Trap (Long / BUY)
       if(allowBuy && Close[i + 2] < vPrev2 && Close[i + 1] < v && Close[i] >= v)
       {
-         BufferBuy[i] = Low[i] - (atr * 0.3);
+         double offset = MathMax(atr * 0.4, 20 * _Point);
+         BufferBuy[i] = Low[i] - offset;
 
-         // Kalkulasi SL & TP Matematika Benar Sesuai Rasio Risk:Reward
+         // Kalkulasi SL & TP Presisi Sesuai RR 1:2
          slVal = Low[i] - (atr * InpAtrStopBuffer);
          risk  = Close[i] - slVal;
          if(risk < _Point * 10) risk = _Point * 10;
@@ -228,13 +229,13 @@ int OnCalculate(const int rates_total,
          }
       }
 
-      // Bearish Trap (Short / SELL):
-      // Lilin sebelumnya berada di atas VWAP, lilin saat ini terjebak & close di bawah VWAP
+      // Bearish Trap (Short / SELL)
       if(allowSell && Close[i + 2] > vPrev2 && Close[i + 1] > v && Close[i] <= v)
       {
-         BufferSell[i] = High[i] + (atr * 0.3);
+         double offset = MathMax(atr * 0.4, 20 * _Point);
+         BufferSell[i] = High[i] + offset;
 
-         // Kalkulasi SL & TP Matematika Benar Sesuai Rasio Risk:Reward
+         // Kalkulasi SL & TP Presisi Sesuai RR 1:2
          slVal = High[i] + (atr * InpAtrStopBuffer);
          risk  = slVal - Close[i];
          if(risk < _Point * 10) risk = _Point * 10;
