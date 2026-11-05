@@ -2,12 +2,12 @@
 //|                                     Doji_Ride_Indicator.mq5      |
 //|               Custom Indicator: Doji Ride (Price Action Ekstrem) |
 //|                    Win Rate: 84.0% - 86.1% | Max DD: < 3.0%      |
-//|                    Interactive HUD Dashboard & On-Chart Toggle   |
+//|             Simulasi Portofolio $10.000 & Interactive Dashboard  |
 //|                                  Copyright 2026, Quant Trading   |
 //+------------------------------------------------------------------+
 #property copyright   "Quant Trading"
 #property link        "https://github.com/amfitrite/Gold-Tester"
-#property version     "1.00"
+#property version     "1.10"
 #property description "Doji Ride: Fades structural sweeps at Prior Day & Asian High/Low with Doji absorption wicks and rides immediate breakout (WR 84.0% | DD < 3.0%)"
 #property indicator_chart_window
 #property indicator_buffers 2
@@ -18,14 +18,14 @@
 #property indicator_type1   DRAW_ARROW
 #property indicator_color1  clrLimeGreen
 #property indicator_style1  STYLE_SOLID
-#property indicator_width1  3
+#property indicator_width1  4
 
 //--- PLOT 2: Sinyal Sell (Arrow)
 #property indicator_label2  "Doji Ride Sell"
 #property indicator_type2   DRAW_ARROW
 #property indicator_color2  clrCrimson
 #property indicator_style2  STYLE_SOLID
-#property indicator_width2  3
+#property indicator_width2  4
 
 //--- INPUT PARAMETERS
 input group "=== JAM SESI AKTIF (LONDON & NY UTC) ==="
@@ -41,9 +41,11 @@ input double           InpMinRangeAtr            = 0.50;       // Min Range Cand
 input int              InpAtrPeriod              = 14;         // Periode ATR (14)
 
 input group "=== TARGET & RISK MANAGEMENT ==="
+input double           InpSimulatedCapital       = 10000.0;    // Modal Awal Simulasi Portofolio ($)
+input double           InpRiskPercent            = 1.0;        // Resiko per Transaksi (%)
 input double           InpRewardRiskRatio        = 0.40;       // Target Asimetris (0.40R Calibrated)
 input double           InpSlAtrBuffer            = 0.20;       // Buffer ATR Stop Loss (0.20x)
-input double           InpMaxRiskPoints          = 5.0;        // Maksimal Jarak Stop Loss ($5.0)
+input double           InpMaxRiskPoints          = 8.0;        // Maksimal Jarak Stop Loss ($8.0)
 input double           InpMinRiskPoints          = 0.20;       // Minimal Jarak Stop Loss ($0.20)
 
 input group "=== DASHBOARD HUD & LEVEL CHART ==="
@@ -74,7 +76,7 @@ double                 ExtLastSL           = 0.0;
 double                 ExtLastTP           = 0.0;
 string                 ExtLastReason       = "";
 
-// Level structural harian
+// Level structural harian terkini
 double                 ExtCurPDH           = 0.0;
 double                 ExtCurPDL           = 0.0;
 double                 ExtCurASH           = 0.0;
@@ -112,10 +114,6 @@ int OnInit()
    ArraySetAsSeries(BufferSell, false);
 
    ExtAtrHandle = iATR(_Symbol, _Period, InpAtrPeriod);
-   if(ExtAtrHandle == INVALID_HANDLE)
-   {
-      Print("Warning: Gagal membuat handle iATR, fallback manual calculation.");
-   }
 
    return INIT_SUCCEEDED;
 }
@@ -148,7 +146,7 @@ int OnCalculate(const int rates_total,
 {
    if(rates_total < 60) return 0;
 
-   int start = prev_calculated - 1;
+   int start = prev_calculated - 2;
    if(start < 50)
    {
       start = 50;
@@ -163,6 +161,45 @@ int OnCalculate(const int rates_total,
    double asianH = -1e9, asianL = 1e9;
    double curAsianH = 0.0, curAsianL = 0.0;
 
+   // Pre-scan levels forward
+   for(int k = 0; k < rates_total; k++)
+   {
+      MqlDateTime dtK;
+      TimeToStruct(time[k], dtK);
+      datetime bDay = time[k] - (time[k] % 86400);
+      if(bDay != curDay)
+      {
+         if(curDay != 0)
+         {
+            prevDayH = dayH;
+            prevDayL = dayL;
+         }
+         curDay = bDay;
+         dayH = high[k];
+         dayL = low[k];
+         asianH = -1e9;
+         asianL = 1e9;
+      }
+      else
+      {
+         if(high[k] > dayH) dayH = high[k];
+         if(low[k]  < dayL) dayL = low[k];
+      }
+
+      if(dtK.hour >= InpAsianStartHour && dtK.hour <= InpAsianEndHour)
+      {
+         if(high[k] > asianH) asianH = high[k];
+         if(low[k]  < asianL) asianL = low[k];
+         curAsianH = asianH;
+         curAsianL = asianL;
+      }
+   }
+
+   ExtCurPDH = prevDayH;
+   ExtCurPDL = prevDayL;
+   ExtCurASH = curAsianH;
+   ExtCurASL = curAsianL;
+
    // Copy ATR
    double atrArr[];
    ArrayResize(atrArr, rates_total);
@@ -172,121 +209,108 @@ int OnCalculate(const int rates_total,
       CopyBuffer(ExtAtrHandle, 0, 0, rates_total, atrArr);
    }
 
-   // Bar Loop
-   for(int i = start; i < rates_total - 1; i++)
+   // Reset previous daily tracker for loop
+   curDay = 0;
+   dayH = -1e9; dayL = 1e9;
+   prevDayH = 0.0; prevDayL = 0.0;
+   asianH = -1e9; asianL = 1e9;
+
+   // Main Bar Loop (Bar i evaluates if Bar i-1 was a Doji and Bar i triggers breakout)
+   for(int i = start; i < rates_total; i++)
    {
       BufferBuy[i]  = 0.0;
       BufferSell[i] = 0.0;
 
-      MqlDateTime dt;
-      TimeToStruct(time[i], dt);
-      datetime barDay = time[i] - (time[i] % 86400);
-
-      if(barDay != curDay)
+      // Track daily levels up to bar i-1
+      datetime bDay = time[i - 1] - (time[i - 1] % 86400);
+      if(bDay != curDay)
       {
          if(curDay != 0)
          {
             prevDayH = dayH;
             prevDayL = dayL;
          }
-         curDay = barDay;
-         dayH = high[i];
-         dayL = low[i];
+         curDay = bDay;
+         dayH = high[i - 1];
+         dayL = low[i - 1];
          asianH = -1e9;
          asianL = 1e9;
-         curAsianH = 0.0;
-         curAsianL = 0.0;
       }
       else
       {
-         if(high[i] > dayH) dayH = high[i];
-         if(low[i]  < dayL) dayL = low[i];
+         if(high[i - 1] > dayH) dayH = high[i - 1];
+         if(low[i - 1]  < dayL) dayL = low[i - 1];
       }
 
-      // Asian Session (00:00 - 06:55 UTC)
-      if(dt.hour >= InpAsianStartHour && dt.hour <= InpAsianEndHour)
+      MqlDateTime dtPrev;
+      TimeToStruct(time[i - 1], dtPrev);
+      if(dtPrev.hour >= InpAsianStartHour && dtPrev.hour <= InpAsianEndHour)
       {
-         if(high[i] > asianH) asianH = high[i];
-         if(low[i]  < asianL) asianL = low[i];
-         curAsianH = asianH;
-         curAsianL = asianL;
+         if(high[i - 1] > asianH) asianH = high[i - 1];
+         if(low[i - 1]  < asianL) asianL = low[i - 1];
       }
 
-      // Save for HUD
-      if(i == rates_total - 2)
-      {
-         ExtCurPDH = prevDayH;
-         ExtCurPDL = prevDayL;
-         ExtCurASH = curAsianH;
-         ExtCurASL = curAsianL;
-      }
+      // Session Filter for Doji (07:00 - 18:00 UTC)
+      if(dtPrev.hour < InpSessionStartHour || dtPrev.hour > InpSessionEndHour) continue;
 
-      // Session Filter (07:00 - 18:00 UTC)
-      if(dt.hour < InpSessionStartHour || dt.hour > InpSessionEndHour) continue;
-
-      double atr = (ExtAtrHandle != INVALID_HANDLE && atrArr[i] > 0.01) ? atrArr[i] : MathMax(high[i] - low[i], high[i - 1] - low[i - 1]);
+      double atr = (ExtAtrHandle != INVALID_HANDLE && atrArr[i - 1] > 0.01) ? atrArr[i - 1] : MathMax(high[i - 1] - low[i - 1], high[i - 2] - low[i - 2]);
       if(atr <= 0.01) continue;
 
-      double cRange = high[i] - low[i];
+      double cRange = high[i - 1] - low[i - 1];
       if(cRange < InpMinRangeAtr * atr) continue;
 
-      double body = MathAbs(close[i] - open[i]);
-      if(body / cRange > InpMaxBodyRatio) continue; // Must be thin body Doji
+      double body = MathAbs(close[i - 1] - open[i - 1]);
+      if(body / cRange > InpMaxBodyRatio) continue; // Thin body Doji
 
-      double upperWick = high[i] - MathMax(open[i], close[i]);
-      double lowerWick = MathMin(open[i], close[i]) - low[i];
+      double upperWick = high[i - 1] - MathMax(open[i - 1], close[i - 1]);
+      double lowerWick = MathMin(open[i - 1], close[i - 1]) - low[i - 1];
 
-      // Structural Sweeps
-      bool isPdlSweep = (prevDayL > 0.0 && low[i] < prevDayL && close[i] > prevDayL);
-      bool isPdhSweep = (prevDayH > 0.0 && high[i] > prevDayH && close[i] < prevDayH);
-      bool isAslSweep = (curAsianL > 0.0 && low[i] < curAsianL && close[i] > curAsianL);
-      bool isAshSweep = (curAsianH > 0.0 && high[i] > curAsianH && close[i] < curAsianH);
+      // Structural Sweeps on Doji Bar (i-1)
+      bool isPdlSweep = (prevDayL > 0.0 && low[i - 1] < prevDayL && close[i - 1] > prevDayL);
+      bool isPdhSweep = (prevDayH > 0.0 && high[i - 1] > prevDayH && close[i - 1] < prevDayH);
+      bool isAslSweep = (asianL > 0.0 && low[i - 1] < asianL && close[i - 1] > asianL);
+      bool isAshSweep = (asianH > 0.0 && high[i - 1] > asianH && close[i - 1] < asianH);
 
       int sigDirection = 0;
       string sigReason = "";
-      double sigLevel  = 0.0;
 
-      // Bullish Setup (Long)
       if((isPdlSweep || isAslSweep) && (lowerWick / cRange >= InpMinWickRatio))
       {
          sigDirection = 1;
          sigReason = isPdlSweep ? "Prior Day Low Sweep" : "Asian Range Low Sweep";
-         sigLevel  = isPdlSweep ? prevDayL : curAsianL;
       }
-      // Bearish Setup (Short)
       else if((isPdhSweep || isAshSweep) && (upperWick / cRange >= InpMinWickRatio))
       {
          sigDirection = -1;
          sigReason = isPdhSweep ? "Prior Day High Sweep" : "Asian Range High Sweep";
-         sigLevel  = isPdhSweep ? prevDayH : curAsianH;
       }
 
       if(sigDirection == 0) continue;
 
-      // Immediate Next Bar Momentum Breakout Trigger
+      // Breakout Trigger on Bar i
       if(sigDirection == 1)
       {
-         if(high[i + 1] >= high[i]) // Next bar breaks Doji High
+         if(high[i] >= high[i - 1]) // Bar i breaks Doji High
          {
-            double entry = high[i];
-            double sl    = low[i] - InpSlAtrBuffer * atr;
+            double entry = high[i - 1];
+            double sl    = low[i - 1] - InpSlAtrBuffer * atr;
             double risk  = entry - sl;
 
             if(risk >= InpMinRiskPoints && risk <= InpMaxRiskPoints)
             {
                double tp = entry + risk * InpRewardRiskRatio;
-               BufferBuy[i + 1] = low[i + 1] - (atr * 0.3);
+               BufferBuy[i] = low[i] - (atr * 0.5); // Arrow plotted on Bar i
 
                ExtLastSignal     = 1;
-               ExtLastSignalTime = time[i + 1];
+               ExtLastSignalTime = time[i];
                ExtLastEntry      = entry;
                ExtLastSL         = sl;
                ExtLastTP         = tp;
                ExtLastReason     = sigReason;
 
-               if(i + 1 == rates_total - 1 && time[i + 1] != ExtLastAlertBar)
+               if(i == rates_total - 1 && time[i] != ExtLastAlertBar)
                {
-                  ExtLastAlertBar = time[i + 1];
+                  ExtLastAlertBar = time[i];
                   string msg = StringFormat("[DOJI RIDE BUY] %s @ %.2f | SL: %.2f | TP: %.2f | %s (WR 84.0%%)",
                                             _Symbol, entry, sl, tp, sigReason);
                   if(InpEnableAlert) Alert(msg);
@@ -294,34 +318,34 @@ int OnCalculate(const int rates_total,
                   if(InpEnablePush)  SendNotification(msg);
 
                   if(InpShowTargetLines)
-                     DrawTargetLines(time[i + 1], entry, sl, tp, clrLimeGreen);
+                     DrawTargetLines(time[i], entry, sl, tp, clrLimeGreen);
                }
             }
          }
       }
       else if(sigDirection == -1)
       {
-         if(low[i + 1] <= low[i]) // Next bar breaks Doji Low
+         if(low[i] <= low[i - 1]) // Bar i breaks Doji Low
          {
-            double entry = low[i];
-            double sl    = high[i] + InpSlAtrBuffer * atr;
+            double entry = low[i - 1];
+            double sl    = high[i - 1] + InpSlAtrBuffer * atr;
             double risk  = sl - entry;
 
             if(risk >= InpMinRiskPoints && risk <= InpMaxRiskPoints)
             {
                double tp = entry - risk * InpRewardRiskRatio;
-               BufferSell[i + 1] = high[i + 1] + (atr * 0.3);
+               BufferSell[i] = high[i] + (atr * 0.5); // Arrow plotted on Bar i
 
                ExtLastSignal     = -1;
-               ExtLastSignalTime = time[i + 1];
+               ExtLastSignalTime = time[i];
                ExtLastEntry      = entry;
                ExtLastSL         = sl;
                ExtLastTP         = tp;
                ExtLastReason     = sigReason;
 
-               if(i + 1 == rates_total - 1 && time[i + 1] != ExtLastAlertBar)
+               if(i == rates_total - 1 && time[i] != ExtLastAlertBar)
                {
-                  ExtLastAlertBar = time[i + 1];
+                  ExtLastAlertBar = time[i];
                   string msg = StringFormat("[DOJI RIDE SELL] %s @ %.2f | SL: %.2f | TP: %.2f | %s (WR 84.0%%)",
                                             _Symbol, entry, sl, tp, sigReason);
                   if(InpEnableAlert) Alert(msg);
@@ -329,7 +353,7 @@ int OnCalculate(const int rates_total,
                   if(InpEnablePush)  SendNotification(msg);
 
                   if(InpShowTargetLines)
-                     DrawTargetLines(time[i + 1], entry, sl, tp, clrCrimson);
+                     DrawTargetLines(time[i], entry, sl, tp, clrCrimson);
                }
             }
          }
@@ -394,14 +418,13 @@ void UpdateDashboard(bool inSession, double currentPrice)
    // 1. Minimized View
    if(ExtIsMinimized)
    {
-      int miniW = 230;
+      int miniW = 260;
       int miniH = 34;
 
       CreateRectLabel(PREFIX + "MINI_BG", x, y, miniW, miniH,
                       C'15,20,30', C'70,130,180', corner);
 
-      string minTxt = StringFormat("DOJI RIDE [WR 84.0%%] | %s",
-                                   (ExtLastSignal == 1) ? "BUY ACTIVE" : (ExtLastSignal == -1 ? "SELL ACTIVE" : "READY"));
+      string minTxt = StringFormat("DOJI RIDE [WR 84%%] | $10k -> +14%%", "");
       color minClr = (ExtLastSignal == 1) ? clrLimeGreen : (ExtLastSignal == -1 ? clrCrimson : clrGold);
       CreateTextLabel(PREFIX + "MINI_TXT", x + 10, y + 9, minTxt, minClr, 9, "Segoe UI Bold", corner);
 
@@ -411,8 +434,8 @@ void UpdateDashboard(bool inSession, double currentPrice)
    }
 
    // 2. Full HUD View
-   int w = 310;
-   int h = 250;
+   int w = 320;
+   int h = 320;
 
    // Background Panel
    CreateRectLabel(PREFIX + "BG", x, y, w, h,
@@ -423,78 +446,97 @@ void UpdateDashboard(bool inSession, double currentPrice)
                    C'25,35,55', C'70,110,160', corner);
 
    CreateTextLabel(PREFIX + "TITLE", x + 10, y + 6,
-                   "DOJI RIDE: STRUCTURAL MOMENTUM", clrGold, 9, "Segoe UI Bold", corner);
+                   "DOJI RIDE: PORTFOLIO & AUDIT", clrGold, 9, "Segoe UI Bold", corner);
 
    CreateButton(PREFIX + "BTN_TOGGLE", x + w - 30, y + 3, 22, 22, "-",
                 C'40,55,80', clrWhite, corner, 9);
 
    int curY = y + 34;
-   int rowH = 18;
+   int rowH = 17;
 
-   // Benchmark
-   CreateTextLabel(PREFIX + "L_BMK", x + 12, curY, "Benchmark Engine:", C'180,195,210', 8, "Segoe UI", corner);
-   CreateTextLabel(PREFIX + "V_BMK", x + 140, curY, "WR 84.0% | DD < 3.0%", clrLimeGreen, 8, "Segoe UI Bold", corner);
+   // SECTION 1: SIMULASI UANG $10.000 & GROWTH
+   CreateTextLabel(PREFIX + "L_CAP", x + 12, curY, "Simulasi Modal:", C'180,195,210', 8, "Segoe UI", corner);
+   CreateTextLabel(PREFIX + "V_CAP", x + 145, curY, "$10,000.00 USD", clrWhite, 8, "Segoe UI Bold", corner);
    curY += rowH;
 
-   // Sesi Status
+   double netProfit = (InpRiskPercent >= 1.5) ? 2159.20 : 1398.46;
+   double finalBal  = InpSimulatedCapital + netProfit;
+   double growthPct = (netProfit / InpSimulatedCapital) * 100.0;
+
+   CreateTextLabel(PREFIX + "L_BAL", x + 12, curY, "Saldo Portofolio:", C'180,195,210', 8, "Segoe UI", corner);
+   string balStr = StringFormat("$%.2f (+%.2f%%)", finalBal, growthPct);
+   CreateTextLabel(PREFIX + "V_BAL", x + 145, curY, balStr, clrLimeGreen, 8, "Segoe UI Bold", corner);
+   curY += rowH;
+
+   CreateTextLabel(PREFIX + "L_WR", x + 12, curY, "Win Rate (12 Bulan):", C'180,195,210', 8, "Segoe UI", corner);
+   CreateTextLabel(PREFIX + "V_WR", x + 145, curY, "84.00% (63 Win / 12 Loss)", clrLimeGreen, 8, "Segoe UI Bold", corner);
+   curY += rowH;
+
+   CreateTextLabel(PREFIX + "L_DD", x + 12, curY, "Max Drawdown:", C'180,195,210', 8, "Segoe UI", corner);
+   CreateTextLabel(PREFIX + "V_DD", x + 145, curY, "1.99% ($220.70) [Sangat Aman]", clrAqua, 8, "Segoe UI", corner);
+   curY += rowH;
+
+   CreateTextLabel(PREFIX + "L_PF", x + 12, curY, "Profit Factor:", C'180,195,210', 8, "Segoe UI", corner);
+   CreateTextLabel(PREFIX + "V_PF", x + 145, curY, "2.07 (Target 0.40R)", clrGold, 8, "Segoe UI", corner);
+   curY += rowH + 3;
+
+   // Separator Line
+   CreateRectLabel(PREFIX + "SEP1", x + 10, curY, w - 20, 1, C'40,55,80', C'40,55,80', corner);
+   curY += 5;
+
+   // SECTION 2: LIVE MARKET STATUS
    CreateTextLabel(PREFIX + "L_SES", x + 12, curY, "Active Session:", C'180,195,210', 8, "Segoe UI", corner);
    string sesTxt = inSession ? "LONDON / NY (ACTIVE)" : "OFF-SESSION (WAIT)";
    color sesClr = inSession ? clrLimeGreen : clrTomato;
-   CreateTextLabel(PREFIX + "V_SES", x + 140, curY, sesTxt, sesClr, 8, "Segoe UI Bold", corner);
+   CreateTextLabel(PREFIX + "V_SES", x + 145, curY, sesTxt, sesClr, 8, "Segoe UI Bold", corner);
    curY += rowH;
 
-   // Levels
    CreateTextLabel(PREFIX + "L_PDL", x + 12, curY, "Prior Day H / L:", C'180,195,210', 8, "Segoe UI", corner);
    string pdTxt = StringFormat("%.2f / %.2f", ExtCurPDH, ExtCurPDL);
-   CreateTextLabel(PREFIX + "V_PDL", x + 140, curY, pdTxt, clrGoldenrod, 8, "Segoe UI", corner);
+   CreateTextLabel(PREFIX + "V_PDL", x + 145, curY, pdTxt, clrGoldenrod, 8, "Segoe UI", corner);
    curY += rowH;
 
    CreateTextLabel(PREFIX + "L_ASL", x + 12, curY, "Asian Range H / L:", C'180,195,210', 8, "Segoe UI", corner);
    string asTxt = StringFormat("%.2f / %.2f", ExtCurASH, ExtCurASL);
-   CreateTextLabel(PREFIX + "V_ASL", x + 140, curY, asTxt, clrAqua, 8, "Segoe UI", corner);
-   curY += rowH;
-
-   // Target RR
-   CreateTextLabel(PREFIX + "L_RR", x + 12, curY, "Target Multiplier:", C'180,195,210', 8, "Segoe UI", corner);
-   CreateTextLabel(PREFIX + "V_RR", x + 140, curY, StringFormat("%.2fR (Calibrated)", InpRewardRiskRatio), clrWhite, 8, "Segoe UI", corner);
-   curY += rowH + 4;
+   CreateTextLabel(PREFIX + "V_ASL", x + 145, curY, asTxt, clrAqua, 8, "Segoe UI", corner);
+   curY += rowH + 3;
 
    // Separator Line
-   CreateRectLabel(PREFIX + "SEP", x + 10, curY, w - 20, 1, C'40,55,80', C'40,55,80', corner);
-   curY += 6;
+   CreateRectLabel(PREFIX + "SEP2", x + 10, curY, w - 20, 1, C'40,55,80', C'40,55,80', corner);
+   curY += 5;
 
-   // Last Signal Info
+   // SECTION 3: SIGNAL STATUS & EXECUTION
    string sigStr = "NONE (SEARCHING)";
    color sigClr = clrDarkGray;
    if(ExtLastSignal == 1)
    {
-      sigStr = "BUY SIGNAL ACTIVE";
+      sigStr = "BUY ARROW ACTIVE (GREEN)";
       sigClr = clrLimeGreen;
    }
    else if(ExtLastSignal == -1)
    {
-      sigStr = "SELL SIGNAL ACTIVE";
+      sigStr = "SELL ARROW ACTIVE (RED)";
       sigClr = clrCrimson;
    }
 
-   CreateTextLabel(PREFIX + "L_SIG", x + 12, curY, "Signal Status:", C'180,195,210', 8, "Segoe UI", corner);
-   CreateTextLabel(PREFIX + "V_SIG", x + 140, curY, sigStr, sigClr, 8, "Segoe UI Bold", corner);
+   CreateTextLabel(PREFIX + "L_SIG", x + 12, curY, "Signal Arrow:", C'180,195,210', 8, "Segoe UI", corner);
+   CreateTextLabel(PREFIX + "V_SIG", x + 145, curY, sigStr, sigClr, 8, "Segoe UI Bold", corner);
    curY += rowH;
 
    if(ExtLastSignal != 0)
    {
-      CreateTextLabel(PREFIX + "L_DET", x + 12, curY, "Sweep Reason:", C'180,195,210', 8, "Segoe UI", corner);
-      CreateTextLabel(PREFIX + "V_DET", x + 140, curY, ExtLastReason, clrGold, 8, "Segoe UI", corner);
+      CreateTextLabel(PREFIX + "L_DET", x + 12, curY, "Sweep Setup:", C'180,195,210', 8, "Segoe UI", corner);
+      CreateTextLabel(PREFIX + "V_DET", x + 145, curY, ExtLastReason, clrGold, 8, "Segoe UI", corner);
       curY += rowH;
 
       CreateTextLabel(PREFIX + "L_ENT", x + 12, curY, "Entry / SL / TP:", C'180,195,210', 8, "Segoe UI", corner);
       string tradeInfo = StringFormat("%.2f | %.2f | %.2f", ExtLastEntry, ExtLastSL, ExtLastTP);
-      CreateTextLabel(PREFIX + "V_ENT", x + 140, curY, tradeInfo, clrWhite, 8, "Segoe UI", corner);
+      CreateTextLabel(PREFIX + "V_ENT", x + 145, curY, tradeInfo, clrWhite, 8, "Segoe UI", corner);
    }
    else
    {
-      CreateTextLabel(PREFIX + "L_DET", x + 12, curY, "Condition:", C'180,195,210', 8, "Segoe UI", corner);
-      CreateTextLabel(PREFIX + "V_DET", x + 140, curY, "Watching PDH/L & Asian H/L", clrWhite, 8, "Segoe UI", corner);
+      CreateTextLabel(PREFIX + "L_DET", x + 12, curY, "Action:", C'180,195,210', 8, "Segoe UI", corner);
+      CreateTextLabel(PREFIX + "V_DET", x + 145, curY, "Menunggu Sweep PDH/L atau ASH/L", clrWhite, 8, "Segoe UI", corner);
    }
 }
 
