@@ -40,7 +40,7 @@ def run(candles: List[Candle], params: Params, name: str = "series",
     if strategy in SELF_FILTERED:
         for s in setups:
             s.filter_kept = True
-            s.filter_reason = "self-filtered (built-in EMA-200 + session VWAP bias)"
+            s.filter_reason = "self-filtered (strategy has its own session/bias rules)"
     else:
         apply_trend_filter(setups, candles, params, swings)
     return RunResult(

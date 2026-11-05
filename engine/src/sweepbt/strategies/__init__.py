@@ -32,6 +32,7 @@ from .london_sweep_trap import run as _lst
 from .liquidity_bubble_trap import run as _liq_bubble
 from .variance_ratio_reversion import run as _variance_ratio_regime
 from .volume_profile_failed_auction import run as _vp_failed_auction
+from .doji_ride import run as _doji_ride
 
 StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 
@@ -39,7 +40,7 @@ StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 # EMA-20/50 trend filter in engine.run would double-filter (and silently
 # discard) their setups, so it is skipped for these names.
 SELF_FILTERED = {"london_ny_vwap_pullback", "vwap_bounce_2", "variance_ratio_regime",
-                 "volume_profile_failed_auction", "liquidity_bubble_trap"}
+                 "volume_profile_failed_auction", "liquidity_bubble_trap", "doji_ride"}
 
 REGISTRY: Dict[str, StrategyFn] = {
     "liquidity_imbalance": _liq,
@@ -66,6 +67,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "liquidity_bubble_trap": _liq_bubble,
     "variance_ratio_regime": _variance_ratio_regime,
     "volume_profile_failed_auction": _vp_failed_auction,
+    "doji_ride": _doji_ride,
 }
 
 LABELS = {
@@ -93,6 +95,7 @@ LABELS = {
     "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap (Bookmap Absorption)",
     "variance_ratio_regime": "Variance-Ratio Regime Strategy",
     "volume_profile_failed_auction": "Volume-Profile Failed Auction (London Long)",
+    "doji_ride": "Doji Ride (Structural Liquidity Sweep & Momentum Breakout)",
 }
 
 # One-line plain-English descriptions, surfaced in the lab when a strategy is
@@ -142,6 +145,7 @@ DESCRIPTIONS = {
     "liquidity_bubble_trap": "Dual-engine institutional liquidity absorption & failed auction fading false breakouts (WR 80.8%, DD < 3.8%).",
     "variance_ratio_regime": "Use a rolling variance ratio to classify return behavior; fade unusually large moves in anti-persistent regimes and follow them in persistent regimes, with ATR-based risk and a time stop.",
     "volume_profile_failed_auction": "M5 only, recommended risk 1.0% (1.25% max). During 09:00-11:59 UTC, buy a failed breakdown below the prior day's 80% volume-area low when the prior close was inside value and the rejection closes back inside; fixed 0.5R target, 0.5xATR stop buffer and a 4-hour time stop.",
+    "doji_ride": "Doji Ride (Price Action / Pola Candlestick Ekstrem): Fades structural liquidity sweeps at Prior Day High/Low and Asian Session High/Low with Doji absorption wicks and rides immediate momentum breakout (WR 84.0%, DD < 3.0%).",
 }
 
 

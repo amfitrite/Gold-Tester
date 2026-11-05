@@ -1,0 +1,18 @@
+; ===========================================================
+; MT5 EA Configuration: DOJI_RIDE Strategy
+; Generated on: 2026-11-05 15:24:12
+; ===========================================================
+InpStrategyName=doji_ride
+InpRiskPercent=1.00
+InpRewardRiskRatio=0.40
+InpMaxBodyRatio=0.08
+InpMinWickRatio=0.50
+InpMinRangeAtr=0.50
+InpSlAtrBuffer=0.20
+InpSessionStartHour=7
+InpSessionEndHour=18
+InpAsianStartHour=0
+InpAsianEndHour=6
+InpOnePositionAtATime=1
+InpMagicNumber=888570
+InpSlippagePips=3

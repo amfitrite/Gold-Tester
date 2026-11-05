@@ -43,6 +43,9 @@ class Params:
     rsi_short_min: float = 30.0
 
     timeframe: Optional[Timeframe] = None
+    # Optional secondary series for cross-asset strategies (for example
+    # XAGUSD M5 when the primary series is XAUUSD).
+    aux_file: Optional[str] = None
 
     @classmethod
     def for_timeframe(cls, tf: Timeframe, **overrides) -> "Params":

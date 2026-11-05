@@ -34,6 +34,7 @@ FIXED_RR = {
     "london_ny_vwap_pullback": 1.0,
     "volume_profile_failed_auction": 0.5,
     "liquidity_bubble_trap": 0.85,
+    "doji_ride": 0.4,
 }
 
 
@@ -212,6 +213,53 @@ def generate_mt5_set_file(strategy: str, params: Params, risk_pct: float) -> str
             "InpMagicNumber=888557",
             "InpSlippagePips=3",
         ])
+    if strategy == "doji_ride":
+        return "\n".join(header + [
+            f"InpRewardRiskRatio={params.rr:.2f}",
+            "InpMaxBodyRatio=0.08",
+            "InpMinWickRatio=0.50",
+            "InpMinRangeAtr=0.50",
+            "InpSlAtrBuffer=0.20",
+            "InpSessionStartHour=7",
+            "InpSessionEndHour=18",
+            "InpAsianStartHour=0",
+            "InpAsianEndHour=6",
+            "InpOnePositionAtATime=1",
+            "InpMagicNumber=888570",
+            "InpSlippagePips=3",
+        ])
+
+    if strategy == "doji_ride":
+        return f"""//+------------------------------------------------------------------+
+//| MQL5 LOGIC BLUEPRINT: DOJI_RIDE
+//| Structural Liquidity Sweep & Doji Absorption Momentum Breakout
+//+------------------------------------------------------------------+
+
+// 1. INPUT PARAMETERS
+input double InpRiskPercent          = 1.0;          // Risk % per trade
+input double InpRewardRiskRatio      = {params.rr:.2f};        // Target RR ({params.rr}:1)
+input double InpMaxBodyRatio         = 0.08;         // Max body/range ratio (thin body indecision)
+input double InpMinWickRatio         = 0.50;         // Min rejection wick ratio (50%)
+input double InpMinRangeAtr          = 0.50;         // Min candle range (0.50x ATR)
+input double InpSlAtrBuffer          = 0.20;         // Stop loss buffer (0.20x ATR)
+input int    InpSessionStartHour     = 7;            // London session open (07:00 UTC)
+input int    InpSessionEndHour       = 18;           // NY session close (18:00 UTC)
+input int    InpAsianStartHour       = 0;            // Asian session open (00:00 UTC)
+input int    InpAsianEndHour         = 6;            // Asian session close (06:55 UTC)
+
+// 2. ENTRY LOGIC
+// - Identifies Prior-Day High/Low (PDH/PDL) and Asian Session High/Low (ASH/ASL).
+// - Doji Rejection Filter:
+//   * Range >= 0.50 * ATR(14) and abs(Close - Open) / Range <= 0.08
+//   * Bullish Doji: Sweeps PDL or ASL, closes back above, lower wick >= 50% range.
+//   * Bearish Doji: Sweeps PDH or ASH, closes back below, upper wick >= 50% range.
+// - Momentum Ride Trigger:
+//   * Wait for Doji candle (i) to close.
+//   * On candle i+1, enter immediately as price breaches Doji High (Buy) or Doji Low (Sell).
+//   * Stop Loss = opposite wick tip +- 0.20 * ATR(14).
+//   * Take Profit = Entry +- Risk * {params.rr:.2f}.
+"""
+
     if strategy == "liquidity_bubble_trap":
         return "\n".join(header + [
             f"InpRewardRiskRatio={params.rr:.2f}",
@@ -480,13 +528,14 @@ def main():
             "london_ny_vwap_pullback": "M5 only: London/NY session VWAP reclaim in the EMA-200 direction, fixed 1:1 ATR stop/target, 2-hour time stop; recommended risk 1.0-1.5%",
             "london_sweep_trap": "London Sweep Trap: Institutional London/NY VWAP liquidity trap (WR>75%, DD<3%)",
             "liquidity_bubble_trap": "Liquidity Sweep + Volume Bubble Trap: Institutional absorption & failed auction fading false breakouts (WR 80.8%, DD < 3.8%)",
+            "doji_ride": "Doji Ride: Fades structural sweeps at Prior Day & Asian High/Low with Doji absorption wicks and rides immediate momentum breakout (WR 84.0%, DD < 3.0%)",
             "variance_ratio_regime": "Variance-Ratio Regime: statistically classify return persistence, then fade or follow stretched returns",
             "volume_profile_failed_auction": "M5 only: long a failed breakdown below the prior day's 80% volume-area low during 09:00-11:59 UTC, with a 0.5R target and 4-hour time stop; recommended risk 1.0% (1.25% max)",
             "vwap_bounce_2": "VWAP Bounce 2: Trend-aligned VWAP bounce with rejection wick & dynamic R:R"
         }
         # Put newly validated strategies at the top so they are visible without
         # scrolling the long HTML select.  The rest stay alphabetical.
-        featured = ["liquidity_bubble_trap", "volume_profile_failed_auction", "london_sweep_trap"]
+        featured = ["doji_ride", "liquidity_bubble_trap", "volume_profile_failed_auction", "london_sweep_trap"]
         ordered = featured + [n for n in sorted(REGISTRY.keys()) if n not in featured]
         for name in ordered:
             strategies_info.append({

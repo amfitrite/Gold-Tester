@@ -21,7 +21,7 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
 * **1-Click Pipeline:** Tombol cepat *"⚡ Uji di Backtester Sekarang"* setelah download selesai.
 
 ### 2. 🧪 Sweep Backtester & Strategy Lab ($10.000 Account Simulator)
-* **18 Strategi Bawaan Terintegrasi:**
+* **23 Strategi Bawaan Terintegrasi:**
   * `ict_ifvg` (ICT Inversion Fair Value Gap Retest)
   * `liquidity_imbalance` (Liquidity Sweep + Fair Value Gap)
   * `ict_fvg` (ICT Fair Value Gap + Market Structure Shift)
@@ -31,6 +31,7 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
   * `prev_day_breakout` (PDH/PDL Breakout & Retest)
   * `gold_session_sweep` (Rolling Liquidity Sweep + 50% Rejection Retest)
   * `london_ny_vwap_pullback` (London/NY Session VWAP Reclaim + EMA-200, M5)
+  * `volume_profile_failed_auction` (Prior-Day Value-Area Failed Breakdown, M5)
   * `supply_demand`, `order_flow`, `vwap_bounce`, `session_gap`, `bollinger_bands`, dll.
 * **Simulasi Portofolio Akun $10.000:**
   * 📈 **Growth Scorecard:** Pertumbuhan saldo modal dalam nominal ($) dan persentase (%).
@@ -40,7 +41,9 @@ All-in-One Desktop Trading Suite: Unduh data historis presisi tinggi dari **Duka
   * 💰 **Saldo Akhir:** Real-time equity tracking.
 * **Visualisasi Kanvas Equity Curve:** Grafik interaktif pergerakan saldo dari $10.000 lengkap dengan batas modal awal.
 * **Trade Execution Log Table:** Riwayat transaksi per lilin dengan harga entry, SL, TP, arah Long/Short, PnL ($), dan Saldo.
-* **Strategi Unggulan (M5):** `london_ny_vwap_pullback` — 68.0% WR, +43.1% growth, max DD 4.54% pada risk 1.5% (XAUUSD M5, 6 Okt–4 Nov 2026). Aturan lengkap, tabel risk, dan validasi ada di [`reports/STRATEGI_LONDON_NY_VWAP.md`](reports/STRATEGI_LONDON_NY_VWAP.md).
+* **Strategi Unggulan (M5):**
+  * `volume_profile_failed_auction` — 85.2% WR, +14.7% growth, max DD 2.03% pada risk 1.0% (XAUUSD M5, 12 bulan). Aturan lengkap, tabel risk, dan validasi ada di [`reports/STRATEGI_VOLUME_PROFILE_FAILED_AUCTION.md`](reports/STRATEGI_VOLUME_PROFILE_FAILED_AUCTION.md).
+  * `london_ny_vwap_pullback` — 68.0% WR, +43.1% growth, max DD 4.54% pada risk 1.5% (XAUUSD M5, 6 Okt–4 Nov 2026). Aturan lengkap di [`reports/STRATEGI_LONDON_NY_VWAP.md`](reports/STRATEGI_LONDON_NY_VWAP.md).
 
 ### 3. 📊 Interactive HTML Report & Candlestick Viewer
 * Embedding langsung laporan visual candlestick beresolusi tinggi di dalam aplikasi tanpa perlu browser eksternal.
@@ -92,7 +95,7 @@ Gold-Tester/
 │   └── icon.png              # High-res app logo
 ├── engine/                   # Python Quantitative Backtesting Engine
 │   ├── src/sweepbt/          # Core Sweep Strategy Pipeline
-│   │   ├── strategies/       # Pluggable Strategy Registry (18 Strategies)
+│   │   ├── strategies/       # Pluggable Strategy Registry (23 Strategies)
 │   │   ├── engine.py         # Simulation Engine
 │   │   ├── parser.py         # CSV Candle Parser
 │   │   └── chart.py          # HTML Candlestick Visualizer

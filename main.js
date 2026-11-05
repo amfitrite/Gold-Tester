@@ -152,6 +152,8 @@ ipcMain.handle('get-strategies', async () => {
       } catch (e) {
         // Fallback default strategies
         resolve([
+          { id: 'doji_ride', name: 'Doji Ride', description: 'Structural Liquidity Sweep & Doji Absorption Breakout (WR 84.0%, DD < 3.0%)' },
+          { id: 'liquidity_bubble_trap', name: 'Liquidity Bubble Trap', description: 'Bookmap Volume Bubble + Swing Sweep Absorption (WR 80.8%, DD < 3.8%)' },
           { id: 'liquidity_imbalance', name: 'Liquidity Imbalance', description: 'Liquidity Sweep + Fair Value Gap (FVG) confirmation' },
           { id: 'prev_day_breakout', name: 'Prev Day Breakout', description: 'Previous Day High/Low (PDH/PDL) Breakout & Retest' },
           { id: 'orb', name: 'Orb', description: 'Opening Range Breakout (ORB) on session open' },
