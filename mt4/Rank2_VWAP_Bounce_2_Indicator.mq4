@@ -27,8 +27,8 @@ enum ENUM_THEME {
 extern string         s0                 = "=== TAMPILAN & TEMA ===";
 extern ENUM_THEME     InpTheme           = THEME_DARK;
 extern bool           InpShowPanel       = true;
-extern int            InpPanelX          = 725;
-extern int            InpPanelY          = 30;
+extern int            InpPanelX          = 15;
+extern int            InpPanelY          = 160;
 extern bool           InpDrawTradeLines  = true;  // Gambar Garis Entry, TP, SL di Chart
 extern int            InpLineExtendBars  = 25;    // Panjang Garis ke Kanan (Bar)
 
@@ -497,7 +497,9 @@ int OnCalculate(const int rates_total,
 
 void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_buy)
 {
-   datetime t_end = Time[0] + Period() * 60 * InpLineExtendBars;
+   datetime t_now  = Time[0];
+   datetime t_text = t_now + Period() * 60 * 2;
+   datetime t_end  = t_now + Period() * 60 * MathMax(12, InpLineExtendBars);
 
    string nameEntry = PFX + "Line_Entry";
    string nameSL    = PFX + "Line_SL";
@@ -507,18 +509,21 @@ void DrawTradeLines(datetime t_sig, double entry, double sl, double tp, bool is_
    string lblTP     = PFX + "Lbl_TP";
 
    // High visibility colors for white background
-   color colEntry = C'0,90,210';   // Deep Dodger Blue
-   color colSL    = C'220,30,40';  // Crimson Red
+   color colEntry = C'0,80,220';   // Deep Royal Blue
+   color colSL    = C'220,25,35';  // Crimson Red
    color colTP    = C'0,140,50';   // Dark Emerald Green
 
+   string txtEntry = StringFormat("---> %s : %.2f", is_buy ? "BUY" : "SELL", entry);
+   string txtTP    = StringFormat("---> TP  : %.2f", tp);
+   string txtSL    = StringFormat("---> SL  : %.2f", sl);
+
    DrawOneTrendLine(nameEntry, t_sig, entry, t_end, entry, colEntry, STYLE_SOLID, 2);
-   DrawOneText(lblEntry, t_end, entry, StringFormat("[%s ENTRY] %.2f", STRAT_TAG, entry), colEntry);
+   DrawOneTrendLine(nameSL,    t_sig, sl,    t_end, sl,    colSL,    STYLE_DASH,  2);
+   DrawOneTrendLine(nameTP,    t_sig, tp,    t_end, tp,    colTP,    STYLE_DASH,  2);
 
-   DrawOneTrendLine(nameSL, t_sig, sl, t_end, sl, colSL, STYLE_DASH, 2);
-   DrawOneText(lblSL, t_end, sl, StringFormat("[%s SL] %.2f", STRAT_TAG, sl), colSL);
-
-   DrawOneTrendLine(nameTP, t_sig, tp, t_end, tp, colTP, STYLE_DASH, 2);
-   DrawOneText(lblTP, t_end, tp, StringFormat("[%s TP] %.2f", STRAT_TAG, tp), colTP);
+   DrawOneText(lblEntry, t_text, entry, txtEntry, colEntry);
+   DrawOneText(lblSL,    t_text, sl,    txtSL,    colSL);
+   DrawOneText(lblTP,    t_text, tp,    txtTP,    colTP);
 }
 
 void DrawOneTrendLine(string name, datetime t1, double p1, datetime t2, double p2, color clr, int style, int width)
@@ -555,10 +560,8 @@ void DrawOneText(string name, datetime t, double p, string txt, color clr)
       ObjectSet(name, OBJPROP_TIME1, t);
       ObjectSet(name, OBJPROP_PRICE1, p);
    }
-   ObjectSetString(0, name, OBJPROP_TEXT, txt);
-   ObjectSetString(0, name, OBJPROP_FONT, "Segoe UI Bold");
-   ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 9);
-   ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
+   ObjectSetInteger(0, name, OBJPROP_ANCHOR, ANCHOR_LEFT);
+   ObjectSetText(name, txt, 10, "Arial Bold", clr);
 }
 
 void ShowPanel(string text)
