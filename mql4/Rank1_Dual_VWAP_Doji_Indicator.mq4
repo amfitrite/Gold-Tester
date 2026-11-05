@@ -1,6 +1,6 @@
 //+------------------------------------------------------------------+
-//|                               Rank1_Dual_VWAP_Doji_Indicator.mq4 |
-//|      RANK 1: DUAL (VWAP 2 + DOJI RIDE) - TUNED FOR FBS & MT4     |
+//|                                    Rank1_Dual_VWAP_Doji_Indicator.mq4  |
+//|      RANK 1: DUAL (VWAP 2 + DOJI RIDE) - TUNED FOR FBS & MT4                               |
 //|     Indikator Real Sim Live + Simulasi Dummy Modal $10,000       |
 //+------------------------------------------------------------------+
 #property copyright "Quant Trading Lab - Tuned for Broker Time"
@@ -20,8 +20,8 @@
 #property indicator_width3  3
 
 enum ENUM_THEME {
-   THEME_DARK,  // Latar Hitam (Dark Theme)
-   THEME_LIGHT  // Latar Putih (Light Theme)
+   THEME_DARK,
+   THEME_LIGHT
 };
 
 extern string         s0                 = "=== TAMPILAN & TEMA ===";
@@ -52,7 +52,7 @@ extern double         InpManualSwapShort = -2.0;
 
 // Buffers
 double BufVWAP[], BufBuy[], BufSell[];
-#define PFX "R1_FBS_"
+#define PFX "Rank1_Dual_VWAP_Doji_"
 
 int OnInit()
 {
@@ -100,7 +100,7 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
    int lookback = (int)MathMin(rates_total - 50, InpLookback);
    if(lookback < 50) return 0;
 
-   // 1. Calculate Daily Reset VWAP (Reset setiap jam 00:00 broker)
+   // 1. Calculate Daily Reset VWAP (Reset setiap pergantian hari)
    ArrayInitialize(BufBuy, 0.0);
    ArrayInitialize(BufSell, 0.0);
    ArrayInitialize(BufVWAP, EMPTY_VALUE);
@@ -142,10 +142,8 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
       MqlDateTime dt;
       TimeToStruct(time[i], dt);
 
-      // Convert server hour to UTC hour based on Broker GMT Offset
       int utc_hour = (dt.hour - InpBrokerGMTOffset + 24) % 24;
 
-      // Asia High/Low tracking (00:00 - 06:55 UTC)
       if(dt.day != curAsiaDay)
       {
          asiaHigh = 0.0;
@@ -179,25 +177,28 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
       double tp = 0.0;
 
       // ENGINE 1: VWAP BOUNCE 2 (Proportional Mean-Reversion Target)
-      if(low[i] <= (vwapVal * 1.0005) && close[i] >= vwapVal && (close[i] >= open[i] || lowerWick >= 0.35 * candleRng) && (close[i] >= ema50 || ema20 >= ema50))
+      if(true)
       {
-         isB = true;
-         sl = low[i] - (curAtr * 0.5);
-         double dist = vwapVal - low[i];
-         double tp_dist = MathMax(dist, curAtr * 0.3) * 1.0;
-         tp = vwapVal + tp_dist;
-      }
-      else if(high[i] >= (vwapVal * 0.9995) && close[i] <= vwapVal && (close[i] <= open[i] || upperWick >= 0.35 * candleRng) && (close[i] <= ema50 || ema20 <= ema50))
-      {
-         isS = true;
-         sl = high[i] + (curAtr * 0.5);
-         double dist = high[i] - vwapVal;
-         double tp_dist = MathMax(dist, curAtr * 0.3) * 1.0;
-         tp = vwapVal - tp_dist;
+         if(low[i] <= (vwapVal * 1.0005) && close[i] >= vwapVal && (close[i] >= open[i] || lowerWick >= 0.35 * candleRng) && (close[i] >= ema50 || ema20 >= ema50))
+         {
+            isB = true;
+            sl = low[i] - (curAtr * 0.5);
+            double dist = vwapVal - low[i];
+            double tp_dist = MathMax(dist, curAtr * 0.3) * 1.0;
+            tp = vwapVal + tp_dist;
+         }
+         else if(high[i] >= (vwapVal * 0.9995) && close[i] <= vwapVal && (close[i] <= open[i] || upperWick >= 0.35 * candleRng) && (close[i] <= ema50 || ema20 <= ema50))
+         {
+            isS = true;
+            sl = high[i] + (curAtr * 0.5);
+            double dist = high[i] - vwapVal;
+            double tp_dist = MathMax(dist, curAtr * 0.3) * 1.0;
+            tp = vwapVal - tp_dist;
+         }
       }
 
-      // ENGINE 2: DOJI RIDE (0.40R Momentum Continuation at Structural Low/High)
-      if(!isB && !isS && i < lookback - 1)
+      // ENGINE 2: DOJI RIDE
+      if(true && !isB && !isS && i < lookback - 1)
       {
          double body = MathAbs(close[i] - open[i]);
          if((body / candleRng) <= 0.10 && candleRng >= (0.4 * curAtr))
@@ -215,6 +216,70 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
                sl = high[i] + (0.2 * curAtr);
                double risk = MathAbs(sl - open[i-1]);
                tp = open[i-1] - (risk * 0.40);
+            }
+         }
+      }
+
+      // ENGINE 3: LONDON SWEEP TRAP
+      if(false && !isB && !isS && asiaHigh > 0 && asiaLow < 999990.0)
+      {
+         if(high[i] > asiaHigh && close[i] < asiaHigh && close[i] < open[i])
+         {
+            isS = true;
+            sl = high[i] + (curAtr * 0.5);
+            double dist = high[i] - vwapVal;
+            tp = vwapVal - MathMax(dist, curAtr * 0.5);
+         }
+         else if(low[i] < asiaLow && close[i] > asiaLow && close[i] > open[i])
+         {
+            isB = true;
+            sl = low[i] - (curAtr * 0.5);
+            double dist = vwapVal - low[i];
+            tp = vwapVal + MathMax(dist, curAtr * 0.5);
+         }
+      }
+
+      // ENGINE 4: VP FAILED AUCTION
+      if(false && !isB && !isS)
+      {
+         double dLow  = iLow(NULL, PERIOD_D1, 1);
+         double dHigh = iHigh(NULL, PERIOD_D1, 1);
+         double dRng  = dHigh - dLow;
+         double val = dLow + dRng * 0.20;
+         double vah = dLow + dRng * 0.80;
+         if(low[i] < val && close[i] > val && close[i] > open[i])
+         {
+            isB = true;
+            sl = low[i] - (curAtr * 0.5);
+            tp = open[i-1] + (MathAbs(open[i-1] - sl) * 0.50);
+         }
+         else if(high[i] > vah && close[i] < vah && close[i] < open[i])
+         {
+            isS = true;
+            sl = high[i] + (curAtr * 0.5);
+            tp = open[i-1] - (MathAbs(sl - open[i-1]) * 0.50);
+         }
+      }
+
+      // ENGINE 5: LIQUIDITY BUBBLE TRAP
+      if(false && !isB && !isS && i < lookback - 20)
+      {
+         double vMA = 0.0;
+         for(int v = 1; v <= 20; v++) vMA += (double)tick_volume[i + v];
+         vMA /= 20.0;
+         if(vMA > 0 && ((double)tick_volume[i] / vMA) >= 2.2)
+         {
+            if(lowerWick > (candleRng * 0.40) && close[i] > open[i])
+            {
+               isB = true;
+               sl = low[i] - (curAtr * 0.5);
+               tp = open[i-1] + (MathAbs(open[i-1] - sl) * 0.85);
+            }
+            else if(upperWick > (candleRng * 0.40) && close[i] < open[i])
+            {
+               isS = true;
+               sl = high[i] + (curAtr * 0.5);
+               tp = open[i-1] - (MathAbs(sl - open[i-1]) * 0.85);
             }
          }
       }
@@ -282,7 +347,7 @@ int OnCalculate(const int rates_total, const int prev_calculated, const datetime
          double dd = (peak_equity > 0) ? ((peak_equity - equity) / peak_equity * 100.0) : 0;
          if(dd > max_dd_percent) max_dd_percent = dd;
 
-         // TUNING KUNCI: Skip maju ke exit_idx agar TIDAK terjadi trade dobel bertumpuk!
+         // Non-overlapping trade skip
          i = exit_idx;
       }
       else
