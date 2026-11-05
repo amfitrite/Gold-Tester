@@ -1,0 +1,16 @@
+; ===========================================================
+; MT5 EA Configuration: LONDON_SWEEP_TRAP Strategy
+; Generated on: 2026-11-05 13:36:31
+; ===========================================================
+InpStrategyName=london_sweep_trap
+InpRiskPercent=1.00
+InpRewardRiskRatio=2.00
+InpSwingStrength=5
+InpMinFVGPoints=0.50
+InpSLBufferPoints=0.00
+InpPullbackWindow=10
+InpTrendFilterMethod=ema
+InpCloseConfirmation=0
+InpMaxRiskPoints=0
+InpMagicNumber=888555
+InpSlippagePips=3

@@ -1,0 +1,114 @@
+{
+  "success": true,
+  "strategy": "volume_profile_failed_auction",
+  "file": "D:\\CSV\\xauusd_m5.csv",
+  "timeframe": "M5",
+  "params": {
+    "capital": 10000.0,
+    "risk_pct": 0.75,
+    "rr": 0.5,
+    "trend": "none",
+    "swing_strength": 5,
+    "min_fvg": 0.5,
+    "sl_buffer": 0.0,
+    "pullback": 10,
+    "close_confirm": false
+  },
+  "summary": {
+    "initial_balance": 10000.0,
+    "final_balance": 10029.4,
+    "net_profit": 29.4,
+    "growth_pct": 0.29,
+    "win_rate": 75.0,
+    "total_trades": 4,
+    "wins": 3,
+    "losses": 1,
+    "unresolved": 0,
+    "profit_factor": 1.38,
+    "max_drawdown_amount": 77.05,
+    "max_drawdown_pct": 0.77,
+    "avg_win": 35.48,
+    "avg_loss": 77.05,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 10000.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-12 10:25:00",
+        "balance": 10035.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-15 09:40:00",
+        "balance": 10070.53,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-23 09:20:00",
+        "balance": 9993.48,
+        "drawdown_pct": 0.77
+      },
+      {
+        "time": "2026-10-23 11:10:00",
+        "balance": 10029.4,
+        "drawdown_pct": 0.41
+      }
+    ],
+    "trades": [
+      {
+        "id": 1,
+        "time": "2026-10-12 10:25:00",
+        "direction": "LONG",
+        "entry_price": 4177.295,
+        "stop_loss": 4173.697,
+        "take_profit": 4179.094,
+        "verdict": "WIN",
+        "r_multiple": 0.47,
+        "pnl": 35.0,
+        "balance": 10035.0
+      },
+      {
+        "id": 2,
+        "time": "2026-10-15 09:40:00",
+        "direction": "SHORT",
+        "entry_price": 4157.775,
+        "stop_loss": 4162.074,
+        "take_profit": 4155.625,
+        "verdict": "WIN",
+        "r_multiple": 0.47,
+        "pnl": 35.53,
+        "balance": 10070.53
+      },
+      {
+        "id": 3,
+        "time": "2026-10-23 09:20:00",
+        "direction": "LONG",
+        "entry_price": 4028.465,
+        "stop_loss": 4022.498,
+        "take_profit": 4031.448,
+        "verdict": "LOSS",
+        "r_multiple": -1.02,
+        "pnl": -77.05,
+        "balance": 9993.48
+      },
+      {
+        "id": 4,
+        "time": "2026-10-23 11:10:00",
+        "direction": "LONG",
+        "entry_price": 4027.035,
+        "stop_loss": 4021.247,
+        "take_profit": 4029.929,
+        "verdict": "WIN",
+        "r_multiple": 0.48,
+        "pnl": 35.92,
+        "balance": 10029.4
+      }
+    ]
+  },
+  "report_file": "D:\\CSV\\dukascopy-downloader\\reports\\_both_tmp_1m_risk075.html",
+  "set_file": "D:\\CSV\\dukascopy-downloader\\reports\\_both_tmp_1m_risk075.set",
+  "set_content": "; ===========================================================\n; MT5 EA Configuration: VOLUME_PROFILE_FAILED_AUCTION Strategy\n; Generated on: 2026-11-05 13:05:07\n; ===========================================================\nInpStrategyName=volume_profile_failed_auction\nInpRiskPercent=0.75\nInpRewardRiskRatio=0.50\nInpProfileBinSize=5.00\nInpValueArea=0.80\nInpSessionStartHour=9\nInpSessionEndHour=11\nInpAtrPeriod=14\nInpSlAtrBuffer=0.50\nInpMaxHoldBars=48\nInpHalfSpread=0.12\nInpLongOnly=1\nInpOnePositionAtATime=1\nInpMagicNumber=888558\nInpSlippagePips=3",
+  "mql5_blueprint": "//+------------------------------------------------------------------+\n//| MQL5 LOGIC BLUEPRINT: VOLUME_PROFILE_FAILED_AUCTION\n//| Prior-day value-area failed breakdown, long-only London morning\n//+------------------------------------------------------------------+\n// 1. INPUT PARAMETER\ninput double InpRiskPercent      = 1.0;    // Risk % per trade (recommended 1.0; max 1.25)\ninput double InpRewardRiskRatio  = 0.50;   // Fixed target, fraction of actual risk\ninput double InpProfileBinSize   = 5.00;   // USD volume-profile row\ninput double InpValueArea        = 0.80;   // 80% value area\ninput int    InpSessionStartHour = 9;      // UTC, inclusive\ninput int    InpSessionEndHour   = 11;     // UTC, inclusive\ninput int    InpAtrPeriod        = 14;\ninput double InpSlAtrBuffer      = 0.50;   // SL below rejection low by 0.5 x ATR\ninput int    InpMaxHoldBars      = 48;     // 4 hours on M5\ninput double InpHalfSpread       = 0.12;   // Modelled cost per side on XAUUSD\ninput int    InpMagicNumber      = 888558;\n\n// 2. PRIOR-DAY VOLUME PROFILE (M5, UTC)\n// At the start of each new UTC day, build the completed prior trading day's\n// profile.  Sunday bars are ignored.  For every M5 bar:\n//     typical = (high + low + close) / 3\n//     bin     = round(typical / InpProfileBinSize)\n//     volume  = bar volume, or 1.0 when volume is missing\n// POC = bin with the largest volume.  Sort bins by volume descending and take\n// bins until they contain InpValueArea of total volume; VAL/VAH are the lowest\n// and highest chosen bins.  Cache the levels for the whole current day.\n\n// 3. ENTRY RULES (evaluated on the closed bar)\n// Only 09:00-11:59 UTC.  Long only.  One position at a time.\n//   prior_close inside [VAL, VAH]\n//   low < VAL\n//   close > VAL\n//   close > open\n//   POC > close\n// Enter at the next bar open with adverse half-spread.\n\n// 4. EXIT RULES\n// risk = entry - (signal_low - InpSlAtrBuffer * ATR(14))\n// TP   = entry + InpRewardRiskRatio * risk\n// Close at market after InpMaxHoldBars if neither SL nor TP is touched.\n// Same-bar SL and TP: assume SL first (conservative OHLC tie-break).\n\n// 5. MONEY MANAGEMENT ($10.000 account example)\ndouble CalculateLotSize(double slDistancePrice)\n{\n    double balance   = AccountInfoDouble(ACCOUNT_BALANCE);\n    double riskMoney = balance * (InpRiskPercent / 100.0);\n    double tickValue = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);\n    double tickSize  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);\n    double lossPerLot = (slDistancePrice / tickSize) * tickValue;\n    if(lossPerLot <= 0.0) return 0.0;\n    return NormalizeDouble(riskMoney / lossPerLot, 2);\n}\n"
+}

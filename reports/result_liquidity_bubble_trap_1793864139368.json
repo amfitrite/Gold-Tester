@@ -1,0 +1,386 @@
+{
+  "success": true,
+  "strategy": "liquidity_bubble_trap",
+  "file": "D:\\CSV\\xauusd_m5_12m.csv",
+  "timeframe": "M5",
+  "params": {
+    "capital": 10000.0,
+    "risk_pct": 1.0,
+    "rr": 2.0,
+    "trend": "ema",
+    "swing_strength": 5,
+    "min_fvg": 0.5,
+    "sl_buffer": 0.0,
+    "pullback": 10,
+    "close_confirm": false
+  },
+  "summary": {
+    "initial_balance": 10000.0,
+    "final_balance": 11702.63,
+    "net_profit": 1702.63,
+    "growth_pct": 17.03,
+    "win_rate": 60.0,
+    "total_trades": 20,
+    "wins": 12,
+    "losses": 8,
+    "unresolved": 0,
+    "profit_factor": 2.95,
+    "max_drawdown_amount": 232.95,
+    "max_drawdown_pct": 1.99,
+    "avg_win": 214.81,
+    "avg_loss": 109.39,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 10000.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-12-03 08:50:00",
+        "balance": 10200.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-12-03 08:55:00",
+        "balance": 10404.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-12-03 12:05:00",
+        "balance": 10299.96,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2025-12-11 12:30:00",
+        "balance": 10196.96,
+        "drawdown_pct": 1.99
+      },
+      {
+        "time": "2025-12-15 13:10:00",
+        "balance": 10400.9,
+        "drawdown_pct": 0.03
+      },
+      {
+        "time": "2025-12-17 12:20:00",
+        "balance": 10296.89,
+        "drawdown_pct": 1.03
+      },
+      {
+        "time": "2025-12-18 11:35:00",
+        "balance": 10502.83,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-12-22 11:00:00",
+        "balance": 10712.88,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2025-12-23 10:15:00",
+        "balance": 10605.76,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-01-09 10:45:00",
+        "balance": 10817.87,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-01-19 08:55:00",
+        "balance": 11034.23,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-04-13 13:05:00",
+        "balance": 10923.89,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-07-27 13:45:00",
+        "balance": 11142.36,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-10 13:35:00",
+        "balance": 11365.21,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-08-20 08:00:00",
+        "balance": 11251.56,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-10-12 07:35:00",
+        "balance": 11476.59,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-12 13:35:00",
+        "balance": 11706.12,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-21 10:00:00",
+        "balance": 11589.06,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-11-02 13:10:00",
+        "balance": 11473.17,
+        "drawdown_pct": 1.99
+      },
+      {
+        "time": "2026-11-02 13:15:00",
+        "balance": 11702.63,
+        "drawdown_pct": 0.03
+      }
+    ],
+    "trades": [
+      {
+        "id": 1,
+        "time": "2025-12-03 08:50:00",
+        "direction": "SHORT",
+        "entry_price": 4207.045,
+        "stop_loss": 4210.165,
+        "take_profit": 4200.805,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 200.0,
+        "balance": 10200.0
+      },
+      {
+        "id": 2,
+        "time": "2025-12-03 08:55:00",
+        "direction": "SHORT",
+        "entry_price": 4206.245,
+        "stop_loss": 4209.135,
+        "take_profit": 4200.465,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 204.0,
+        "balance": 10404.0
+      },
+      {
+        "id": 3,
+        "time": "2025-12-03 12:05:00",
+        "direction": "SHORT",
+        "entry_price": 4207.385,
+        "stop_loss": 4210.312,
+        "take_profit": 4201.532,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -104.04,
+        "balance": 10299.96
+      },
+      {
+        "id": 4,
+        "time": "2025-12-11 12:30:00",
+        "direction": "SHORT",
+        "entry_price": 4218.855,
+        "stop_loss": 4220.818,
+        "take_profit": 4214.93,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -103.0,
+        "balance": 10196.96
+      },
+      {
+        "id": 5,
+        "time": "2025-12-15 13:10:00",
+        "direction": "LONG",
+        "entry_price": 4335.545,
+        "stop_loss": 4332.057,
+        "take_profit": 4342.52,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 203.94,
+        "balance": 10400.9
+      },
+      {
+        "id": 6,
+        "time": "2025-12-17 12:20:00",
+        "direction": "SHORT",
+        "entry_price": 4320.465,
+        "stop_loss": 4324.369,
+        "take_profit": 4312.657,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -104.01,
+        "balance": 10296.89
+      },
+      {
+        "id": 7,
+        "time": "2025-12-18 11:35:00",
+        "direction": "SHORT",
+        "entry_price": 4325.205,
+        "stop_loss": 4327.493,
+        "take_profit": 4320.63,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 205.94,
+        "balance": 10502.83
+      },
+      {
+        "id": 8,
+        "time": "2025-12-22 11:00:00",
+        "direction": "LONG",
+        "entry_price": 4408.025,
+        "stop_loss": 4404.873,
+        "take_profit": 4414.33,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 210.06,
+        "balance": 10712.88
+      },
+      {
+        "id": 9,
+        "time": "2025-12-23 10:15:00",
+        "direction": "LONG",
+        "entry_price": 4484.575,
+        "stop_loss": 4482.0,
+        "take_profit": 4489.725,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -107.13,
+        "balance": 10605.76
+      },
+      {
+        "id": 10,
+        "time": "2026-01-09 10:45:00",
+        "direction": "LONG",
+        "entry_price": 4468.398,
+        "stop_loss": 4466.288,
+        "take_profit": 4472.618,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 212.12,
+        "balance": 10817.87
+      },
+      {
+        "id": 11,
+        "time": "2026-01-19 08:55:00",
+        "direction": "LONG",
+        "entry_price": 4663.275,
+        "stop_loss": 4660.266,
+        "take_profit": 4669.293,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 216.36,
+        "balance": 11034.23
+      },
+      {
+        "id": 12,
+        "time": "2026-04-13 13:05:00",
+        "direction": "SHORT",
+        "entry_price": 4728.115,
+        "stop_loss": 4731.923,
+        "take_profit": 4720.5,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -110.34,
+        "balance": 10923.89
+      },
+      {
+        "id": 13,
+        "time": "2026-07-27 13:45:00",
+        "direction": "SHORT",
+        "entry_price": 4087.175,
+        "stop_loss": 4090.78,
+        "take_profit": 4079.965,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 218.48,
+        "balance": 11142.36
+      },
+      {
+        "id": 14,
+        "time": "2026-08-10 13:35:00",
+        "direction": "SHORT",
+        "entry_price": 4337.925,
+        "stop_loss": 4341.33,
+        "take_profit": 4331.115,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 222.85,
+        "balance": 11365.21
+      },
+      {
+        "id": 15,
+        "time": "2026-08-20 08:00:00",
+        "direction": "SHORT",
+        "entry_price": 4492.345,
+        "stop_loss": 4495.875,
+        "take_profit": 4485.285,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -113.65,
+        "balance": 11251.56
+      },
+      {
+        "id": 16,
+        "time": "2026-10-12 07:35:00",
+        "direction": "SHORT",
+        "entry_price": 4186.415,
+        "stop_loss": 4188.675,
+        "take_profit": 4181.895,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 225.03,
+        "balance": 11476.59
+      },
+      {
+        "id": 17,
+        "time": "2026-10-12 13:35:00",
+        "direction": "SHORT",
+        "entry_price": 4172.645,
+        "stop_loss": 4176.555,
+        "take_profit": 4164.825,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 229.53,
+        "balance": 11706.12
+      },
+      {
+        "id": 18,
+        "time": "2026-10-21 10:00:00",
+        "direction": "LONG",
+        "entry_price": 4118.005,
+        "stop_loss": 4114.47,
+        "take_profit": 4125.074,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -117.06,
+        "balance": 11589.06
+      },
+      {
+        "id": 19,
+        "time": "2026-11-02 13:10:00",
+        "direction": "LONG",
+        "entry_price": 3900.898,
+        "stop_loss": 3896.992,
+        "take_profit": 3908.711,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -115.89,
+        "balance": 11473.17
+      },
+      {
+        "id": 20,
+        "time": "2026-11-02 13:15:00",
+        "direction": "LONG",
+        "entry_price": 3898.484,
+        "stop_loss": 3895.075,
+        "take_profit": 3905.301,
+        "verdict": "WIN",
+        "r_multiple": 2.0,
+        "pnl": 229.46,
+        "balance": 11702.63
+      }
+    ]
+  },
+  "report_file": "d:\\CSV\\dukascopy-downloader\\reports\\report_liquidity_bubble_trap_1793864139368.html",
+  "set_file": "d:\\CSV\\dukascopy-downloader\\reports\\strategy_liquidity_bubble_trap_1793864139368.set",
+  "set_content": "; ===========================================================\n; MT5 EA Configuration: LIQUIDITY_BUBBLE_TRAP Strategy\n; Generated on: 2026-11-05 14:35:43\n; ===========================================================\nInpStrategyName=liquidity_bubble_trap\nInpRiskPercent=1.00\nInpRewardRiskRatio=2.00\nInpSwingStrength=5\nInpVolumeBubbleMultiplier=1.35\nInpWickRatioThreshold=0.45\nInpSessionStartHour=7\nInpSessionEndHour=18\nInpAtrPeriod=14\nInpSlAtrBuffer=0.25\nInpFastEma=20\nInpSlowEma=50\nInpOnePositionAtATime=1\nInpMagicNumber=888560\nInpSlippagePips=3",
+  "mql5_blueprint": "//+------------------------------------------------------------------+\n//| MQL5 LOGIC BLUEPRINT: LIQUIDITY_BUBBLE_TRAP\n//| Swing Liquidity Sweep + Bookmap-style Volume Bubble Absorption\n//+------------------------------------------------------------------+\n\n// 1. INPUT PARAMETERS\ninput double InpRiskPercent          = 1.0;          // Risk % per trade\ninput double InpRewardRiskRatio      = 2.00;        // Target RR (2.0:1)\ninput int    InpSwingStrength        = 5;            // Swing pivot bars\ninput double InpVolumeMultiplier     = 1.35;         // Bubble volume threshold (1.35x SMA20)\ninput double InpWickRatioThreshold   = 0.45;         // Min rejection wick ratio (45%)\ninput int    InpSessionStartHour     = 7;            // London session open (07:00 UTC)\ninput int    InpSessionEndHour       = 18;           // NY session close (18:00 UTC)\n\n// 2. ENTRY LOGIC\n// - Identifies swing high/low within lookback = 50 bars.\n// - Checks bar volume >= 1.35 * SMA(Volume, 20).\n// - Bear Trap (Sell): sweeps swing high, closes <= swing high, upper wick >= 45% range, EMA20 <= EMA50.\n//   SL = High + ATR(14) * 0.25, TP = Close - Risk * RR.\n// - Bull Trap (Buy): sweeps swing low, closes >= swing low, lower wick >= 45% range, EMA20 >= EMA50.\n//   SL = Low - ATR(14) * 0.25, TP = Close + Risk * RR.\n"
+}

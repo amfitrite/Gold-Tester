@@ -1,0 +1,182 @@
+{
+  "success": true,
+  "strategy": "liquidity_bubble_trap",
+  "file": "D:\\CSV\\xauusd_m5.csv",
+  "timeframe": "M5",
+  "params": {
+    "capital": 10000.0,
+    "risk_pct": 1.0,
+    "rr": 0.85,
+    "trend": "ema",
+    "swing_strength": 5,
+    "min_fvg": 0.5,
+    "sl_buffer": 0.0,
+    "pullback": 10,
+    "close_confirm": false
+  },
+  "summary": {
+    "initial_balance": 10000.0,
+    "final_balance": 10007.47,
+    "net_profit": 7.47,
+    "growth_pct": 0.07,
+    "win_rate": 62.5,
+    "total_trades": 8,
+    "wins": 5,
+    "losses": 3,
+    "unresolved": 0,
+    "profit_factor": 1.02,
+    "max_drawdown_amount": 259.14,
+    "max_drawdown_pct": 2.52,
+    "avg_win": 62.97,
+    "avg_loss": 102.46,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 10000.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-12 07:35:00",
+        "balance": 10085.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-12 10:25:00",
+        "balance": 10132.17,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-12 13:35:00",
+        "balance": 10218.29,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-15 09:40:00",
+        "balance": 10266.61,
+        "drawdown_pct": 0.0
+      },
+      {
+        "time": "2026-10-21 10:00:00",
+        "balance": 10163.94,
+        "drawdown_pct": 1.0
+      },
+      {
+        "time": "2026-10-23 09:20:00",
+        "balance": 10060.3,
+        "drawdown_pct": 2.01
+      },
+      {
+        "time": "2026-10-23 11:10:00",
+        "balance": 10108.56,
+        "drawdown_pct": 1.54
+      },
+      {
+        "time": "2026-11-02 13:10:00",
+        "balance": 10007.47,
+        "drawdown_pct": 2.52
+      }
+    ],
+    "trades": [
+      {
+        "id": 1,
+        "time": "2026-10-12 07:35:00",
+        "direction": "SHORT",
+        "entry_price": 4186.415,
+        "stop_loss": 4188.675,
+        "take_profit": 4184.494,
+        "verdict": "WIN",
+        "r_multiple": 0.85,
+        "pnl": 85.0,
+        "balance": 10085.0
+      },
+      {
+        "id": 2,
+        "time": "2026-10-12 10:25:00",
+        "direction": "LONG",
+        "entry_price": 4177.295,
+        "stop_loss": 4173.577,
+        "take_profit": 4179.154,
+        "verdict": "WIN",
+        "r_multiple": 0.47,
+        "pnl": 47.17,
+        "balance": 10132.17
+      },
+      {
+        "id": 3,
+        "time": "2026-10-12 13:35:00",
+        "direction": "SHORT",
+        "entry_price": 4172.645,
+        "stop_loss": 4176.555,
+        "take_profit": 4169.322,
+        "verdict": "WIN",
+        "r_multiple": 0.85,
+        "pnl": 86.12,
+        "balance": 10218.29
+      },
+      {
+        "id": 4,
+        "time": "2026-10-15 09:40:00",
+        "direction": "SHORT",
+        "entry_price": 4157.775,
+        "stop_loss": 4162.194,
+        "take_profit": 4155.565,
+        "verdict": "WIN",
+        "r_multiple": 0.47,
+        "pnl": 48.32,
+        "balance": 10266.61
+      },
+      {
+        "id": 5,
+        "time": "2026-10-21 10:00:00",
+        "direction": "LONG",
+        "entry_price": 4118.005,
+        "stop_loss": 4114.47,
+        "take_profit": 4121.009,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -102.67,
+        "balance": 10163.94
+      },
+      {
+        "id": 6,
+        "time": "2026-10-23 09:20:00",
+        "direction": "LONG",
+        "entry_price": 4028.465,
+        "stop_loss": 4022.378,
+        "take_profit": 4031.508,
+        "verdict": "LOSS",
+        "r_multiple": -1.02,
+        "pnl": -103.64,
+        "balance": 10060.3
+      },
+      {
+        "id": 7,
+        "time": "2026-10-23 11:10:00",
+        "direction": "LONG",
+        "entry_price": 4027.035,
+        "stop_loss": 4021.127,
+        "take_profit": 4029.989,
+        "verdict": "WIN",
+        "r_multiple": 0.48,
+        "pnl": 48.26,
+        "balance": 10108.56
+      },
+      {
+        "id": 8,
+        "time": "2026-11-02 13:10:00",
+        "direction": "LONG",
+        "entry_price": 3900.898,
+        "stop_loss": 3896.992,
+        "take_profit": 3904.219,
+        "verdict": "LOSS",
+        "r_multiple": -1.0,
+        "pnl": -101.09,
+        "balance": 10007.47
+      }
+    ]
+  },
+  "report_file": "d:\\CSV\\dukascopy-downloader\\reports\\report_liquidity_bubble_trap_1793865254577.html",
+  "set_file": "d:\\CSV\\dukascopy-downloader\\reports\\strategy_liquidity_bubble_trap_1793865254577.set",
+  "set_content": "; ===========================================================\n; MT5 EA Configuration: LIQUIDITY_BUBBLE_TRAP Strategy\n; Generated on: 2026-11-05 14:54:15\n; ===========================================================\nInpStrategyName=liquidity_bubble_trap\nInpRiskPercent=1.00\nInpRewardRiskRatio=0.85\nInpSwingStrength=5\nInpVolumeBubbleMultiplier=1.35\nInpWickRatioThreshold=0.45\nInpSessionStartHour=7\nInpSessionEndHour=18\nInpAtrPeriod=14\nInpSlAtrBuffer=0.25\nInpFastEma=20\nInpSlowEma=50\nInpOnePositionAtATime=1\nInpMagicNumber=888560\nInpSlippagePips=3",
+  "mql5_blueprint": "//+------------------------------------------------------------------+\n//| MQL5 LOGIC BLUEPRINT: LIQUIDITY_BUBBLE_TRAP\n//| Swing Liquidity Sweep + Bookmap-style Volume Bubble Absorption\n//+------------------------------------------------------------------+\n\n// 1. INPUT PARAMETERS\ninput double InpRiskPercent          = 1.0;          // Risk % per trade\ninput double InpRewardRiskRatio      = 0.85;        // Target RR (0.85:1)\ninput int    InpSwingStrength        = 5;            // Swing pivot bars\ninput double InpVolumeMultiplier     = 1.35;         // Bubble volume threshold (1.35x SMA20)\ninput double InpWickRatioThreshold   = 0.45;         // Min rejection wick ratio (45%)\ninput int    InpSessionStartHour     = 7;            // London session open (07:00 UTC)\ninput int    InpSessionEndHour       = 18;           // NY session close (18:00 UTC)\n\n// 2. ENTRY LOGIC\n// - Identifies swing high/low within lookback = 50 bars.\n// - Checks bar volume >= 1.35 * SMA(Volume, 20).\n// - Bear Trap (Sell): sweeps swing high, closes <= swing high, upper wick >= 45% range, EMA20 <= EMA50.\n//   SL = High + ATR(14) * 0.25, TP = Close - Risk * RR.\n// - Bull Trap (Buy): sweeps swing low, closes >= swing low, lower wick >= 45% range, EMA20 >= EMA50.\n//   SL = Low - ATR(14) * 0.25, TP = Close + Risk * RR.\n"
+}

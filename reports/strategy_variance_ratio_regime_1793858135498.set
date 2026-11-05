@@ -1,0 +1,19 @@
+; ===========================================================
+; MT5 EA Configuration: VARIANCE_RATIO_REGIME Strategy
+; Generated on: 2026-11-05 12:55:35
+; ===========================================================
+InpStrategyName=variance_ratio_regime
+InpRiskPercent=1.00
+InpRewardRiskRatio=2.00
+InpReturnLookback=96
+InpDisplacementBars=12
+InpVarianceLag=4
+InpEntryZScore=2.00
+InpVarianceRatioThreshold=0.80
+InpMode=reversion
+InpStopATR=1.00
+InpMaxHoldBars=12
+InpHalfSpread=0.12
+InpOnePositionAtATime=1
+InpMagicNumber=888557
+InpSlippagePips=3

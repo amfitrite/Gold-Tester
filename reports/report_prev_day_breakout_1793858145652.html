@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Gold Sweep / Imbalance Backtest</title>
+<style>
+ :root{--bg:#0e1116;--panel:#161b22;--line:#30363d;--fg:#c9d1d9;--mut:#8b949e;
+   --up:#3fb950;--down:#f85149;--long:#58a6ff;--short:#d29922;--win:#3fb950;--loss:#f85149;}
+ *{box-sizing:border-box}
+ body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace}
+ header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+ h1{font-size:15px;margin:0}
+ .mut{color:var(--mut)}
+ .wrap{padding:12px 16px;max-width:1300px;margin:0 auto}
+ .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:10px 0;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+ label.tog{display:inline-flex;gap:5px;align-items:center;cursor:pointer;user-select:none}
+ select{background:#0d1117;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+ canvas{background:var(--panel);border:1px solid var(--line);border-radius:8px;width:100%;display:block}
+ .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+ table{border-collapse:collapse;width:100%;font-size:12px}
+ th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+ th:first-child,td:first-child{text-align:left}
+ th{color:var(--mut);font-weight:600}
+ .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+ .panel h2{font-size:13px;margin:0 0 8px}
+ .pos{color:var(--win)}.neg{color:var(--loss)}
+ .badge{padding:1px 6px;border-radius:4px;font-size:11px}
+ .b-long{background:rgba(88,166,255,.18);color:var(--long)}
+ .b-short{background:rgba(210,153,34,.2);color:var(--short)}
+ .b-win{background:rgba(63,185,80,.18);color:var(--win)}
+ .b-loss{background:rgba(248,81,73,.18);color:var(--loss)}
+ .b-unresolved{background:rgba(139,148,158,.18);color:var(--mut)}
+ .b-skip{background:rgba(139,148,158,.18);color:var(--mut)}
+ .b-keep{background:rgba(63,185,80,.14);color:var(--win)}
+ #tip{position:fixed;pointer-events:none;background:#0d1117;border:1px solid var(--line);
+   border-radius:6px;padding:6px 8px;font-size:12px;display:none;z-index:9;white-space:pre}
+ .note{background:#1c2128;border-left:3px solid var(--short);padding:8px 12px;border-radius:4px;margin:10px 0;color:var(--mut)}
+ .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:middle;margin-right:3px}
+</style>
+</head>
+<body>
+<header>
+ <h1>Gold Liquidity-Sweep + Imbalance Backtest</h1>
+ <span class="mut" id="paramline"></span>
+</header>
+<div class="wrap">
+ <div class="note"><b>Honesty note:</b> this is hindsight on past candles &mdash; "what the rules would have flagged", not a prediction or live signal. Prices/levels are computed exactly from OHLC. Same-candle stop+target resolves as a LOSS (pessimistic). A trend filter that shines on a trending day can cost on a range day &mdash; compare ON vs OFF and across days.</div>
+
+ <div class="controls">
+  <span>Day: <select id="daysel"></select></span>
+  <label class="tog"><input type="checkbox" id="L_levels" checked><span class="swatch" style="background:#6e7681"></span>Liquidity</label>
+  <label class="tog"><input type="checkbox" id="L_sweeps" checked><span class="swatch" style="background:#bc8cff"></span>Sweeps</label>
+  <label class="tog"><input type="checkbox" id="L_zones" checked><span class="swatch" style="background:#388bfd"></span>FVG/OB</label>
+  <label class="tog"><input type="checkbox" id="L_setups" checked><span class="swatch" style="background:#58a6ff"></span>Setups (E/SL/TP)</label>
+  <label class="tog"><input type="checkbox" id="L_skipped"><span class="swatch" style="background:#8b949e"></span>Show filter-skipped</label>
+ </div>
+
+ <canvas id="chart" height="560"></canvas>
+
+ <div class="grid">
+  <div class="panel"><h2>Stats &mdash; Filter OFF (all setups)</h2><div id="stats_off"></div></div>
+  <div class="panel"><h2>Stats &mdash; Filter ON (trend-aligned)</h2><div id="stats_on"></div></div>
+ </div>
+
+ <div class="panel" style="margin-top:14px" id="batchpanel">
+  <h2>Batch &mdash; per-day breakdown</h2>
+  <div id="batch"></div>
+ </div>
+
+ <div class="panel" style="margin-top:14px">
+  <h2>Setups (this day)</h2>
+  <div id="setups"></div>
+ </div>
+ <div class="panel" style="margin-top:14px;display:none" id="badpanel">
+  <h2>Bad rows</h2><div id="bad"></div>
+ </div>
+</div>
+<div id="tip"></div>
+<script>
+const DATA = {"params": {"swing_strength": 5, "min_fvg_size": 0.5, "ob_lookahead": 3, "fvg_lookahead": 4, "rr": 2.0, "sl_buffer": 0.0, "pullback_window": 10, "orb_window": 4, "breakout_min_room": 1, "trend_method": "ema", "ema_fast": 20, "ema_slow": 50, "require_close_confirmation": false, "max_risk": null, "ma_period": 50, "ma_kind": "ema", "rsi_period": 14, "rsi_long_max": 70.0, "rsi_short_min": 30.0, "timeframe": "M5", "aux_file": null}, "days": [{"name": "vp_grid", "candles": [], "swings": [], "sweeps": [], "zones": [], "setups": [], "stats_on": {"n_setups": 0, "wins": 0, "losses": 0, "unresolved": 0, "win_rate": 0.0, "total_r": 0, "expectancy": 0.0}, "stats_off": {"n_setups": 0, "wins": 0, "losses": 0, "unresolved": 0, "win_rate": 0.0, "total_r": 0, "expectancy": 0.0}, "bad_rows": [{"line": 1, "reason": "expected >=4 numeric OHLC values, got 0"}, {"line": 2, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.25"}, {"line": 3, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.25"}, {"line": 4, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.25"}, {"line": 5, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.25"}, {"line": 6, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.25"}, {"line": 7, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.25"}, {"line": 8, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.25"}, {"line": 9, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.25"}, {"line": 10, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.25"}, {"line": 11, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.5"}, {"line": 12, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.5"}, {"line": 13, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.5"}, {"line": 14, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.5"}, {"line": 15, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.5"}, {"line": 16, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.5"}, {"line": 17, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.5"}, {"line": 18, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.5"}, {"line": 19, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.5"}, {"line": 20, "reason": "high (0.7) < low (0.75)"}, {"line": 21, "reason": "high (0.7) < low (0.75)"}, {"line": 22, "reason": "high (0.7) < low (0.75)"}, {"line": 23, "reason": "high (0.7) < low (0.75)"}, {"line": 24, "reason": "high (0.7) < low (0.75)"}, {"line": 25, "reason": "high (0.7) < low (0.75)"}, {"line": 26, "reason": "high (0.7) < low (0.75)"}, {"line": 27, "reason": "high (0.7) < low (0.75)"}, {"line": 28, "reason": "high (0.7) < low (0.75)"}, {"line": 29, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.25"}, {"line": 30, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.25"}, {"line": 31, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.25"}, {"line": 32, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.25"}, {"line": 33, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.25"}, {"line": 34, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.25"}, {"line": 35, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.25"}, {"line": 36, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.25"}, {"line": 37, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.25"}, {"line": 38, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.5"}, {"line": 39, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.5"}, {"line": 40, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.7 l=0.5"}, {"line": 41, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.5"}, {"line": 42, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.5"}, {"line": 43, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.7 l=0.5"}, {"line": 44, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.5"}, {"line": 45, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.5"}, {"line": 46, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.7 l=0.5"}, {"line": 47, "reason": "high (0.7) < low (0.75)"}, {"line": 48, "reason": "high (0.7) < low (0.75)"}, {"line": 49, "reason": "high (0.7) < low (0.75)"}, {"line": 50, "reason": "high (0.7) < low (0.75)"}, {"line": 51, "reason": "high (0.7) < low (0.75)"}, {"line": 52, "reason": "high (0.7) < low (0.75)"}, {"line": 53, "reason": "high (0.7) < low (0.75)"}, {"line": 54, "reason": "high (0.7) < low (0.75)"}, {"line": 55, "reason": "high (0.7) < low (0.75)"}, {"line": 56, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.25"}, {"line": 57, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.25"}, {"line": 58, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.25"}, {"line": 59, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.25"}, {"line": 60, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.25"}, {"line": 61, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.25"}, {"line": 62, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.25"}, {"line": 63, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.25"}, {"line": 64, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.25"}, {"line": 65, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.5"}, {"line": 66, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.5"}, {"line": 67, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.5"}, {"line": 68, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.5"}, {"line": 69, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.5"}, {"line": 70, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.5"}, {"line": 71, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.5"}, {"line": 72, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.5"}, {"line": 73, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.5"}, {"line": 74, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.75"}, {"line": 75, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.75"}, {"line": 76, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.75"}, {"line": 77, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.75"}, {"line": 78, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.75"}, {"line": 79, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.75"}, {"line": 80, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.75"}, {"line": 81, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.75"}, {"line": 82, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.75"}, {"line": 83, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.25"}, {"line": 84, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.25"}, {"line": 85, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.25"}, {"line": 86, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.25"}, {"line": 87, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.25"}, {"line": 88, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.25"}, {"line": 89, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.25"}, {"line": 90, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.25"}, {"line": 91, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.25"}, {"line": 92, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.5"}, {"line": 93, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.5"}, {"line": 94, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.5"}, {"line": 95, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.5"}, {"line": 96, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.5"}, {"line": 97, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.5"}, {"line": 98, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.5"}, {"line": 99, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.5"}, {"line": 100, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.5"}, {"line": 101, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.75"}, {"line": 102, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.75"}, {"line": 103, "reason": "open/close outside [low, high]: o=2.0 c=0.4 h=0.8 l=0.75"}, {"line": 104, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.75"}, {"line": 105, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.75"}, {"line": 106, "reason": "open/close outside [low, high]: o=2.0 c=0.5 h=0.8 l=0.75"}, {"line": 107, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.75"}, {"line": 108, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.75"}, {"line": 109, "reason": "open/close outside [low, high]: o=2.0 c=0.6 h=0.8 l=0.75"}, {"line": 110, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.25"}, {"line": 111, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.25"}, {"line": 112, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.25"}, {"line": 113, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.25"}, {"line": 114, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.25"}, {"line": 115, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.25"}, {"line": 116, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.25"}, {"line": 117, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.25"}, {"line": 118, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.25"}, {"line": 119, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.5"}, {"line": 120, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.5"}, {"line": 121, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.5"}, {"line": 122, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.5"}, {"line": 123, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.5"}, {"line": 124, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.5"}, {"line": 125, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.5"}, {"line": 126, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.5"}, {"line": 127, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.5"}, {"line": 128, "reason": "high (0.7) < low (0.75)"}, {"line": 129, "reason": "high (0.7) < low (0.75)"}, {"line": 130, "reason": "high (0.7) < low (0.75)"}, {"line": 131, "reason": "high (0.7) < low (0.75)"}, {"line": 132, "reason": "high (0.7) < low (0.75)"}, {"line": 133, "reason": "high (0.7) < low (0.75)"}, {"line": 134, "reason": "high (0.7) < low (0.75)"}, {"line": 135, "reason": "high (0.7) < low (0.75)"}, {"line": 136, "reason": "high (0.7) < low (0.75)"}, {"line": 137, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.25"}, {"line": 138, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.25"}, {"line": 139, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.25"}, {"line": 140, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.25"}, {"line": 141, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.25"}, {"line": 142, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.25"}, {"line": 143, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.25"}, {"line": 144, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.25"}, {"line": 145, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.25"}, {"line": 146, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.5"}, {"line": 147, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.5"}, {"line": 148, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.7 l=0.5"}, {"line": 149, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.5"}, {"line": 150, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.5"}, {"line": 151, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.7 l=0.5"}, {"line": 152, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.5"}, {"line": 153, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.5"}, {"line": 154, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.7 l=0.5"}, {"line": 155, "reason": "high (0.7) < low (0.75)"}, {"line": 156, "reason": "high (0.7) < low (0.75)"}, {"line": 157, "reason": "high (0.7) < low (0.75)"}, {"line": 158, "reason": "high (0.7) < low (0.75)"}, {"line": 159, "reason": "high (0.7) < low (0.75)"}, {"line": 160, "reason": "high (0.7) < low (0.75)"}, {"line": 161, "reason": "high (0.7) < low (0.75)"}, {"line": 162, "reason": "high (0.7) < low (0.75)"}, {"line": 163, "reason": "high (0.7) < low (0.75)"}, {"line": 164, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.25"}, {"line": 165, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.25"}, {"line": 166, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.25"}, {"line": 167, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.25"}, {"line": 168, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.25"}, {"line": 169, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.25"}, {"line": 170, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.25"}, {"line": 171, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.25"}, {"line": 172, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.25"}, {"line": 173, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.5"}, {"line": 174, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.5"}, {"line": 175, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.5"}, {"line": 176, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.5"}, {"line": 177, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.5"}, {"line": 178, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.5"}, {"line": 179, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.5"}, {"line": 180, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.5"}, {"line": 181, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.5"}, {"line": 182, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.75"}, {"line": 183, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.75"}, {"line": 184, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.75"}, {"line": 185, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.75"}, {"line": 186, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.75"}, {"line": 187, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.75"}, {"line": 188, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.75"}, {"line": 189, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.75"}, {"line": 190, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.75"}, {"line": 191, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.25"}, {"line": 192, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.25"}, {"line": 193, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.25"}, {"line": 194, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.25"}, {"line": 195, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.25"}, {"line": 196, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.25"}, {"line": 197, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.25"}, {"line": 198, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.25"}, {"line": 199, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.25"}, {"line": 200, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.5"}, {"line": 201, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.5"}, {"line": 202, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.5"}, {"line": 203, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.5"}, {"line": 204, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.5"}, {"line": 205, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.5"}, {"line": 206, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.5"}, {"line": 207, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.5"}, {"line": 208, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.5"}, {"line": 209, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.75"}, {"line": 210, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.75"}, {"line": 211, "reason": "open/close outside [low, high]: o=3.0 c=0.4 h=0.8 l=0.75"}, {"line": 212, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.75"}, {"line": 213, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.75"}, {"line": 214, "reason": "open/close outside [low, high]: o=3.0 c=0.5 h=0.8 l=0.75"}, {"line": 215, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.75"}, {"line": 216, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.75"}, {"line": 217, "reason": "open/close outside [low, high]: o=3.0 c=0.6 h=0.8 l=0.75"}, {"line": 218, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.25"}, {"line": 219, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.25"}, {"line": 220, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.25"}, {"line": 221, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.25"}, {"line": 222, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.25"}, {"line": 223, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.25"}, {"line": 224, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.25"}, {"line": 225, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.25"}, {"line": 226, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.25"}, {"line": 227, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.5"}, {"line": 228, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.5"}, {"line": 229, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.5"}, {"line": 230, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.5"}, {"line": 231, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.5"}, {"line": 232, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.5"}, {"line": 233, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.5"}, {"line": 234, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.5"}, {"line": 235, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.5"}, {"line": 236, "reason": "high (0.7) < low (0.75)"}, {"line": 237, "reason": "high (0.7) < low (0.75)"}, {"line": 238, "reason": "high (0.7) < low (0.75)"}, {"line": 239, "reason": "high (0.7) < low (0.75)"}, {"line": 240, "reason": "high (0.7) < low (0.75)"}, {"line": 241, "reason": "high (0.7) < low (0.75)"}, {"line": 242, "reason": "high (0.7) < low (0.75)"}, {"line": 243, "reason": "high (0.7) < low (0.75)"}, {"line": 244, "reason": "high (0.7) < low (0.75)"}, {"line": 245, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.25"}, {"line": 246, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.25"}, {"line": 247, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.25"}, {"line": 248, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.25"}, {"line": 249, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.25"}, {"line": 250, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.25"}, {"line": 251, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.25"}, {"line": 252, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.25"}, {"line": 253, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.25"}, {"line": 254, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.5"}, {"line": 255, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.5"}, {"line": 256, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.7 l=0.5"}, {"line": 257, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.5"}, {"line": 258, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.5"}, {"line": 259, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.7 l=0.5"}, {"line": 260, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.5"}, {"line": 261, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.5"}, {"line": 262, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.7 l=0.5"}, {"line": 263, "reason": "high (0.7) < low (0.75)"}, {"line": 264, "reason": "high (0.7) < low (0.75)"}, {"line": 265, "reason": "high (0.7) < low (0.75)"}, {"line": 266, "reason": "high (0.7) < low (0.75)"}, {"line": 267, "reason": "high (0.7) < low (0.75)"}, {"line": 268, "reason": "high (0.7) < low (0.75)"}, {"line": 269, "reason": "high (0.7) < low (0.75)"}, {"line": 270, "reason": "high (0.7) < low (0.75)"}, {"line": 271, "reason": "high (0.7) < low (0.75)"}, {"line": 272, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.25"}, {"line": 273, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.25"}, {"line": 274, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.25"}, {"line": 275, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.25"}, {"line": 276, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.25"}, {"line": 277, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.25"}, {"line": 278, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.25"}, {"line": 279, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.25"}, {"line": 280, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.25"}, {"line": 281, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.5"}, {"line": 282, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.5"}, {"line": 283, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.5"}, {"line": 284, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.5"}, {"line": 285, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.5"}, {"line": 286, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.5"}, {"line": 287, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.5"}, {"line": 288, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.5"}, {"line": 289, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.5"}, {"line": 290, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.75"}, {"line": 291, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.75"}, {"line": 292, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.75"}, {"line": 293, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.75"}, {"line": 294, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.75"}, {"line": 295, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.75"}, {"line": 296, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.75"}, {"line": 297, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.75"}, {"line": 298, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.75"}, {"line": 299, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.25"}, {"line": 300, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.25"}, {"line": 301, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.25"}, {"line": 302, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.25"}, {"line": 303, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.25"}, {"line": 304, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.25"}, {"line": 305, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.25"}, {"line": 306, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.25"}, {"line": 307, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.25"}, {"line": 308, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.5"}, {"line": 309, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.5"}, {"line": 310, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.5"}, {"line": 311, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.5"}, {"line": 312, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.5"}, {"line": 313, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.5"}, {"line": 314, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.5"}, {"line": 315, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.5"}, {"line": 316, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.5"}, {"line": 317, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.75"}, {"line": 318, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.75"}, {"line": 319, "reason": "open/close outside [low, high]: o=5.0 c=0.4 h=0.8 l=0.75"}, {"line": 320, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.75"}, {"line": 321, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.75"}, {"line": 322, "reason": "open/close outside [low, high]: o=5.0 c=0.5 h=0.8 l=0.75"}, {"line": 323, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.75"}, {"line": 324, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.75"}, {"line": 325, "reason": "open/close outside [low, high]: o=5.0 c=0.6 h=0.8 l=0.75"}, {"line": 326, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.25"}, {"line": 327, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.25"}, {"line": 328, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.25"}, {"line": 329, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.25"}, {"line": 330, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.25"}, {"line": 331, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.25"}, {"line": 332, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.25"}, {"line": 333, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.25"}, {"line": 334, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.25"}, {"line": 335, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.5"}, {"line": 336, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.5"}, {"line": 337, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.5"}, {"line": 338, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.5"}, {"line": 339, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.5"}, {"line": 340, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.5"}, {"line": 341, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.5"}, {"line": 342, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.5"}, {"line": 343, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.5"}, {"line": 344, "reason": "high (0.7) < low (0.75)"}, {"line": 345, "reason": "high (0.7) < low (0.75)"}, {"line": 346, "reason": "high (0.7) < low (0.75)"}, {"line": 347, "reason": "high (0.7) < low (0.75)"}, {"line": 348, "reason": "high (0.7) < low (0.75)"}, {"line": 349, "reason": "high (0.7) < low (0.75)"}, {"line": 350, "reason": "high (0.7) < low (0.75)"}, {"line": 351, "reason": "high (0.7) < low (0.75)"}, {"line": 352, "reason": "high (0.7) < low (0.75)"}, {"line": 353, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.25"}, {"line": 354, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.25"}, {"line": 355, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.25"}, {"line": 356, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.25"}, {"line": 357, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.25"}, {"line": 358, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.25"}, {"line": 359, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.25"}, {"line": 360, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.25"}, {"line": 361, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.25"}, {"line": 362, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.5"}, {"line": 363, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.5"}, {"line": 364, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.7 l=0.5"}, {"line": 365, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.5"}, {"line": 366, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.5"}, {"line": 367, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.7 l=0.5"}, {"line": 368, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.5"}, {"line": 369, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.5"}, {"line": 370, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.7 l=0.5"}, {"line": 371, "reason": "high (0.7) < low (0.75)"}, {"line": 372, "reason": "high (0.7) < low (0.75)"}, {"line": 373, "reason": "high (0.7) < low (0.75)"}, {"line": 374, "reason": "high (0.7) < low (0.75)"}, {"line": 375, "reason": "high (0.7) < low (0.75)"}, {"line": 376, "reason": "high (0.7) < low (0.75)"}, {"line": 377, "reason": "high (0.7) < low (0.75)"}, {"line": 378, "reason": "high (0.7) < low (0.75)"}, {"line": 379, "reason": "high (0.7) < low (0.75)"}, {"line": 380, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.25"}, {"line": 381, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.25"}, {"line": 382, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.25"}, {"line": 383, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.25"}, {"line": 384, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.25"}, {"line": 385, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.25"}, {"line": 386, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.25"}, {"line": 387, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.25"}, {"line": 388, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.25"}, {"line": 389, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.5"}, {"line": 390, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.5"}, {"line": 391, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.5"}, {"line": 392, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.5"}, {"line": 393, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.5"}, {"line": 394, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.5"}, {"line": 395, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.5"}, {"line": 396, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.5"}, {"line": 397, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.5"}, {"line": 398, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.75"}, {"line": 399, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.75"}, {"line": 400, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.75"}, {"line": 401, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.75"}, {"line": 402, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.75"}, {"line": 403, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.75"}, {"line": 404, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.75"}, {"line": 405, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.75"}, {"line": 406, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.75"}, {"line": 407, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.25"}, {"line": 408, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.25"}, {"line": 409, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.25"}, {"line": 410, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.25"}, {"line": 411, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.25"}, {"line": 412, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.25"}, {"line": 413, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.25"}, {"line": 414, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.25"}, {"line": 415, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.25"}, {"line": 416, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.5"}, {"line": 417, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.5"}, {"line": 418, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.5"}, {"line": 419, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.5"}, {"line": 420, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.5"}, {"line": 421, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.5"}, {"line": 422, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.5"}, {"line": 423, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.5"}, {"line": 424, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.5"}, {"line": 425, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.75"}, {"line": 426, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.75"}, {"line": 427, "reason": "open/close outside [low, high]: o=10.0 c=0.4 h=0.8 l=0.75"}, {"line": 428, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.75"}, {"line": 429, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.75"}, {"line": 430, "reason": "open/close outside [low, high]: o=10.0 c=0.5 h=0.8 l=0.75"}, {"line": 431, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.75"}, {"line": 432, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.75"}, {"line": 433, "reason": "open/close outside [low, high]: o=10.0 c=0.6 h=0.8 l=0.75"}]}], "agg_on": {"n_setups": 0, "wins": 0, "losses": 0, "unresolved": 0, "win_rate": 0.0, "total_r": 0, "expectancy": 0.0}, "agg_off": {"n_setups": 0, "wins": 0, "losses": 0, "unresolved": 0, "win_rate": 0.0, "total_r": 0, "expectancy": 0.0}};
+const cv = document.getElementById('chart'), ctx = cv.getContext('2d');
+const tip = document.getElementById('tip');
+let cur = 0, hover = -1;
+const PAD = {l:64,r:16,t:14,b:26};
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function fmt(x){return x==null?'-':(+x).toFixed(2);}
+function pct(x){return (x*100).toFixed(1)+'%';}
+
+document.getElementById('paramline').textContent =
+  'params: ' + Object.entries(DATA.params).filter(([k,v])=>v!=null)
+    .map(([k,v])=>k+'='+v).join('  ');
+
+const sel = document.getElementById('daysel');
+DATA.days.forEach((d,i)=>{const o=document.createElement('option');o.value=i;o.textContent=d.name;sel.appendChild(o);});
+sel.onchange = ()=>{cur=+sel.value; renderAll();};
+['L_levels','L_sweeps','L_zones','L_setups','L_skipped'].forEach(id=>
+  document.getElementById(id).onchange = draw);
+
+function resize(){ cv.width = cv.clientWidth * devicePixelRatio; cv.height = 560*devicePixelRatio;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); draw(); }
+window.addEventListener('resize', resize);
+
+let geom = null;
+function buildGeom(){
+  const d = DATA.days[cur], cs = d.candles;
+  const W = cv.clientWidth, H = 560;
+  let lo=Infinity, hi=-Infinity;
+  cs.forEach(c=>{lo=Math.min(lo,c.l);hi=Math.max(hi,c.h);});
+  // include setup TP/SL so lines stay on screen
+  d.setups.forEach(s=>{ if(showSetup(s)){lo=Math.min(lo,s.sl,s.tp);hi=Math.max(hi,s.sl,s.tp);} });
+  const padp=(hi-lo)*0.06||1; lo-=padp; hi+=padp;
+  const px=W-PAD.l-PAD.r, ph=H-PAD.t-PAD.b;
+  const x=i=>PAD.l + (cs.length<=1?px/2:(i/(cs.length-1))*px);
+  const y=p=>PAD.t + (1-(p-lo)/(hi-lo))*ph;
+  const cw=Math.max(2, px/cs.length*0.7);
+  geom={d,cs,W,H,lo,hi,x,y,cw,px,ph};
+}
+function showSetup(s){ return s.kept || document.getElementById('L_skipped').checked; }
+
+function draw(){
+  if(!geom) buildGeom(); else buildGeom();
+  const {d,cs,W,H,x,y,cw,lo,hi}=geom;
+  ctx.clearRect(0,0,W,H);
+  // axes / gridlines
+  ctx.strokeStyle=css('--line'); ctx.fillStyle=css('--mut'); ctx.font='11px monospace';
+  ctx.lineWidth=1;
+  for(let g=0;g<=5;g++){const p=lo+(hi-lo)*g/5,yy=y(p);
+    ctx.globalAlpha=.4;ctx.beginPath();ctx.moveTo(PAD.l,yy);ctx.lineTo(W-PAD.r,yy);ctx.stroke();
+    ctx.globalAlpha=1;ctx.fillText(p.toFixed(2),6,yy+3);}
+  // x labels (~8)
+  const step=Math.max(1,Math.floor(cs.length/8));
+  for(let i=0;i<cs.length;i+=step){ctx.fillText(cs[i].t.slice(11)||('#'+i), x(i)-14, H-8);}
+
+  if(document.getElementById('L_zones').checked) drawZones();
+  if(document.getElementById('L_levels').checked) drawLevels();
+
+  // candles
+  cs.forEach((c,i)=>{
+    const up=c.c>=c.o, col=up?css('--up'):css('--down');
+    ctx.strokeStyle=col; ctx.fillStyle=up?css('--bg'):col; ctx.lineWidth=1;
+    const cx=x(i);
+    ctx.beginPath();ctx.moveTo(cx,y(c.h));ctx.lineTo(cx,y(c.l));ctx.stroke();
+    const top=y(Math.max(c.o,c.c)), bot=y(Math.min(c.o,c.c));
+    ctx.beginPath();ctx.rect(cx-cw/2, top, cw, Math.max(1,bot-top));
+    if(up){ctx.stroke();}else{ctx.fill();ctx.stroke();}
+  });
+
+  if(document.getElementById('L_sweeps').checked) drawSweeps();
+  if(document.getElementById('L_setups').checked) drawSetups();
+
+  if(hover>=0 && hover<cs.length){ctx.strokeStyle=css('--mut');ctx.globalAlpha=.5;
+    ctx.beginPath();ctx.moveTo(x(hover),PAD.t);ctx.lineTo(x(hover),H-PAD.b);ctx.stroke();ctx.globalAlpha=1;}
+}
+
+function drawZones(){
+  const {d,x,y,cw}=geom;
+  d.zones.forEach(z=>{
+    ctx.fillStyle = z.dir==='long' ? 'rgba(88,166,255,.10)' : 'rgba(210,153,34,.10)';
+    ctx.strokeStyle = z.dir==='long' ? 'rgba(88,166,255,.5)' : 'rgba(210,153,34,.5)';
+    const x0=x(z.start)-cw/2, x1=geom.W-PAD.r;
+    ctx.fillRect(x0, y(z.top), x1-x0, y(z.bottom)-y(z.top));
+    ctx.strokeRect(x0, y(z.top), x1-x0, y(z.bottom)-y(z.top));
+    ctx.fillStyle=css('--mut');ctx.fillText('FVG', x0+2, y(z.top)-2);
+  });
+  // OB zones from setups
+  d.setups.filter(s=>s.zone && s.zone.kind==='OB' && showSetup(s)).forEach(s=>{
+    const z=s.zone; ctx.fillStyle='rgba(188,140,255,.10)'; ctx.strokeStyle='rgba(188,140,255,.6)';
+    const x0=x(z.start)-cw/2, x1=x(s.entry_index)+cw;
+    ctx.fillRect(x0,y(z.top),x1-x0,y(z.bottom)-y(z.top));
+    ctx.strokeRect(x0,y(z.top),x1-x0,y(z.bottom)-y(z.top));
+    ctx.fillStyle=css('--mut');ctx.fillText('OB',x0+2,y(z.bottom)+11);
+  });
+}
+function drawLevels(){
+  const {d,x,y}=geom;
+  d.swings.forEach(s=>{
+    ctx.strokeStyle = s.kind==='high' ? 'rgba(248,81,73,.35)' : 'rgba(63,185,80,.35)';
+    ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(x(s.i),y(s.price));ctx.lineTo(geom.W-PAD.r,y(s.price));ctx.stroke();ctx.setLineDash([]);
+  });
+}
+function drawSweeps(){
+  const {d,x,y}=geom;
+  d.sweeps.forEach(s=>{
+    ctx.fillStyle = s.side==='sell' ? css('--down') : css('--up');
+    const yy=y(s.wick), xx=x(s.i), up=s.side==='buy';
+    ctx.beginPath();
+    if(up){ctx.moveTo(xx,yy+9);ctx.lineTo(xx-5,yy+1);ctx.lineTo(xx+5,yy+1);}
+    else{ctx.moveTo(xx,yy-9);ctx.lineTo(xx-5,yy-1);ctx.lineTo(xx+5,yy-1);}
+    ctx.closePath();ctx.fill();
+  });
+}
+function drawSetups(){
+  const {d,x,y,cw}=geom;
+  d.setups.forEach(s=>{
+    if(!showSetup(s)) return;
+    const a = s.kept?1:0.4;
+    const x0=x(s.entry_index), x1 = s.exit_index!=null?x(s.exit_index):geom.W-PAD.r;
+    ctx.globalAlpha=a;
+    const line=(p,col,dash)=>{ctx.strokeStyle=col;ctx.setLineDash(dash||[]);
+      ctx.beginPath();ctx.moveTo(x0,y(p));ctx.lineTo(x1,y(p));ctx.stroke();ctx.setLineDash([]);};
+    line(s.entry, s.direction==='long'?css('--long'):css('--short'), []);
+    line(s.sl, css('--loss'), [3,3]);
+    line(s.tp, css('--win'), [3,3]);
+    // exit marker
+    if(s.exit_index!=null){
+      ctx.fillStyle = s.verdict==='win'?css('--win'):css('--loss');
+      const ey=y(s.exit_price); ctx.beginPath();ctx.arc(x1,ey,4,0,7);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  });
+}
+
+cv.addEventListener('mousemove', e=>{
+  if(!geom)return; const r=cv.getBoundingClientRect();
+  const mx=e.clientX-r.left; const {cs}=geom;
+  let best=-1,bd=1e9; cs.forEach((c,i)=>{const dd=Math.abs(geom.x(i)-mx);if(dd<bd){bd=dd;best=i;}});
+  hover=best; draw();
+  const c=cs[best];
+  tip.style.display='block'; tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY+12)+'px';
+  tip.textContent = `${c.t}\nO ${fmt(c.o)}  H ${fmt(c.h)}\nL ${fmt(c.l)}  C ${fmt(c.c)}\nVol ${c.v}`;
+});
+cv.addEventListener('mouseleave', ()=>{tip.style.display='none';hover=-1;draw();});
+
+function statRows(s){
+  const rcls = s.total_r>=0?'pos':'neg';
+  return `<table>
+   <tr><th>Setups (entries)</th><td>${s.n_setups}</td></tr>
+   <tr><th>Wins / Losses</th><td>${s.wins} / ${s.losses}</td></tr>
+   <tr><th>Unresolved (excl.)</th><td>${s.unresolved}</td></tr>
+   <tr><th>Win rate</th><td>${pct(s.win_rate)}</td></tr>
+   <tr><th>Total R</th><td class="${rcls}">${s.total_r.toFixed(2)}R</td></tr>
+   <tr><th>Expectancy</th><td class="${rcls}">${s.expectancy.toFixed(2)}R</td></tr>
+  </table>`;
+}
+
+function detailCounts(d){
+  return `<table><tr><th>Liquidity levels</th><td>${d.swings.length}</td></tr>
+    <tr><th>Sweeps</th><td>${d.sweeps.length}</td></tr>
+    <tr><th>FVGs</th><td>${d.zones.length}</td></tr></table>`;
+}
+
+function renderSetups(d){
+  let h=`<table><tr><th>#</th><th>Dir</th><th>Swept level @ time</th><th>Imbalance</th>
+    <th>Entry</th><th>SL</th><th>TP</th><th>Risk</th><th>Verdict</th><th>Resolved @</th><th>R</th><th>Filter</th></tr>`;
+  d.setups.forEach((s,i)=>{
+    h+=`<tr>
+      <td>${i+1}</td>
+      <td><span class="badge b-${s.direction}">${s.direction}</span></td>
+      <td>${fmt(s.swept_level)} @ ${s.sweep_time}</td>
+      <td>${s.zone?(s.zone.kind+' ['+fmt(s.zone.bottom)+'–'+fmt(s.zone.top)+']'):s.note}</td>
+      <td>${fmt(s.entry)}</td><td>${fmt(s.sl)}</td><td>${fmt(s.tp)}</td>
+      <td>${fmt(s.risk)}</td>
+      <td><span class="badge b-${s.verdict}">${s.verdict}</span></td>
+      <td>${s.exit_time||'-'}</td>
+      <td class="${s.r>=0?'pos':'neg'}">${s.r.toFixed(2)}R</td>
+      <td><span class="badge ${s.kept?'b-keep':'b-skip'}" title="${s.reason}">${s.kept?'keep':'skip'}</span></td>
+    </tr>`;
+  });
+  return h+'</table>';
+}
+
+function renderBatch(){
+  let h=`<table><tr><th>Day</th><th>Setups</th>
+     <th>OFF W/L</th><th>OFF win%</th><th>OFF R</th>
+     <th>ON W/L</th><th>ON win%</th><th>ON R</th></tr>`;
+  DATA.days.forEach(d=>{
+    const o=d.stats_off,n=d.stats_on;
+    h+=`<tr><td>${d.name}</td><td>${o.n_setups}</td>
+      <td>${o.wins}/${o.losses}</td><td>${pct(o.win_rate)}</td><td class="${o.total_r>=0?'pos':'neg'}">${o.total_r.toFixed(2)}R</td>
+      <td>${n.wins}/${n.losses}</td><td>${pct(n.win_rate)}</td><td class="${n.total_r>=0?'pos':'neg'}">${n.total_r.toFixed(2)}R</td></tr>`;
+  });
+  if(DATA.agg_off){const o=DATA.agg_off,n=DATA.agg_on;
+    h+=`<tr style="font-weight:700;border-top:2px solid var(--line)"><td>ALL</td><td>${o.n_setups}</td>
+      <td>${o.wins}/${o.losses}</td><td>${pct(o.win_rate)}</td><td class="${o.total_r>=0?'pos':'neg'}">${o.total_r.toFixed(2)}R</td>
+      <td>${n.wins}/${n.losses}</td><td>${pct(n.win_rate)}</td><td class="${n.total_r>=0?'pos':'neg'}">${n.total_r.toFixed(2)}R</td></tr>`;}
+  return h+'</table>';
+}
+
+function renderAll(){
+  const d=DATA.days[cur];
+  document.getElementById('stats_off').innerHTML = detailCounts(d)+statRows(d.stats_off);
+  document.getElementById('stats_on').innerHTML = statRows(d.stats_on);
+  document.getElementById('setups').innerHTML = renderSetups(d);
+  document.getElementById('batch').innerHTML = renderBatch();
+  const bp=document.getElementById('badpanel');
+  if(d.bad_rows.length){bp.style.display='block';
+    document.getElementById('bad').innerHTML='<table><tr><th>Line</th><th>Reason</th></tr>'+
+      d.bad_rows.map(b=>`<tr><td>${b.line}</td><td>${b.reason}</td></tr>`).join('')+'</table>';}
+  else bp.style.display='none';
+  resize();
+}
+document.getElementById('batchpanel').style.display = DATA.days.length>1?'block':'none';
+renderAll();
+</script>
+</body>
+</html>

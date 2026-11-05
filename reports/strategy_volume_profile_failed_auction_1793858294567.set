@@ -1,0 +1,19 @@
+; ===========================================================
+; MT5 EA Configuration: VOLUME_PROFILE_FAILED_AUCTION Strategy
+; Generated on: 2026-11-05 12:58:14
+; ===========================================================
+InpStrategyName=volume_profile_failed_auction
+InpRiskPercent=1.00
+InpRewardRiskRatio=0.50
+InpProfileBinSize=5.00
+InpValueArea=0.80
+InpSessionStartHour=9
+InpSessionEndHour=11
+InpAtrPeriod=14
+InpSlAtrBuffer=0.50
+InpMaxHoldBars=48
+InpHalfSpread=0.12
+InpLongOnly=1
+InpOnePositionAtATime=1
+InpMagicNumber=888558
+InpSlippagePips=3

@@ -1,0 +1,19 @@
+; ===========================================================
+; MT5 EA Configuration: LIQUIDITY_BUBBLE_TRAP Strategy
+; Generated on: 2026-11-05 14:54:15
+; ===========================================================
+InpStrategyName=liquidity_bubble_trap
+InpRiskPercent=1.00
+InpRewardRiskRatio=0.85
+InpSwingStrength=5
+InpVolumeBubbleMultiplier=1.35
+InpWickRatioThreshold=0.45
+InpSessionStartHour=7
+InpSessionEndHour=18
+InpAtrPeriod=14
+InpSlAtrBuffer=0.25
+InpFastEma=20
+InpSlowEma=50
+InpOnePositionAtATime=1
+InpMagicNumber=888560
+InpSlippagePips=3

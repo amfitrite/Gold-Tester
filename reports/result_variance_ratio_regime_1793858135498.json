@@ -1,0 +1,45 @@
+{
+  "success": true,
+  "strategy": "variance_ratio_regime",
+  "file": "D:\\CSV\\vp_grid.csv",
+  "timeframe": "M5",
+  "params": {
+    "capital": 10000.0,
+    "risk_pct": 1.0,
+    "rr": 2.0,
+    "trend": "ema",
+    "swing_strength": 5,
+    "min_fvg": 0.5,
+    "sl_buffer": 0.0,
+    "pullback": 10,
+    "close_confirm": false
+  },
+  "summary": {
+    "initial_balance": 10000.0,
+    "final_balance": 10000.0,
+    "net_profit": 0.0,
+    "growth_pct": 0.0,
+    "win_rate": 0.0,
+    "total_trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "unresolved": 0,
+    "profit_factor": 1.0,
+    "max_drawdown_amount": 0.0,
+    "max_drawdown_pct": 0.0,
+    "avg_win": 0.0,
+    "avg_loss": 0.0,
+    "equity_curve": [
+      {
+        "time": "Start",
+        "balance": 10000.0,
+        "drawdown_pct": 0.0
+      }
+    ],
+    "trades": []
+  },
+  "report_file": "d:\\CSV\\dukascopy-downloader\\reports\\report_variance_ratio_regime_1793858135498.html",
+  "set_file": "d:\\CSV\\dukascopy-downloader\\reports\\strategy_variance_ratio_regime_1793858135498.set",
+  "set_content": "; ===========================================================\n; MT5 EA Configuration: VARIANCE_RATIO_REGIME Strategy\n; Generated on: 2026-11-05 12:55:35\n; ===========================================================\nInpStrategyName=variance_ratio_regime\nInpRiskPercent=1.00\nInpRewardRiskRatio=2.00\nInpReturnLookback=96\nInpDisplacementBars=12\nInpVarianceLag=4\nInpEntryZScore=2.00\nInpVarianceRatioThreshold=0.80\nInpMode=reversion\nInpStopATR=1.00\nInpMaxHoldBars=12\nInpHalfSpread=0.12\nInpOnePositionAtATime=1\nInpMagicNumber=888557\nInpSlippagePips=3",
+  "mql5_blueprint": "//+------------------------------------------------------------------+\n//| MQL5 LOGIC BLUEPRINT: VARIANCE_RATIO_REGIME\n//| Statistical return direction gated by persistence regime\n//+------------------------------------------------------------------+\n// On each closed M5 bar, compute log returns; over 96 bars calculate\n// one-bar variance, overlapping 4-bar variance, and the variance ratio:\n// VR4 = Var(4-bar returns) / (4 * Var(1-bar returns)). Compute the 12-bar\n// cumulative return z-score using the rolling one-bar standard deviation.\n// In reversion mode, fade when |z| >= 2.0 and VR4 <= 0.80; in persistence\n// mode, follow when |z| >= 2.0 and VR4 >= 1.20.\n// Enter at next bar open. SL = 1.0 x ATR(14), target = 2.00R.\n// Time stop: 12 bars. Apply adverse 0.12 price-unit entry/exit costs.\n// Same-bar SL and TP: resolve as SL (conservative OHLC assumption).\n"
+}
