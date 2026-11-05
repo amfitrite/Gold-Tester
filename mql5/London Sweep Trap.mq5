@@ -494,15 +494,10 @@ int OnCalculate(const int rates_total,
    double wr = (closed > 0) ? (100.0 * wins / closed) : 0.0;
    double growth_pct = ((equity - InpInitialDeposit) / InpInitialDeposit) * 100.0;
 
-   // 3. Draw Chart Lines for Active Signal
-   if(InpDrawTradeLines && last_sig_time > 0 && last_sig_active)
+   // 3. Draw Chart Lines for Latest Signal (Always Visible for User Trading)
+   if(InpDrawTradeLines && last_sig_time > 0)
    {
       DrawTradeLines(last_sig_time, last_sig_entry, last_sig_sl, last_sig_tp, last_sig_is_buy);
-   }
-   else
-   {
-      ObjectsDeleteAll(0, PFX + "Line_");
-      ObjectsDeleteAll(0, PFX + "Lbl_");
    }
 
    // 4. Update Dashboard HUD
@@ -530,7 +525,7 @@ int OnCalculate(const int rates_total,
       {
          s += StringFormat("Sinyal Terakhir : [%s] @ %.2f (%s)\n", last_sig_is_buy ? "BUY" : "SELL", last_sig_entry, last_sig_result);
          s += StringFormat("Target TP/SL    : TP %.2f | SL %.2f\n", last_sig_tp, last_sig_sl);
-         s += StringFormat("Status Trade    : %s\n", last_sig_active ? "[ACTIVE] Garis Aktif di Chart" : ("[SELESAI - " + last_sig_result + "] Standby"));
+         s += "Status Garis    : [ON] Garis Entry, TP & SL di Chart\n";
       }
       else
       {
