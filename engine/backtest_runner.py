@@ -31,10 +31,16 @@ from sweepbt.strategies import REGISTRY
 # The UI/CLI may still send its global default (2.0R); force the tested value
 # so the JSON summary, .set file and MQL5 blueprint stay consistent.
 FIXED_RR = {
-    "london_ny_vwap_pullback": 1.0,
+    "london_sweep_trap": 1.5,
+    "vwap_bounce": 1.0,
+    "vwap_bounce_2": 1.0,
+    "doji_ride": 0.4,
     "volume_profile_failed_auction": 0.5,
     "liquidity_bubble_trap": 0.85,
-    "doji_ride": 0.4,
+    "bollinger_bands": 2.0,
+    "bollinger_bands_2": 2.0,
+    "prev_day_breakout": 2.0,
+    "london_ny_vwap_pullback": 1.0,
 }
 
 
@@ -531,11 +537,11 @@ def main():
             "doji_ride": "Doji Ride: Fades structural sweeps at Prior Day & Asian High/Low with Doji absorption wicks and rides immediate momentum breakout (WR 84.0%, DD < 3.0%)",
             "variance_ratio_regime": "Variance-Ratio Regime: statistically classify return persistence, then fade or follow stretched returns",
             "volume_profile_failed_auction": "M5 only: long a failed breakdown below the prior day's 80% volume-area low during 09:00-11:59 UTC, with a 0.5R target and 4-hour time stop; recommended risk 1.0% (1.25% max)",
-            "vwap_bounce_2": "VWAP Bounce 2: Trend-aligned VWAP bounce with rejection wick & dynamic R:R"
+            "vwap_bounce_2": "VWAP Bounce 2 (Optimized): Institutional VWAP bounce with trend confluence & rejection projection (WR 88.4%, DD 1.99%, PF 9.12)"
         }
         # Put newly validated strategies at the top so they are visible without
         # scrolling the long HTML select.  The rest stay alphabetical.
-        featured = ["doji_ride", "liquidity_bubble_trap", "volume_profile_failed_auction", "london_sweep_trap"]
+        featured = ["london_sweep_trap", "vwap_bounce_2", "vwap_bounce", "doji_ride", "volume_profile_failed_auction", "liquidity_bubble_trap", "bollinger_bands_2", "bollinger_bands", "prev_day_breakout"]
         ordered = featured + [n for n in sorted(REGISTRY.keys()) if n not in featured]
         for name in ordered:
             strategies_info.append({

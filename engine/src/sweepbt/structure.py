@@ -26,21 +26,32 @@ def find_structure_events(candles: List[Candle], swings: List[Swing],
     trend: Optional[str] = None
     last_hi_idx = last_lo_idx = -1
 
+    hi_ptr = 0
+    lo_ptr = 0
+    num_hi = len(highs)
+    num_lo = len(lows)
+    latest_high: Optional[Swing] = None
+    latest_low: Optional[Swing] = None
+
     for i, c in enumerate(candles):
-        known_highs = [s for s in highs if s.index <= i - strength]
-        known_lows = [s for s in lows if s.index <= i - strength]
-        if known_highs:
-            lsh = known_highs[-1]
-            if c.close > lsh.price and lsh.index != last_hi_idx:
+        limit = i - strength
+        while hi_ptr < num_hi and highs[hi_ptr].index <= limit:
+            latest_high = highs[hi_ptr]
+            hi_ptr += 1
+        while lo_ptr < num_lo and lows[lo_ptr].index <= limit:
+            latest_low = lows[lo_ptr]
+            lo_ptr += 1
+
+        if latest_high is not None:
+            if c.close > latest_high.price and latest_high.index != last_hi_idx:
                 kind = "BOS" if trend == "up" else "CHoCH"
-                events.append(StructureEvent(i, lsh.price, kind, "up"))
-                trend, last_hi_idx = "up", lsh.index
-        if known_lows:
-            lsl = known_lows[-1]
-            if c.close < lsl.price and lsl.index != last_lo_idx:
+                events.append(StructureEvent(i, latest_high.price, kind, "up"))
+                trend, last_hi_idx = "up", latest_high.index
+        if latest_low is not None:
+            if c.close < latest_low.price and latest_low.index != last_lo_idx:
                 kind = "BOS" if trend == "down" else "CHoCH"
-                events.append(StructureEvent(i, lsl.price, kind, "down"))
-                trend, last_lo_idx = "down", lsl.index
+                events.append(StructureEvent(i, latest_low.price, kind, "down"))
+                trend, last_lo_idx = "down", latest_low.index
     return events
 
 

@@ -39,8 +39,19 @@ StrategyFn = Callable[[List[Candle], Params], List[Setup]]
 # Strategies that already apply their own bias/session filter.  The generic
 # EMA-20/50 trend filter in engine.run would double-filter (and silently
 # discard) their setups, so it is skipped for these names.
-SELF_FILTERED = {"london_ny_vwap_pullback", "vwap_bounce_2", "variance_ratio_regime",
-                 "volume_profile_failed_auction", "liquidity_bubble_trap", "doji_ride"}
+SELF_FILTERED = {
+    "london_sweep_trap",
+    "vwap_bounce",
+    "vwap_bounce_2",
+    "doji_ride",
+    "volume_profile_failed_auction",
+    "liquidity_bubble_trap",
+    "bollinger_bands",
+    "bollinger_bands_2",
+    "prev_day_breakout",
+    "london_ny_vwap_pullback",
+    "variance_ratio_regime"
+}
 
 REGISTRY: Dict[str, StrategyFn] = {
     "liquidity_imbalance": _liq,

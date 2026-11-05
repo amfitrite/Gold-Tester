@@ -83,20 +83,19 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         bullish_trend = (c.close >= e50) or (e20 >= e50)
 
         if is_touch_vwap_long and bullish_candle and bullish_trend:
-            sl = min(c.low, v) - atr * 0.4
-            risk = c.close - sl
-            if risk > 0.05:  # Avoid micro-stops
-                tp = c.close + max(risk * 1.8, atr * 1.5)
-                s = simulate_setup(
-                    candles, "long", i, c.close, sl, tp, params,
-                    strategy="vwap_bounce_2",
-                    trigger_index=i,
-                    trigger_level=round(v, 3),
-                    note=f"VWAP 2.0 Bounce Long @ {c.close:.2f} (VWAP={v:.2f})",
-                    resolve_from=i + 1
-                )
-                if s:
-                    setups.append(s)
+            sl = c.low - atr * 0.5
+            dist = v - c.low
+            tp = v + max(dist, atr * 0.3) * 1.0
+            s = simulate_setup(
+                candles, "long", i, c.close, sl, tp, params,
+                strategy="vwap_bounce_2",
+                trigger_index=i,
+                trigger_level=round(v, 3),
+                note=f"VWAP 2.0 Bounce Long @ {c.close:.2f} (VWAP={v:.2f})",
+                resolve_from=i + 1
+            )
+            if s:
+                setups.append(s)
 
         # Bearish VWAP Bounce (Short):
         # 1. Price tested VWAP (high reached near or above VWAP)
@@ -108,19 +107,18 @@ def run(candles: List[Candle], params: Params) -> List[Setup]:
         bearish_trend = (c.close <= e50) or (e20 <= e50)
 
         if is_touch_vwap_short and bearish_candle and bearish_trend:
-            sl = max(c.high, v) + atr * 0.4
-            risk = sl - c.close
-            if risk > 0.05:
-                tp = c.close - max(risk * 1.8, atr * 1.5)
-                s = simulate_setup(
-                    candles, "short", i, c.close, sl, tp, params,
-                    strategy="vwap_bounce_2",
-                    trigger_index=i,
-                    trigger_level=round(v, 3),
-                    note=f"VWAP 2.0 Bounce Short @ {c.close:.2f} (VWAP={v:.2f})",
-                    resolve_from=i + 1
-                )
-                if s:
-                    setups.append(s)
+            sl = c.high + atr * 0.5
+            dist = c.high - v
+            tp = v - max(dist, atr * 0.3) * 1.0
+            s = simulate_setup(
+                candles, "short", i, c.close, sl, tp, params,
+                strategy="vwap_bounce_2",
+                trigger_index=i,
+                trigger_level=round(v, 3),
+                note=f"VWAP 2.0 Bounce Short @ {c.close:.2f} (VWAP={v:.2f})",
+                resolve_from=i + 1
+            )
+            if s:
+                setups.append(s)
 
     return setups
