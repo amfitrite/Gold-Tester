@@ -1,11 +1,4 @@
-"""Command-line entry point.
-
-Examples:
-  python -m sweepbt.cli data/xauusd_m15_2026-05-27.csv
-  python -m sweepbt.cli data/*.csv --timeframe M15 --out report.html
-  python -m sweepbt.cli data/day.csv --rr 3 --swing-strength 4 --trend structure
-  python -m sweepbt.cli data/day.csv --close-confirm --max-risk 8
-"""
+"""Command-line entry point for the Gold Strategy Lab backtest engine."""
 from __future__ import annotations
 
 import argparse
@@ -28,7 +21,6 @@ def _expand(globs: List[str]) -> List[str]:
 
 
 def parse_rr(text: str) -> float:
-    """Accept '2', '2.5', or ratio forms '1:2' / '3:1' -> reward/risk multiple."""
     text = text.strip()
     if ":" in text:
         risk_s, reward_s = text.split(":", 1)
@@ -41,36 +33,69 @@ def parse_rr(text: str) -> float:
 
 def build_params(args) -> Params:
     p = Params.for_timeframe(args.timeframe) if args.timeframe else Params()
-    if args.swing_strength is not None: p.swing_strength = args.swing_strength
-    if args.min_fvg is not None: p.min_fvg_size = args.min_fvg
-    if args.rr is not None: p.rr = parse_rr(args.rr)
-    if args.sl_buffer is not None: p.sl_buffer = args.sl_buffer
-    if args.pullback is not None: p.pullback_window = args.pullback
-    if args.orb_window is not None: p.orb_window = args.orb_window
-    if args.max_risk is not None: p.max_risk = args.max_risk
+    mapping = {
+        "swing_strength": args.swing_strength, "min_fvg_size": args.min_fvg,
+        "rr": parse_rr(args.rr) if args.rr is not None else None,
+        "sl_buffer": args.sl_buffer, "pullback_window": args.pullback,
+        "orb_window": args.orb_window, "max_risk": args.max_risk,
+        "ase_donchian_period": args.ase_donchian,
+        "ase_atr_period": args.ase_atr_period,
+        "ase_atr_baseline_period": args.ase_atr_baseline,
+        "ase_atr_min_ratio": args.ase_atr_min,
+        "ase_atr_max_ratio": args.ase_atr_max,
+        "ase_min_channel_width_atr": args.ase_min_channel_atr,
+        "ase_regime_slope_bars": args.ase_slope_bars,
+        "ase_trend_slope_atr": args.ase_trend_slope,
+        "ase_min_body_efficiency": args.ase_body_efficiency,
+        "ase_rejection_tolerance_atr": args.ase_rejection_tolerance,
+        "ase_sl_buffer_atr": args.ase_sl_buffer_atr,
+        "ase_value_area_period": args.ase_value_area_period,
+        "ase_value_area_fraction": args.ase_value_area_fraction,
+        "ase_profile_bin_size": args.ase_profile_bin_size,
+        "ase_min_target_rr": args.ase_min_target_rr,
+        "ase_target_rr_max": args.ase_target_rr_max,
+    }
+    for key, value in mapping.items():
+        if value is not None:
+            setattr(p, key, value)
     p.trend_method = args.trend
     p.require_close_confirmation = args.close_confirm
     return p
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Liquidity-sweep + imbalance backtester for gold (MT5).")
-    ap.add_argument("files", nargs="+", help="MT5 csv export(s); globs allowed")
-    ap.add_argument("--timeframe", choices=["M1", "M5", "M15", "M30", "H1", "H4"],
-                    help="preset defaults")
-    ap.add_argument("--strategy", choices=sorted(REGISTRY), default="liquidity_imbalance",
-                    help="which strategy to backtest")
+    ap = argparse.ArgumentParser(description="Gold Strategy Lab backtester (MT5 OHLCV).")
+    ap.add_argument("files", nargs="+", help="MT5 CSV export(s); globs allowed")
+    ap.add_argument("--timeframe", choices=["M1", "M5", "M15", "M30", "H1", "H4"])
+    ap.add_argument("--strategy", choices=sorted(REGISTRY), default="liquidity_imbalance")
     ap.add_argument("--swing-strength", type=int)
     ap.add_argument("--min-fvg", type=float, dest="min_fvg")
     ap.add_argument("--rr", help="reward:risk, e.g. 2, 2.5, '1:2', '3:1'")
     ap.add_argument("--sl-buffer", type=float, dest="sl_buffer")
-    ap.add_argument("--pullback", type=int, help="pullback window in candles")
-    ap.add_argument("--orb-window", type=int, dest="orb_window",
-                    help="candles forming the opening range (ORB strategy)")
+    ap.add_argument("--pullback", type=int)
+    ap.add_argument("--orb-window", type=int, dest="orb_window")
     ap.add_argument("--trend", choices=["ema", "structure"], default="ema")
-    ap.add_argument("--close-confirm", action="store_true",
-                    help="require a close back through the zone, not just a wick")
-    ap.add_argument("--max-risk", type=float, help="reject setups whose risk exceeds this")
+    ap.add_argument("--close-confirm", action="store_true")
+    ap.add_argument("--max-risk", type=float)
+
+    # ASE controls; omitted values use the timeframe preset.
+    ap.add_argument("--ase-donchian", type=int)
+    ap.add_argument("--ase-atr-period", type=int)
+    ap.add_argument("--ase-atr-baseline", type=int)
+    ap.add_argument("--ase-atr-min", type=float)
+    ap.add_argument("--ase-atr-max", type=float)
+    ap.add_argument("--ase-min-channel-atr", type=float, dest="ase_min_channel_atr")
+    ap.add_argument("--ase-slope-bars", type=int)
+    ap.add_argument("--ase-trend-slope", type=float)
+    ap.add_argument("--ase-body-efficiency", type=float)
+    ap.add_argument("--ase-rejection-tolerance", type=float)
+    ap.add_argument("--ase-sl-buffer-atr", type=float)
+    ap.add_argument("--ase-value-area-period", type=int)
+    ap.add_argument("--ase-value-area-fraction", type=float)
+    ap.add_argument("--ase-profile-bin-size", type=float)
+    ap.add_argument("--ase-min-target-rr", type=float)
+    ap.add_argument("--ase-target-rr-max", type=float)
+
     ap.add_argument("--out", default="report.html")
     args = ap.parse_args(argv)
 
@@ -83,7 +108,6 @@ def main(argv=None):
     batch = run_batch(paths, params, strategy=args.strategy)
     write_report(args.out, batch.runs, params, agg_on=batch.agg_on, agg_off=batch.agg_off)
 
-    # console summary
     print(f"Parsed {len(batch.runs)} file(s). Strategy: {args.strategy}  "
           f"RR: {params.rr:g}  Trend filter method: {params.trend_method}")
     for r in batch.runs:
