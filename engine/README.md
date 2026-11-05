@@ -5,7 +5,7 @@ mechanically detects setups for several strategies, simulates a fixed
 risk:reward outcome on each, marks the ICT structure on the chart, and lets you
 sweep RR / trend-filter / timeframe / session to see **which trades bleed money**.
 
-**18 strategies** ship in the registry (add more by dropping a module in
+**23 strategies** ship in the registry (add more by dropping a module in
 `strategies/`):
 
 1. **Liquidity sweep → imbalance → reversal** (the original ICT setup).
@@ -27,6 +27,12 @@ sweep RR / trend-filter / timeframe / session to see **which trades bleed money*
 17. **Gold Rolling Sweep** — previous-range liquidity sweep + rejection wick + 50% limit retrace.
 18. **London/NY VWAP trend pullback** — session-VWAP reclaim in the EMA-200 direction,
     M5 only, fixed 1:1 ATR bracket and a 2-hour time stop.
+19. **Bollinger Bands 2** — trend-aligned outer-band rejection with volatility buffer.
+20. **VWAP Bounce 2** — trend-aligned VWAP bounce with rejection-wick confirmation.
+21. **London Sweep Trap** — London/NY session liquidity trap around VWAP.
+22. **Variance-Ratio Regime** — fade or follow stretched returns by return persistence.
+23. **Volume-Profile Failed Auction** — prior-day VAL failed breakdown during the
+    London morning, M5 only, fixed 0.5R target and a 4-hour time stop.
 
 Pick any strategy in the lab and a one-line plain-English description plus a
 **best-setup recommendation** (the timeframe × RR with the highest expectancy on
@@ -238,7 +244,7 @@ Two extra guardrails:
 
 | flag | meaning | default |
 |---|---|---|
-| `--strategy` | any registry name: `liquidity_imbalance`, `prev_day_breakout`, `orb`, `rsi_reversal`, `support_resistance`, `momentum_breakout`, `momentum_pullback`, `ict_fvg`, `ict_ifvg`, `ict_order_block`, `smart_money`, `supply_demand`, `order_flow`, `bollinger_bands`, `session_gap`, `vwap_bounce`, `gold_session_sweep` | liquidity_imbalance |
+| `--strategy` | any registry name: `liquidity_imbalance`, `prev_day_breakout`, `orb`, `rsi_reversal`, `support_resistance`, `momentum_breakout`, `momentum_pullback`, `ict_fvg`, `ict_ifvg`, `ict_order_block`, `smart_money`, `supply_demand`, `order_flow`, `bollinger_bands`, `bollinger_bands_2`, `session_gap`, `vwap_bounce`, `vwap_bounce_2`, `gold_session_sweep`, `london_ny_vwap_pullback`, `london_sweep_trap`, `variance_ratio_regime`, `volume_profile_failed_auction` | liquidity_imbalance |
 | `--rr` | take-profit risk:reward — accepts `2`, `2.5`, or ratios `1:2`, `3:1` | 2.0 |
 | `--swing-strength` | candles each side for a swing | 3 |
 | `--min-fvg` | min FVG size (price units) | 1.0 |
@@ -257,7 +263,7 @@ Two extra guardrails:
 
 ### `strategy_lab.html` (interactive)
 
-- **Live controls** — timeframe (M5–H4), strategy (all 17), RR (1:1 … 3:1), three
+- **Live controls** — timeframe (M5–H4), strategy (all 23), RR (1:1 … 3:1), three
   **stackable filters** (trend / MA / RSI, combined with AND), and a from/to
   **period** selector.
 - **Strategy explainer + best-setup line** — a one-line description of the chosen
@@ -302,7 +308,7 @@ gold-sweep-backtester/
 │   ├── structure.py        # BOS/CHoCH, S/R, inverse FVG, breaker markings
 │   ├── daygroups.py        # group candles into trading days
 │   ├── simulate.py         # entry + walk-forward TP/SL (shared by strategies)
-│   ├── strategies/         # one module per strategy + a registry (17 total)
+│   ├── strategies/         # one module per strategy + a registry (23 total)
 │   │   ├── __init__.py     # REGISTRY + LABELS + DESCRIPTIONS
 │   │   ├── _common.py      # shared pullback-entry helper
 │   │   ├── liquidity_imbalance.py
@@ -356,6 +362,34 @@ Example:
 ```bash
 PYTHONPATH=src python -m sweepbt.cli "data/XAUUSDM5.csv" --timeframe M5 \
     --strategy gold_session_sweep --rr 1:2 --sl-buffer 0.3 --pullback 16
+```
+
+## Strategy — Volume-Profile Failed Auction
+
+Strategy id: `volume_profile_failed_auction` (M5 only).
+
+This is the retained candidate from the 2026-11 research batch. It builds a $5
+volume profile from the prior trading day (Sunday bars ignored), including the
+POC and the 80% value area. During 09:00-11:59 UTC it buys a failed breakdown:
+
+1. prior bar close is inside `[VAL, VAH]`;
+2. the signal candle's low is below VAL but its close is back above VAL;
+3. the candle is bullish and the POC is still above the close.
+
+Entry is the next bar's open with a $0.12 adverse half-spread. The stop is the
+signal low minus 0.5 x ATR(14); the target is fixed at 0.5R, and the time stop
+is 48 M5 bars (4 hours). It is long-only and allows one position at a time.
+
+The 12-month XAUUSD M5 backtest produced 54 trades, 85.19% WR, PF 2.67,
++14.67% growth and 2.03% max drawdown at 1.0% risk. The recommended risk is
+1.0% (1.25% maximum); the small sample and long-only regime dependence are
+documented in
+[`reports/STRATEGI_VOLUME_PROFILE_FAILED_AUCTION.md`](../reports/STRATEGI_VOLUME_PROFILE_FAILED_AUCTION.md).
+
+```bash
+python backtest_runner.py --file ../xauusd_m5_12m.csv \
+    --strategy volume_profile_failed_auction --risk-pct 1.0 \
+    --rr 0.5 --timeframe M5 --trend none
 ```
 
 ---
