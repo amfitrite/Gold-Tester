@@ -272,11 +272,17 @@ Bagian ini mendokumentasikan strategi-strategi yang secara teoritis populer di k
     * Win Rate: **40.70%** ❌
     * Max Drawdown: **-29.86%** ⚠️
     * Profit Factor: 1.00 | Saldo: $9.867,81 (-1.32%)
+* **Hasil Eksperimen Rekayasa & Tuning Kuantitatif (7 Konfigurasi Baru)**:
+  * Kita menguji modifikasi mendalam: mengganti fitur ritel dengan fitur institusional (jarak ke VWAP, rasio sumbu penolakan wick, delta tren EMA 20/50), memperpanjang target horizon prediksi ke 8 dan 12 bar (40–60 menit), serta memperketat konsensus voting k-NN menjadi hampir mutlak ($\ge 6$ dan $\ge 7$ dari 8 tetangga).
+  * **Tuning 1 (Fitur Institusi, Konsensus $\ge 6$, RR 1.5)**: Win Rate **38.8%**, Max DD **-38.25%**, Growth **-29.86%** ❌
+  * **Tuning 2 (Fitur Institusi, Konsensus Ketat $\ge 7$, RR 1.5)**: Win Rate **40.4%**, Max DD **-18.87%**, Growth **+0.57%** (BEP) ❌
+  * **Tuning 4 (Label Horizon 1 Jam, Konsensus $\ge 6$, RR 1.5)**: Win Rate **37.1%**, Max DD **-63.33%**, Growth **-54.45%** ❌
+  * **Tuning 6 & 7 (Hybrid ML + Filter Pantulan VWAP)**: Win Rate **38.6% – 41.8%**, Max DD **-17.55%**, Growth **-0.31% s/d +7.39%**.
 * **Diagnosa Mengapa Algoritma Machine Learning Ini Gagal Memenuhi Kriteria Juara**:
   1. *Ilusi Label Jangka Pendek (4-Bar Horizon)*: Menugaskan k-NN untuk memprediksi arah lilin 4 bar ke depan hanya berdasarkan level osilator ritel (RSI/CCI/WT) pada dasarnya setara dengan melempar koin (*coin flip*, Win Rate 40% – 48.5%).
-  2. *Drawdown Ekstrem (-21% hingga -55%)*: Karena sinyal tidak memperhitungkan zona akumulasi institusi atau struktur likuiditas, model ini sering memicu puluhan sinyal searah di pucuk tren sesaat sebelum terjadi pembalikan tajam.
-  3. *Overtrading Parah (2.700–5.500 Trades)*: Dalam akun broker riil, frekuensi trading sebesar ini akan habis terpotong spread dan slippage.
-  4. *Kesimpulan*: Kemasan canggih "Machine Learning / Lorentzian Space" tidak mampu mengubah kenyataan bahwa fitur inputnya adalah osilator ritel standar. Model ini tidak mampu mendekati kriteria emas kita (WR $\ge 75\%$, DD $< 5\%$).
+  2. *Non-Stasioneritas Data Finansial (Curse of Dimensionality)*: Pasar emas bergerak secara non-ergodik. Dua titik lilin yang memiliki nilai fitur osilator sama persis di masa lalu sering kali menghasilkan arah berlawanan di masa depan karena arus order institusi yang tidak tercermin dalam osilator.
+  3. *Overfitting & Noise Filtering*: Menariknya, strategi murni **VWAP Bounce 2** memiliki Win Rate **88.4%**. Namun ketika disaring melalui filter k-NN Lorentzian, Win Rate-nya justru **anjlok menjadi 41.8%** karena model k-NN salah mengira sinyal valid sebagai noise historis.
+  4. *Kesimpulan*: Algoritma k-NN Lorentzian tidak dapat dituning menjadi strategi andalan di pasar emas (WR tetap mentok di kisaran 33%–42%). Keunggulan matematis sejati di XAUUSD berada pada aturan struktural eksploitasi likuiditas (London Sweep Trap & VWAP Bounce 2).
 
 ---
 
