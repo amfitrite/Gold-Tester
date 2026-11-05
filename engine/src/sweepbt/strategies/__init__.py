@@ -23,6 +23,7 @@ from .supply_demand import run as _sd
 from .order_flow import run as _of
 from .bollinger_bands import run as _bb
 from .bollinger_bands_2 import run as _bb2
+from .bollinger_rsi_reversion import run as _bb_rsi
 from .session_gap import run as _sg
 from .vwap_bounce import run as _vwap
 from .vwap_bounce_2 import run as _vwap2
@@ -69,6 +70,7 @@ REGISTRY: Dict[str, StrategyFn] = {
     "order_flow": _of,
     "bollinger_bands": _bb,
     "bollinger_bands_2": _bb2,
+    "bollinger_rsi_reversion": _bb_rsi,
     "session_gap": _sg,
     "vwap_bounce": _vwap,
     "vwap_bounce_2": _vwap2,
@@ -97,6 +99,7 @@ LABELS = {
     "order_flow": "Order Flow (Effort vs Result)",
     "bollinger_bands": "Bollinger Bands (v1 Baseline)",
     "bollinger_bands_2": "Bollinger Bands 2 (Trend Reversal)",
+    "bollinger_rsi_reversion": "Bollinger Bands + RSI (Documented Loss)",
     "session_gap": "Session Gap Fade",
     "vwap_bounce": "VWAP Bounce (v1 Baseline)",
     "vwap_bounce_2": "VWAP Bounce 2 (Optimized)",
@@ -141,6 +144,7 @@ DESCRIPTIONS = {
     "bollinger_bands": "Trade mean reversion: go long when price touches the lower band, "
         "short when it touches the upper band, targeting a bounce to the middle.",
     "bollinger_bands_2": "High-winrate outer band rejection with built-in EMA 20/50 trend confluence, volatility stop buffer, and asymmetric mean reversion target.",
+    "bollinger_rsi_reversion": "Dokumentasi baseline ritel: outer band + RSI overbought/oversold, exit middle band. Terbukti gagal di tren kuat emas (WR 36.5%, DD 82.5%).",
     "session_gap": "Gold trades 24/5 across sessions (Asia, London, NY). Fade gaps between "
         "session opens — expect reversion when a new session gaps away from the previous close.",
     "vwap_bounce": "Volume-weighted average price shows the market's true balance. Trade price "

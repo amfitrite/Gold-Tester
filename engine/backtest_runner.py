@@ -528,6 +528,7 @@ def main():
             "momentum_pullback": "Trend continuation pullback to value area",
             "bollinger_bands": "Bollinger Band outer band sweep & mean reversion",
             "bollinger_bands_2": "Bollinger Bands 2: Trend-aligned outer band sweep with 35% volatility buffer (WR>75%)",
+            "bollinger_rsi_reversion": "Bollinger Bands + RSI Reversion (Referensi Eksperimen Gagal: WR 36.5%, DD -82.5%): Counter-trend ritel tanpa filter tren",
             "session_gap": "London/New York opening session imbalance gap",
             "vwap_bounce": "Institutional Volume-Weighted Average Price bounce",
             "gold_session_sweep": "Previous 24-bar high/low sweep + rejection + later 50% retrace",
