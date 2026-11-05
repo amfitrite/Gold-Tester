@@ -42,6 +42,17 @@ class Params:
     rsi_long_max: float = 70.0
     rsi_short_min: float = 30.0
 
+    # --- Adaptive Selective Entry (ASE / GoldWave-inspired) ---
+    ase_donchian_period: int = 20
+    ase_atr_period: int = 14
+    ase_min_body_efficiency: float = 0.55
+    ase_min_channel_atr: float = 1.00
+    ase_max_channel_atr: float = 8.00
+    ase_sl_atr_buffer: float = 0.25
+    ase_min_rr: float = 1.20
+    ase_max_hold_bars: int = 24
+    ase_half_spread: float = 0.12
+
     timeframe: Optional[Timeframe] = None
     # Optional secondary series for cross-asset strategies (for example
     # XAGUSD M5 when the primary series is XAUUSD).
