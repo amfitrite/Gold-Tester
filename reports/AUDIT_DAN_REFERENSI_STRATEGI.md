@@ -198,6 +198,42 @@ Bagian ini mendokumentasikan strategi-strategi yang secara teoritis populer di k
 
 ---
 
+### 8. Squeeze Momentum Indicator [LazyBear] (TTM Squeeze Pine Script)
+* **Asal Usul**: Indikator paling populer di TradingView (*LazyBear Squeeze Momentum* dengan 100.000+ pengguna) berbasis kompresi Bollinger Bands di dalam Keltner Channel dan osilator regresi linear.
+* **Aturan Sinyal Eksekusi**:
+  * Squeeze Fired: Bollinger Bands keluar dari Keltner Channel (`sqzOff == true` setelah `sqzOn == true`).
+  * Buy: Momentum regresi linear bernilai positif dan meningkat (`val > 0` dan hijau/lime).
+  * Sell: Momentum regresi linear bernilai negatif dan menurun (`val < 0` dan merah/maroon).
+* **Hasil Uji Backtest Objektif (12 Bulan / 70.891 Bar M5 XAUUSD, Modal $10.000)**:
+  * **Uji 1 (Standard Squeeze Release, RR 1.5, SL 1.5x ATR)**:
+    * Total Trades: 2.438 trade
+    * Win Rate: **39.80%** ❌
+    * Max Drawdown: **-52.46%** ❌
+    * Saldo Akhir: **$7.505,12 (-24.95%)** ❌
+    * Profit Factor: **0.98**
+  * **Uji 2 (Standard Squeeze Release, RR 2.0, SL 1.5x ATR)**:
+    * Total Trades: 2.215 trade
+    * Win Rate: **32.80%** ❌
+    * Max Drawdown: **-66.41%** ❌
+    * Saldo Akhir: **$5.721,30 (-42.79%)** ❌
+    * Profit Factor: **0.96**
+  * **Uji 3 (Squeeze Release + Sesi London/NY 07-18 UTC)**:
+    * Total Trades: 1.200 trade
+    * Win Rate: **39.10%** ❌
+    * Max Drawdown: **-44.30%** ❌
+    * Saldo Akhir: **$6.948,66 (-30.51%)** ❌
+  * **Uji 4 (Squeeze Release + Filter Tren EMA 50 + London/NY)**:
+    * Total Trades: 1.098 trade
+    * Win Rate: **31.50%** ❌
+    * Max Drawdown: **-63.08%** ❌
+    * Saldo Akhir: **$4.935,44 (-50.65% / Terpotong Separuh Modal)** ❌
+* **Diagnosa Mengapa Squeeze Momentum Hancur di Pasar Emas**:
+  1. *Lagging Linear Regression*: Garis linreg membutuhkan 20 bar. Saat pita Bollinger baru keluar dari Keltner Channel dan histogram momentum terkonfirmasi, pergerakan impulsif emas biasanya sudah mencapai titik jenuh (*exhaustion point*). Trader ritel masuk tepat saat pembalikan arah terjadi.
+  2. *Whipsaw False Breakout*: Emas intraday sangat sering mengalami lonjakan volatilitas palsu (*fake expansion*). Squeeze meletup sekejap lalu harga ditarik kembali ke garis gravitasi VWAP harian, memicu rentetan stop-loss berturut-turut.
+  3. *Overtrading Kronis*: Terjadinya 1.000–2.400 trade per tahun pada timeframe M5 menggerogoti ekuitas akun secara drastis melalui spread dan *whipsaw*.
+
+---
+
 ## BAGIAN III: KESIMPULAN & FORMULA EMAS UNTUK PASAR XAUUSD
 
 Dari seluruh eksperimen dan audit di atas, dapat ditarik hukum baku trading kuantitatif pada instrumen Emas (XAUUSD):
